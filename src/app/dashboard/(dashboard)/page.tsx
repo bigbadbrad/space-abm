@@ -52,7 +52,8 @@ const BADGE_LABELS: Record<ABMQueueItemType, string> = {
   stale_followup: 'Stale',
 };
 
-function formatTimeAgo(dateStr: string | undefined): string {
+// Accept null/undefined timestamps safely
+function formatTimeAgo(dateStr: string | null | undefined): string {
   if (!dateStr) return '—';
   const d = dayjs(dateStr);
   if (d.isAfter(dayjs().subtract(1, 'day'))) return d.fromNow();
