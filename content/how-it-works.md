@@ -1,6 +1,6 @@
-# Full Orbit ABM — How It Works (Internal)
+# How It Works
 
-This document explains how the Full Orbit ABM system works end-to-end, based on what we've implemented in `space-api`. It covers:
+This document explains how the Space ABM system works end-to-end, based on what we've implemented in `space-api`. It covers:
 
 - The core ABM concepts (Accounts, Contacts, Lead Requests, Signals)
 - The "Request a Reservation" modal ingestion pipeline
@@ -17,9 +17,9 @@ This document explains how the Full Orbit ABM system works end-to-end, based on 
 
 ## Overview
 
-Full Orbit ABM is built around a simple idea:
+Space ABM is built around a simple idea:
 
-1. **Prospects generate intent** by interacting with Full Orbit pages and, most importantly, by submitting a **Request a Reservation** lead form.
+1. **Prospects generate intent** by interacting with Space ABM pages and, most importantly, by submitting a **Request a Reservation** lead form.
 2. The backend stores each submission as a **Lead Request** (a canonical, auditable "sales artifact").
 3. The backend **upserts** the associated **Prospect Company** (account) and **Contact** (lead/person).
 4. The backend writes **Intent Signals** (a time-series explanation of "why this account is hot").
@@ -37,7 +37,7 @@ The ABM dashboard (internal) uses these entities to show:
 
 ## Service Lane (Definition)
 
-A **Service Lane** is a category of service interest that Full Orbit offers. It answers: *"What kind of service is this account or lead interested in?"*
+A **Service Lane** is a category of service interest that Space ABM offers. It answers: *"What kind of service is this account or lead interested in?"*
 
 **Sources of lane assignment:**
 1. **Lead Request (explicit)** — When someone submits the "Request a Reservation" widget, they select a service (e.g. Launch, Refuel, Disposal). That `service_needed` value *is* the lane.

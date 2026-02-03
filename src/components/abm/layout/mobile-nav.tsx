@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography';
 import type { NavItemConfig } from '@/types/nav';
 import { paths } from '@/paths';
 import { isNavItemActive } from '@/lib/is-nav-item-active';
-import { Logo } from '@/components/core/logo';
+import { LogoMoney } from '@/components/logo-money';
 import { useUser } from '@/hooks/use-user';
 
 import { abmNavItems } from './config';
@@ -55,11 +55,8 @@ export function ABMMobileNav({ open, onClose }: ABMMobileNavProps): React.JSX.El
     >
       <Stack spacing={2} sx={{ p: 3 }}>
         <Box component={RouterLink} href={paths.home} sx={{ display: 'inline-flex' }} onClick={onClose}>
-          <Logo color="light" height={32} width={122} />
+          <LogoMoney color="#F5F5F7" height={28} />
         </Box>
-        <Typography sx={{ color: '#71717a', fontSize: '0.875rem', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-          ABM
-        </Typography>
       </Stack>
       <Box component="nav" sx={{ flex: '1 1 auto', p: '12px' }}>
         {renderNavItems({ pathname, items: visibleItems, onClose })}

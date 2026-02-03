@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'ABM How It Works | Full Orbit',
-  description: 'How the Full Orbit ABM system works end-to-end.',
+  title: 'ABM How It Works | Space ABM',
+  description: 'How the Space ABM system works end-to-end.',
 };
 
 export default function ABMHowItWorksLayout({

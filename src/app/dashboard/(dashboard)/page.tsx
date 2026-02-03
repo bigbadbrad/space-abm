@@ -159,7 +159,7 @@ export default function ABMOverviewPage(): React.JSX.Element {
       {error && <Typography sx={{ color: '#EF4444', mb: 2 }}>{error}</Typography>}
 
       <Box sx={{ mb: 3 }}>
-        <Typography sx={{ color: '#FFFFFF', fontSize: '1.25rem', fontWeight: 600 }}>ABM Command Center</Typography>
+        <Typography sx={{ color: '#FFFFFF', fontSize: '1.25rem', fontWeight: 600 }}>Command Center</Typography>
         <Typography sx={{ color: '#9CA3AF', fontSize: '0.8125rem', mt: 0.5 }}>What changed + what to do next</Typography>
       </Box>
 

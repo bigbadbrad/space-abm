@@ -12,7 +12,6 @@ import type { NavItemConfig } from '@/types/nav';
 import { paths } from '@/paths';
 import { isNavItemActive } from '@/lib/is-nav-item-active';
 import { LogoMoney } from '@/components/logo-money';
-import { PrimaryColor } from '@/config';
 import { useUser } from '@/hooks/use-user';
 
 import { abmNavItems } from './config';
@@ -67,11 +66,8 @@ export function ABMSideNav(): React.JSX.Element {
             '&:hover': { opacity: 0.8 },
           }}
         >
-          <LogoMoney primaryColor={PrimaryColor} secondaryColor="#F5F5F7" textColor="#F5F5F7" height={100} />
+          <LogoMoney color="#F5F5F7" height={82} />
         </Box>
-        <Typography sx={{ color: '#71717a', fontSize: '0.875rem', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-          ABM
-        </Typography>
       </Stack>
       <Divider sx={{ borderColor: 'var(--mui-palette-neutral-700)' }} />
       <Box component="nav" sx={{ flex: '1 1 auto', p: '12px' }}>

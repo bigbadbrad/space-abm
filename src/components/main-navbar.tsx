@@ -100,10 +100,8 @@ export const MainNavbar: FC = () => {
             }}
           >
             <LogoCool
-              primaryColor={PrimaryColor}
-              secondaryColor={logoSecondaryColor}
               textColor={logoTextColor}
-              height={30}
+              height={20}
             />
           </Link>
         </Box>
