@@ -1,6 +1,6 @@
 # How It Works
 
-This document explains how the Space ABM system works end-to-end, based on what we've implemented in `space-api`. It covers:
+The following explains how the Space ABM system works end-to-end. It covers:
 
 - The core ABM concepts (Accounts, Contacts, Lead Requests, Signals)
 - The "Request a Reservation" modal ingestion pipeline

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { Box, Container } from '@mui/material';
 import { HeroBlock } from '@/components/HeroBlock';
+import { SpaceABMPricingBlock } from '@/components/home/SpaceABMPricingBlock';
 import { MarkdownRenderer } from '@/components/dashboard/docs/markdown-renderer';
 
 export const metadata = {
@@ -17,6 +18,7 @@ export default function Page() {
   return (
     <>
       <HeroBlock />
+      <SpaceABMPricingBlock />
       <Box sx={{ py: 6, backgroundColor: '#000000', color: '#e5e7eb' }}>
         <Container maxWidth="md">
           <Box
