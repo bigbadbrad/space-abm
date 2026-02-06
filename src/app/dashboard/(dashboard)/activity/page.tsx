@@ -14,6 +14,7 @@ import TableRow from '@mui/material/TableRow';
 import CircularProgress from '@mui/material/CircularProgress';
 import Button from '@mui/material/Button';
 import dayjs from 'dayjs';
+import { ChartLine as ChartLineIcon } from '@phosphor-icons/react/dist/ssr/ChartLine';
 
 import { paths } from '@/paths';
 import { abmApi } from '@/lib/abm/client';
@@ -59,7 +60,10 @@ export default function ABMActivityPage(): React.JSX.Element {
   return (
     <Box sx={{ backgroundColor: '#050505', minHeight: '100vh', p: 3, display: 'flex', flexDirection: 'column', gap: 3 }}>
       {error && <Typography sx={{ color: '#EF4444', mb: 2 }}>{error}</Typography>}
-      <Typography sx={{ color: '#FFFFFF', fontSize: '1.25rem', fontWeight: 600 }}>Activity</Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+        <ChartLineIcon size={18} style={{ color: '#FFFFFF' }} />
+        <Typography sx={{ color: '#FFFFFF', fontSize: '1.25rem', fontWeight: 600 }}>Activity</Typography>
+      </Box>
 
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
         <Card sx={{ backgroundColor: '#0A0A0A', border: '1px solid #262626', minWidth: 140, flex: '1 1 140px' }}>

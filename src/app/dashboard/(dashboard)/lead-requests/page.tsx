@@ -16,6 +16,7 @@ import Button from '@mui/material/Button';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import dayjs from 'dayjs';
+import { FileText as FileTextIcon } from '@phosphor-icons/react/dist/ssr/FileText';
 
 import { paths } from '@/paths';
 import { formatLaneDisplayName } from '@/components/abm/layout/config';
@@ -383,7 +384,10 @@ export default function ABMLeadRequestsPage(): React.JSX.Element {
       <Box sx={{ flex: '1 1 40%', minWidth: 0 }}>
         <Card sx={{ backgroundColor: '#0A0A0A', border: '1px solid #262626' }}>
           <CardContent>
-            <Typography sx={{ color: '#FFFFFF', fontSize: '1.25rem', fontWeight: 600, mb: 2 }}>Lead Requests</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, mb: 2 }}>
+              <FileTextIcon size={18} style={{ color: '#FFFFFF' }} />
+              <Typography sx={{ color: '#FFFFFF', fontSize: '1.25rem', fontWeight: 600 }}>Lead Requests</Typography>
+            </Box>
             <Table size="small">
               <TableHead>
                 <TableRow>

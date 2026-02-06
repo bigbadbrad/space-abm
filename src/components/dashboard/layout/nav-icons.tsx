@@ -1,5 +1,6 @@
 import type { Icon } from '@phosphor-icons/react/dist/lib/types';
 import { ChartPie as ChartPieIcon } from '@phosphor-icons/react/dist/ssr/ChartPie';
+import { Gauge as GaugeIcon } from '@phosphor-icons/react/dist/ssr/Gauge';
 import { GearSix as GearSixIcon } from '@phosphor-icons/react/dist/ssr/GearSix';
 import { PlugsConnected as PlugsConnectedIcon } from '@phosphor-icons/react/dist/ssr/PlugsConnected';
 import { User as UserIcon } from '@phosphor-icons/react/dist/ssr/User';
@@ -16,9 +17,12 @@ import { Funnel as FunnelIcon } from '@phosphor-icons/react/dist/ssr/Funnel';
 import { MagnifyingGlass as MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr/MagnifyingGlass';
 import { ShieldStar as ShieldStarIcon } from '@phosphor-icons/react/dist/ssr/ShieldStar';
 import { RocketLaunch as RocketLaunchIcon } from '@phosphor-icons/react/dist/ssr/RocketLaunch';
+import { BuildingOffice as BuildingOfficeIcon } from '@phosphor-icons/react/dist/ssr/BuildingOffice';
+import { Columns as ColumnsIcon } from '@phosphor-icons/react/dist/ssr/Columns';
 
 export const navIcons = {
   'chart-pie': ChartPieIcon,
+  gauge: GaugeIcon,
   funnel: FunnelIcon,
   'magnifying-glass': MagnifyingGlassIcon,
   'gear-six': GearSixIcon,
@@ -30,6 +34,8 @@ export const navIcons = {
   plug: PlugsConnectedIcon,
   calendar: CalendarIcon,
   'chart-line': ChartLineIcon,
+  'building-office': BuildingOfficeIcon,
+  columns: ColumnsIcon,
   lock: LockIcon,
   warning: WarningIcon,
   'file-text': FileTextIcon,

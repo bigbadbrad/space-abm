@@ -8,6 +8,7 @@ import CardContent from '@mui/material/CardContent';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Typography from '@mui/material/Typography';
+import { GearSix as GearSixIcon } from '@phosphor-icons/react/dist/ssr/GearSix';
 import { useUser } from '@/hooks/use-user';
 import { paths } from '@/paths';
 
@@ -49,7 +50,10 @@ export default function ABMAdminPage(): React.JSX.Element {
 
   return (
     <Box sx={{ p: 3, bgcolor: '#050505', minHeight: '100vh' }}>
-      <Typography sx={{ color: '#FFFFFF', fontSize: '1.5rem', fontWeight: 600, mb: 2 }}>Admin</Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, mb: 2 }}>
+        <GearSixIcon size={20} style={{ color: '#FFFFFF' }} />
+        <Typography sx={{ color: '#FFFFFF', fontSize: '1.5rem', fontWeight: 600 }}>Admin</Typography>
+      </Box>
       <Tabs value={tab} onChange={handleTabChange} sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
         <Tab label="Event Rules" value="event-rules" />
         <Tab label="Scoring Models" value="scoring-models" />

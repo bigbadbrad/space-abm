@@ -30,7 +30,7 @@ export function ABMBuiltForSpaceBlock() {
               mb: 3,
             }}
           >
-            Mission management.
+            Mission workspaces.
           </Typography>
           <Typography
             sx={{

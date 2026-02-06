@@ -17,6 +17,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import dayjs from 'dayjs';
+import { Columns as ColumnsIcon } from '@phosphor-icons/react/dist/ssr/Columns';
 
 import { paths } from '@/paths';
 import { abmApi } from '@/lib/abm/client';
@@ -94,7 +95,10 @@ export default function ABMLanesPage(): React.JSX.Element {
   return (
     <Box sx={{ backgroundColor: '#050505', minHeight: '100vh', p: 3 }}>
       {error && <Typography sx={{ color: '#EF4444', mb: 2 }}>{error}</Typography>}
-      <Typography sx={{ color: '#FFFFFF', fontSize: '1.25rem', fontWeight: 600, mb: 3 }}>Service Lanes</Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, mb: 3 }}>
+        <ColumnsIcon size={18} style={{ color: '#FFFFFF' }} />
+        <Typography sx={{ color: '#FFFFFF', fontSize: '1.25rem', fontWeight: 600 }}>Service Lanes</Typography>
+      </Box>
 
       <Box sx={{ mb: 3 }}>
         <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', fontWeight: 500, textTransform: 'uppercase', mb: 1.5 }}>Select lane</Typography>

@@ -14,6 +14,7 @@ import TableRow from '@mui/material/TableRow';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import dayjs from 'dayjs';
+import { Users as UsersIcon } from '@phosphor-icons/react/dist/ssr/Users';
 
 import { paths } from '@/paths';
 import { abmApi } from '@/lib/abm/client';
@@ -51,7 +52,10 @@ export default function ABMPeoplePage(): React.JSX.Element {
       {error && <Typography sx={{ color: '#EF4444', mb: 2 }}>{error}</Typography>}
       <Card sx={{ backgroundColor: '#0A0A0A', border: '1px solid #262626' }}>
         <CardContent>
-          <Typography sx={{ color: '#FFFFFF', fontSize: '1.25rem', fontWeight: 600, mb: 2 }}>People Inside Accounts</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, mb: 2 }}>
+            <UsersIcon size={18} style={{ color: '#FFFFFF' }} />
+            <Typography sx={{ color: '#FFFFFF', fontSize: '1.25rem', fontWeight: 600 }}>People Inside Accounts</Typography>
+          </Box>
           <Table>
             <TableHead>
               <TableRow>

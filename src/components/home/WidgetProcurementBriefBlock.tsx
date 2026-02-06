@@ -30,7 +30,7 @@ export function WidgetProcurementBriefBlock() {
               mb: 3,
             }}
           >
-            The widget that produces a Procurement Brief.
+            The widget that produces a procurement brief.
           </Typography>
           <Typography
             sx={{

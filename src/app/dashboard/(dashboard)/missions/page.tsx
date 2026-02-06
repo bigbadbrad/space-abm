@@ -21,6 +21,7 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import Drawer from '@mui/material/Drawer';
+import { RocketLaunch as RocketLaunchIcon } from '@phosphor-icons/react/dist/ssr/RocketLaunch';
 import dayjs from 'dayjs';
 
 import { paths } from '@/paths';
@@ -320,7 +321,10 @@ export default function ABMMissionsPage(): React.JSX.Element {
         <Box sx={{ flex: '1 1 50%', minWidth: 0 }}>
           <Card sx={{ backgroundColor: '#0A0A0A', border: '1px solid #262626' }}>
             <CardContent>
-              <Typography sx={{ color: '#FFFFFF', fontSize: '1.25rem', fontWeight: 600, mb: 2 }}>Missions</Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, mb: 2 }}>
+                <RocketLaunchIcon size={18} style={{ color: '#FFFFFF' }} />
+                <Typography sx={{ color: '#FFFFFF', fontSize: '1.25rem', fontWeight: 600 }}>Missions</Typography>
+              </Box>
               {loading ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
                   <CircularProgress sx={{ color: '#9CA3AF' }} />

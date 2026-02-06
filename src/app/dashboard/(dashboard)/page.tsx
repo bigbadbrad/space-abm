@@ -35,6 +35,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import { Gauge as GaugeIcon } from '@phosphor-icons/react/dist/ssr/Gauge';
 
 import { paths } from '@/paths';
 import { formatLaneDisplayName } from '@/components/abm/layout/config';
@@ -168,7 +169,10 @@ export default function ABMOverviewPage(): React.JSX.Element {
       {error && <Typography sx={{ color: '#EF4444', mb: 2 }}>{error}</Typography>}
 
       <Box sx={{ mb: 3 }}>
-        <Typography sx={{ color: '#FFFFFF', fontSize: '1.25rem', fontWeight: 600 }}>Command Center</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+          <GaugeIcon size={18} style={{ color: '#FFFFFF' }} />
+          <Typography sx={{ color: '#FFFFFF', fontSize: '1.25rem', fontWeight: 600 }}>Command Center</Typography>
+        </Box>
         <Typography sx={{ color: '#9CA3AF', fontSize: '0.8125rem', mt: 0.5 }}>What changed + what to do next</Typography>
       </Box>
 

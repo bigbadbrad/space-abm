@@ -115,9 +115,14 @@ export function AdminScoringModels(): React.JSX.Element {
           </Table>
         )}
 
-        <Drawer anchor="right" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+        <Drawer
+          anchor="right"
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          PaperProps={{ sx: { bgcolor: '#050505', borderLeft: '1px solid #262626' } }}
+        >
           <Box sx={{ width: 500, p: 3, overflow: 'auto' }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>{selectedConfig?.name ?? 'Config'}</Typography>
+            <Typography variant="h6" sx={{ mb: 2, color: '#FFFFFF' }}>{selectedConfig?.name ?? 'Config'}</Typography>
             {weightsLoading ? (
               <Typography color="text.secondary">Loading weights…</Typography>
             ) : (

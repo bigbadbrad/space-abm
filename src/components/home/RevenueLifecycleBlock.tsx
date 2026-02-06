@@ -49,11 +49,9 @@ export function RevenueLifecycleBlock() {
               color: 'rgba(148,163,184,0.9)',
             }}
           >
-            In space, deals don&apos;t move through generic CRMs—they move through requirements, readiness gates, and schedule windows. Space ABM turns every qualified request into an executable opportunity with owners, due dates, and an audit trail—so you can progress from
-            <br />
+            In space, deals don&apos;t move through generic CRMs—they move through requirements, readiness gates, and schedule windows. Space ABM turns every qualified request into an executable opportunity with owners, due dates, and an audit trail—so you can progress with full visibility from:
+            <br /><br />
             <Box component="span" sx={{ color: PrimaryColor, fontWeight: 500 }}>interest → qualified brief → routed providers → committed schedule → closed revenue</Box>
-            <br />
-            {'with full visibility.'}
           </Typography>
         </Box>
       </Container>
