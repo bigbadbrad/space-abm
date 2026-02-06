@@ -9,6 +9,7 @@ import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 import Popover from '@mui/material/Popover';
 import Typography from '@mui/material/Typography';
+import { SignIn as SignInIcon } from '@phosphor-icons/react/dist/ssr/SignIn';
 import { SignOut as SignOutIcon } from '@phosphor-icons/react/dist/ssr/SignOut';
 
 import { paths } from '@/paths';
@@ -25,6 +26,11 @@ export interface UserPopoverProps {
 export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): React.JSX.Element {
   const { user, checkSession } = useUser();
   const router = useRouter();
+
+  const handleSignIn = React.useCallback(() => {
+    onClose();
+    window.location.href = paths.auth.signIn;
+  }, [onClose]);
 
   const handleSignOut = React.useCallback(async (): Promise<void> => {
     try {
@@ -86,12 +92,21 @@ export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): Reac
           </ListItemIcon>
           Back to home
         </MenuItem>
-        <MenuItem onClick={handleSignOut} sx={{ color: '#e5e7eb', '&:hover': { bgcolor: '#1f1f1f' } }}>
-          <ListItemIcon>
-            <SignOutIcon fontSize="var(--icon-fontSize-md)" style={{ color: '#9ca3af' }} />
-          </ListItemIcon>
-          Sign out
-        </MenuItem>
+        {user ? (
+          <MenuItem onClick={handleSignOut} sx={{ color: '#e5e7eb', '&:hover': { bgcolor: '#1f1f1f' } }}>
+            <ListItemIcon>
+              <SignOutIcon fontSize="var(--icon-fontSize-md)" style={{ color: '#9ca3af' }} />
+            </ListItemIcon>
+            Sign out
+          </MenuItem>
+        ) : (
+          <MenuItem onClick={handleSignIn} sx={{ color: '#e5e7eb', '&:hover': { bgcolor: '#1f1f1f' } }}>
+            <ListItemIcon>
+              <SignInIcon fontSize="var(--icon-fontSize-md)" style={{ color: '#9ca3af' }} />
+            </ListItemIcon>
+            Sign in
+          </MenuItem>
+        )}
       </MenuList>
     </Popover>
   );

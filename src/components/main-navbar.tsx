@@ -14,12 +14,15 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
 import React from 'react';
 import type { FC } from 'react';
 import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
-import { AppBar, Box, IconButton, Menu, MenuItem, Toolbar } from '@mui/material';
+import { usePathname, useRouter } from 'next/navigation';
+import { AppBar, Box, IconButton, MenuList, MenuItem, Popover, Toolbar } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 
 import { PrimaryColor } from '@/config';
 import { paths } from '@/paths';
+import { authClient } from '@/lib/auth/client';
+import { logger } from '@/lib/default-logger';
+import { useUser } from '@/hooks/use-user';
 import { LogoCool } from './logo-cool';
 
 export const MainNavbar: FC = () => {
@@ -27,8 +30,9 @@ export const MainNavbar: FC = () => {
   const logoSecondaryColor = colorScheme === 'dark' ? '#F5F5F7' : '#111827';
   const logoTextColor = colorScheme === 'dark' ? '#F5F5F7' : '#111827';
 
-  const router = useRouter();
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, checkSession } = useUser();
 
   const [menuAnchorEl, setMenuAnchorEl] = React.useState<null | HTMLElement>(null);
   const menuOpen = Boolean(menuAnchorEl);
@@ -41,15 +45,29 @@ export const MainNavbar: FC = () => {
     setMenuAnchorEl(null);
   };
 
+  const handleSignIn = React.useCallback(() => {
+    handleMenuClose();
+    window.location.href = paths.auth.signIn;
+  }, []);
+
+  const handleSignOut = React.useCallback(async (): Promise<void> => {
+    try {
+      const { error } = await authClient.signOut();
+      if (error) {
+        logger.error('Sign out error', error);
+        return;
+      }
+      await checkSession?.();
+      router.refresh();
+      handleMenuClose();
+    } catch (err) {
+      logger.error('Sign out error', err);
+    }
+  }, [checkSession, router]);
+
   React.useEffect(() => {
-    // Close the menu when the route changes
     handleMenuClose();
   }, [pathname]);
-
-  const goTo = (href: string) => {
-    handleMenuClose();
-    router.push(href);
-  };
 
   return (
     <AppBar
@@ -125,23 +143,33 @@ export const MainNavbar: FC = () => {
           >
             <MenuIcon />
           </IconButton>
-          <Menu
+          <Popover
             id="main-nav-menu"
-            anchorEl={menuAnchorEl}
             open={menuOpen}
+            anchorEl={menuAnchorEl}
             onClose={handleMenuClose}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right',
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
+            anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+            slotProps={{
+              paper: { sx: { minWidth: 160, mt: 1.5 } },
             }}
           >
-            <MenuItem onClick={() => goTo(paths.abm.overview)}>Dashboard</MenuItem>
-            <MenuItem onClick={() => goTo(paths.auth.signIn)}>Sign in</MenuItem>
-          </Menu>
+            <MenuList disablePadding sx={{ p: '8px', '& .MuiMenuItem-root': { borderRadius: 1 } }}>
+              <MenuItem
+                onClick={() => {
+                  handleMenuClose();
+                  window.location.href = paths.abm.overview;
+                }}
+              >
+                Dashboard
+              </MenuItem>
+              {user ? (
+                <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
+              ) : (
+                <MenuItem onClick={handleSignIn}>Sign in</MenuItem>
+              )}
+            </MenuList>
+          </Popover>
         </Box>
       </Toolbar>
     </AppBar>
