@@ -241,7 +241,7 @@ export const abmApi = {
     if (params?.range) sp.set('range', params.range);
     return abmFetch<ABMMissionsSummaryResponse>(`/missions/summary${sp.toString() ? `?${sp}` : ''}`);
   },
-  getMissions: (params?: { range?: string; stage?: string; lane?: string; owner?: string; search?: string; sort?: string; page?: number; limit?: number; due_soon?: string; stale?: string }) => {
+  getMissions: (params?: { range?: string; stage?: string; lane?: string; owner?: string; search?: string; sort?: string; page?: number; limit?: number; due_soon?: string; stale?: string; hot?: string }) => {
     const sp = new URLSearchParams();
     if (params?.range) sp.set('range', params.range);
     if (params?.stage) sp.set('stage', params.stage);
