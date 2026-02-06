@@ -2,6 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { Box, Container } from '@mui/material';
 import { HeroBlock } from '@/components/HeroBlock';
+import { HowSpaceABMWorksBlock } from '@/components/home/HowSpaceABMWorksBlock';
+import { ABMBuiltForSpaceBlock } from '@/components/home/ABMBuiltForSpaceBlock';
 import { SpaceABMPricingBlock } from '@/components/home/SpaceABMPricingBlock';
 import { MarkdownRenderer } from '@/components/dashboard/docs/markdown-renderer';
 
@@ -18,6 +20,8 @@ export default function Page() {
   return (
     <>
       <HeroBlock />
+      <HowSpaceABMWorksBlock />
+      <ABMBuiltForSpaceBlock />
       <SpaceABMPricingBlock />
       <Box sx={{ py: 6, backgroundColor: '#000000', color: '#e5e7eb' }}>
         <Container maxWidth="md">

@@ -22,7 +22,7 @@ export const HeroBlock: FC = () => {
             textAlign: 'center',
           }}
         >
-          The First ABM Platform Built for Missions, Not Just Leads.
+          The first ABM platform built for Missions, not just leads.
         </Typography>
         <Typography variant="body1" sx={{ color: '#d1d1d2', fontSize: { xs: '1rem', sm: '1.125rem' }, lineHeight: 1.8, textAlign: 'left' }}>
           Unlike 6sense or Demandbase—which are built to be generic "intent + ads + orchestration" layers—SpaceABM is designed around the actual unit of work in space: a mission-driven procurement request. You can bolt custom fields and segments onto a horizontal ABM tool, but you still end up forcing space-specific reality (interfaces, orbit regimes, lead times, compliance gates, capacity windows, multi-leg service chains) through a marketing-shaped funnel.
