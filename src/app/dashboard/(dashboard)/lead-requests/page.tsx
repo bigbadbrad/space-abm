@@ -83,6 +83,17 @@ export default function ABMLeadRequestsPage(): React.JSX.Element {
     return () => { cancelled = true; };
   }, []);
 
+  // Auto-open latest lead request when none selected
+  React.useEffect(() => {
+    if (selectedId || leadRequests.length === 0) return;
+    const latest = [...leadRequests].sort((a, b) => {
+      const aAt = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const bAt = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return bAt - aAt;
+    })[0];
+    if (latest) router.replace(`${paths.abm.leadRequests}?id=${latest.id}`);
+  }, [leadRequests, selectedId, router]);
+
   React.useEffect(() => {
     if (!selectedId) {
       setDetail(null);

@@ -48,6 +48,7 @@ export default function ABMMissionsPage(): React.JSX.Element {
     search: '',
     due_soon: '',
     stale: '',
+    hot: '',
     sort: 'next_step_due_at_asc',
   });
   const [editNextStep, setEditNextStep] = React.useState('');
@@ -67,6 +68,7 @@ export default function ABMMissionsPage(): React.JSX.Element {
     if (filters.search) params.search = filters.search;
     if (filters.due_soon === 'true') params.due_soon = 'true';
     if (filters.stale === 'true') params.stale = 'true';
+    if (filters.hot === 'true') params.hot = 'true';
     setLoading(true);
     abmApi.getMissions(params).then((res) => {
       if (res.error) setError(res.error);
@@ -87,6 +89,17 @@ export default function ABMMissionsPage(): React.JSX.Element {
   React.useEffect(() => {
     fetchMissions();
   }, [fetchMissions]);
+
+  // Auto-open last created mission when none selected
+  React.useEffect(() => {
+    if (selectedId || missions.length === 0) return;
+    const lastCreated = [...missions].sort((a, b) => {
+      const aAt = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const bAt = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return bAt - aAt;
+    })[0];
+    if (lastCreated) router.replace(`${paths.abm.missions}?id=${lastCreated.id}`);
+  }, [missions, selectedId, router]);
 
   React.useEffect(() => {
     if (!selectedId) {
@@ -179,7 +192,7 @@ export default function ABMMissionsPage(): React.JSX.Element {
           <>
             <Card
               sx={{ backgroundColor: '#0A0A0A', border: '1px solid #262626', cursor: 'pointer', minWidth: 140 }}
-              onClick={() => setFilters((f) => ({ ...f, stage: '', due_soon: '', stale: '' }))}
+              onClick={() => setFilters((f) => ({ ...f, stage: '', due_soon: '', stale: '', hot: '' }))}
             >
               <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
                 <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', textTransform: 'uppercase' }}>Active</Typography>
@@ -188,7 +201,7 @@ export default function ABMMissionsPage(): React.JSX.Element {
             </Card>
             <Card
               sx={{ backgroundColor: '#0A0A0A', border: '1px solid #262626', cursor: 'pointer', minWidth: 140 }}
-              onClick={() => setFilters((f) => ({ ...f, due_soon: 'true', stale: '' }))}
+              onClick={() => setFilters((f) => ({ ...f, due_soon: 'true', stale: '', hot: '' }))}
             >
               <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
                 <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', textTransform: 'uppercase' }}>Due Soon</Typography>
@@ -197,7 +210,7 @@ export default function ABMMissionsPage(): React.JSX.Element {
             </Card>
             <Card
               sx={{ backgroundColor: '#0A0A0A', border: '1px solid #262626', cursor: 'pointer', minWidth: 140 }}
-              onClick={() => setFilters((f) => ({ ...f, stale: 'true', due_soon: '' }))}
+              onClick={() => setFilters((f) => ({ ...f, stale: 'true', due_soon: '', hot: '' }))}
             >
               <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
                 <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', textTransform: 'uppercase' }}>Stale</Typography>
@@ -206,7 +219,7 @@ export default function ABMMissionsPage(): React.JSX.Element {
             </Card>
             <Card
               sx={{ backgroundColor: '#0A0A0A', border: '1px solid #262626', cursor: 'pointer', minWidth: 140 }}
-              onClick={() => setFilters((f) => ({ ...f, stage: '', due_soon: '', stale: '' }))}
+              onClick={() => setFilters((f) => ({ ...f, stage: '', due_soon: '', stale: '', hot: 'true' }))}
             >
               <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
                 <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', textTransform: 'uppercase' }}>Hot</Typography>
@@ -282,14 +295,20 @@ export default function ABMMissionsPage(): React.JSX.Element {
         <Chip
           label="Due soon"
           size="small"
-          onClick={() => setFilters((f) => ({ ...f, due_soon: f.due_soon ? '' : 'true', stale: '' }))}
+          onClick={() => setFilters((f) => ({ ...f, due_soon: f.due_soon ? '' : 'true', stale: '', hot: '' }))}
           sx={{ cursor: 'pointer', bgcolor: filters.due_soon ? '#F59E0B33' : '#262626', color: filters.due_soon ? '#F59E0B' : '#9CA3AF' }}
         />
         <Chip
           label="Stale"
           size="small"
-          onClick={() => setFilters((f) => ({ ...f, stale: f.stale ? '' : 'true', due_soon: '' }))}
+          onClick={() => setFilters((f) => ({ ...f, stale: f.stale ? '' : 'true', due_soon: '', hot: '' }))}
           sx={{ cursor: 'pointer', bgcolor: filters.stale ? '#EF444433' : '#262626', color: filters.stale ? '#EF4444' : '#9CA3AF' }}
+        />
+        <Chip
+          label="Hot"
+          size="small"
+          onClick={() => setFilters((f) => ({ ...f, hot: f.hot ? '' : 'true', due_soon: '', stale: '' }))}
+          sx={{ cursor: 'pointer', bgcolor: filters.hot ? '#10B98133' : '#262626', color: filters.hot ? '#10B981' : '#9CA3AF' }}
         />
         <Button variant="outlined" size="small" onClick={fetchMissions} sx={{ borderColor: '#262626', color: '#3b82f6' }}>
           Apply

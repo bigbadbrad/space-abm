@@ -253,6 +253,7 @@ export const abmApi = {
     if (params?.limit) sp.set('limit', String(params.limit));
     if (params?.due_soon) sp.set('due_soon', params.due_soon);
     if (params?.stale) sp.set('stale', params.stale);
+    if (params?.hot) sp.set('hot', params.hot);
     const q = sp.toString();
     return abmFetch<ABMMissionsResponse>(`/missions${q ? `?${q}` : ''}`);
   },
