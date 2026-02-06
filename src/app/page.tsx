@@ -3,6 +3,7 @@ import path from 'path';
 import { Box, Container } from '@mui/material';
 import { HeroBlock } from '@/components/HeroBlock';
 import { HowSpaceABMWorksBlock } from '@/components/home/HowSpaceABMWorksBlock';
+import { WidgetProcurementBriefBlock } from '@/components/home/WidgetProcurementBriefBlock';
 import { ABMBuiltForSpaceBlock } from '@/components/home/ABMBuiltForSpaceBlock';
 import { SpaceABMPricingBlock } from '@/components/home/SpaceABMPricingBlock';
 import { MarkdownRenderer } from '@/components/dashboard/docs/markdown-renderer';
@@ -21,6 +22,7 @@ export default function Page() {
     <>
       <HeroBlock />
       <HowSpaceABMWorksBlock />
+      <WidgetProcurementBriefBlock />
       <ABMBuiltForSpaceBlock />
       <SpaceABMPricingBlock />
       <Box sx={{ py: 6, backgroundColor: '#000000', color: '#e5e7eb' }}>

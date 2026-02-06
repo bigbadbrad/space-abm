@@ -1,8 +1,11 @@
 'use client';
 
 import React from 'react';
+import { JetBrains_Mono } from 'next/font/google';
 import { Box, Button, Container, Grid, Typography } from '@mui/material';
 import { PrimaryColor } from '@/config';
+
+const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'] });
 
 export type PricingCard = {
   badge?: string;
@@ -78,11 +81,11 @@ export function SpaceABMPricingBlock({
           <Typography
             component="h2"
             sx={{
-              fontSize: { xs: '2.5rem', md: '3.5rem' },
-              lineHeight: 1.1,
+              fontFamily: jetbrainsMono.style.fontFamily,
+              fontSize: { xs: '2.5rem', sm: '3.5rem', md: '64px' },
+              lineHeight: 1.2,
               fontWeight: 700,
-              letterSpacing: -0.02,
-              color: '#FFFFFF',
+              color: '#F5F5F7',
               mb: subhead ? 2 : 6,
             }}
           >
