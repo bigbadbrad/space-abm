@@ -17,6 +17,7 @@ import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 
 import { paths } from '@/paths';
+import { formatLaneDisplayName } from '@/components/abm/layout/config';
 import { abmApi } from '@/lib/abm/client';
 import { useABMFilters } from '@/contexts/abm-filter-context';
 
@@ -87,7 +88,7 @@ export default function ABMAccountsPage(): React.JSX.Element {
                     <TableCell sx={{ borderColor: '#262626' }}><Chip label={a.intent_stage || '—'} size="small" sx={{ bgcolor: '#262626', color: '#fff', fontSize: '0.75rem' }} /></TableCell>
                     <TableCell sx={{ color: '#FFFFFF', borderColor: '#262626', fontSize: '0.875rem', fontFamily: 'monospace' }}>{a.intent_score ?? '—'}</TableCell>
                     <TableCell sx={{ borderColor: '#262626' }}><Chip label={a.surge_level || 'Normal'} size="small" sx={{ bgcolor: '#262626', color: '#fff', fontSize: '0.75rem' }} /></TableCell>
-                    <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.875rem' }}>{a.top_lane || '—'}</TableCell>
+                    <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.875rem' }}>{formatLaneDisplayName(a.top_lane)}</TableCell>
                     <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.8rem', maxWidth: 200 }}>{(a.why_hot || []).slice(0, 2).join('; ') || '—'}</TableCell>
                     <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.875rem' }}>{a.unique_people_7d ?? '—'}</TableCell>
                     <TableCell sx={{ borderColor: '#262626' }}>

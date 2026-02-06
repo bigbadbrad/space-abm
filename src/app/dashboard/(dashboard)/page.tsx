@@ -37,6 +37,7 @@ import {
 } from 'recharts';
 
 import { paths } from '@/paths';
+import { formatLaneDisplayName } from '@/components/abm/layout/config';
 import { abmApi } from '@/lib/abm/client';
 import type { ABMQueueItem, ABMQueueItemType } from '@/lib/abm/client';
 
@@ -50,6 +51,9 @@ const BADGE_LABELS: Record<ABMQueueItemType, string> = {
   spiking: 'Spiking',
   outbound: 'Outbound',
   stale_followup: 'Stale',
+  mission_due: 'Mission Due',
+  mission_stale: 'Mission Stale',
+  mission_new: 'New Mission',
 };
 
 // Accept null/undefined timestamps safely
@@ -73,7 +77,8 @@ export default function ABMOverviewPage(): React.JSX.Element {
   } | null>(null);
   const [chartRange, setChartRange] = React.useState<'7d' | '30d'>('7d');
   const [queueData, setQueueData] = React.useState<{ generated_at: string; items: ABMQueueItem[] } | null>(null);
-  const [queueTab, setQueueTab] = React.useState<'today' | 'new' | 'spiking' | 'outbound'>('today');
+  const [missionsSummary, setMissionsSummary] = React.useState<{ active: number; due_soon: number; stale: number; hot: number } | null>(null);
+  const [queueTab, setQueueTab] = React.useState<'today' | 'new' | 'spiking' | 'outbound' | 'missions'>('today');
   const [menuAnchor, setMenuAnchor] = React.useState<{ el: HTMLElement; item: ABMQueueItem } | null>(null);
 
   React.useEffect(() => {
@@ -83,11 +88,13 @@ export default function ABMOverviewPage(): React.JSX.Element {
     Promise.all([
       abmApi.getOverview({ chart_range: chartRange }),
       abmApi.getQueue({ range: '7d' }),
-    ]).then(([overviewRes, queueRes]) => {
+      abmApi.getMissionsSummary({ range: '7d' }),
+    ]).then(([overviewRes, queueRes, missionsRes]) => {
       if (cancelled) return;
       if (overviewRes.error) setError(overviewRes.error);
       else if (overviewRes.data) setData(overviewRes.data);
       if (queueRes.data) setQueueData(queueRes.data);
+      if (missionsRes.data) setMissionsSummary(missionsRes.data);
       setLoading(false);
     });
     return () => { cancelled = true; };
@@ -124,7 +131,9 @@ export default function ABMOverviewPage(): React.JSX.Element {
         ? queueItems.filter((i) => i.type === 'new_lead_request' || i.type === 'newly_hot')
         : queueTab === 'spiking'
           ? queueItems.filter((i) => i.type === 'spiking')
-          : queueItems.filter((i) => i.type === 'outbound');
+          : queueTab === 'outbound'
+            ? queueItems.filter((i) => i.type === 'outbound')
+            : queueItems.filter((i) => i.type === 'mission_due' || i.type === 'mission_stale' || i.type === 'mission_new');
 
   const handleSnooze = (item: ABMQueueItem, hours: number) => {
     const snoozeUntil = dayjs().add(hours, 'hour').toISOString();
@@ -164,80 +173,102 @@ export default function ABMOverviewPage(): React.JSX.Element {
       </Box>
 
       <Grid container spacing={3}>
-        <Grid xs={12} sm={6} md={3}>
-          <Card
-            component={Link}
-            href={paths.abm.accounts}
-            sx={{
-              backgroundColor: '#0A0A0A',
-              border: '1px solid #1a1a1a',
-              cursor: 'pointer',
-              textDecoration: 'none',
-              '&:hover': { borderColor: '#3b82f6' },
-            }}
-          >
-            <CardContent>
-              <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', fontWeight: 500, textTransform: 'uppercase', mb: 1 }}>Hot Accounts</Typography>
-              <Typography sx={{ background: 'linear-gradient(180deg, #004C94 45%, #297BC4 90%)', backgroundClip: 'text', WebkitBackgroundClip: 'text', color: 'transparent', fontSize: '4rem', fontWeight: 700, fontFamily: jetbrainsMono.style.fontFamily, lineHeight: 1 }}>{kpis.hot_accounts}</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid xs={12} sm={6} md={3}>
-          <Card
-            component={Link}
-            href={paths.abm.accounts}
-            sx={{
-              backgroundColor: '#0A0A0A',
-              border: '1px solid #1a1a1a',
-              cursor: 'pointer',
-              textDecoration: 'none',
-              '&:hover': { borderColor: '#3b82f6' },
-            }}
-          >
-            <CardContent>
-              <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', fontWeight: 500, textTransform: 'uppercase', mb: 1 }}>Surging Accounts</Typography>
-              <Typography sx={{ background: 'linear-gradient(180deg, #004C94 45%, #297BC4 90%)', backgroundClip: 'text', WebkitBackgroundClip: 'text', color: 'transparent', fontSize: '4rem', fontWeight: 700, fontFamily: jetbrainsMono.style.fontFamily, lineHeight: 1 }}>{kpis.surging_accounts}</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid xs={12} sm={6} md={3}>
-          <Card
-            component={Link}
-            href={paths.abm.leadRequests}
-            sx={{
-              backgroundColor: '#0A0A0A',
-              border: '1px solid #1a1a1a',
-              cursor: 'pointer',
-              textDecoration: 'none',
-              '&:hover': { borderColor: '#3b82f6' },
-            }}
-          >
-            <CardContent>
-              <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', fontWeight: 500, textTransform: 'uppercase', mb: 1 }}>New Lead Requests</Typography>
-              <Typography sx={{ background: 'linear-gradient(180deg, #004C94 45%, #297BC4 90%)', backgroundClip: 'text', WebkitBackgroundClip: 'text', color: 'transparent', fontSize: '4rem', fontWeight: 700, fontFamily: jetbrainsMono.style.fontFamily, lineHeight: 1 }}>{kpis.new_lead_requests}</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid xs={12} sm={6} md={3}>
-          <Card
-            component={Link}
-            href={paths.abm.lanes}
-            sx={{
-              backgroundColor: '#0A0A0A',
-              border: '1px solid #1a1a1a',
-              cursor: 'pointer',
-              textDecoration: 'none',
-              '&:hover': { borderColor: '#3b82f6' },
-            }}
-          >
-            <CardContent>
-              <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', fontWeight: 500, textTransform: 'uppercase', mb: 1 }}>Top Lane</Typography>
-              <Typography sx={{ background: 'linear-gradient(180deg, #004C94 45%, #297BC4 90%)', backgroundClip: 'text', WebkitBackgroundClip: 'text', color: 'transparent', fontSize: '4rem', fontWeight: 700, fontFamily: jetbrainsMono.style.fontFamily, lineHeight: 1 }}>{kpis.top_lane || '—'}</Typography>
-              {kpis.top_lane_hot_count != null && (
-                <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', mt: 0.5 }}>{kpis.top_lane_hot_count} hot</Typography>
-              )}
-            </CardContent>
-          </Card>
+        <Grid xs={12}>
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+            <Card
+              component={Link}
+              href={paths.abm.accounts}
+              sx={{
+                flex: '0.92 1 0',
+                minWidth: 140,
+                backgroundColor: '#0A0A0A',
+                border: '1px solid #1a1a1a',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                '&:hover': { borderColor: '#3b82f6' },
+              }}
+            >
+              <CardContent>
+                <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', fontWeight: 500, textTransform: 'uppercase', mb: 1, whiteSpace: 'nowrap' }}>Hot Accounts</Typography>
+                <Typography sx={{ background: 'linear-gradient(180deg, #004C94 45%, #297BC4 90%)', backgroundClip: 'text', WebkitBackgroundClip: 'text', color: 'transparent', fontSize: '4rem', fontWeight: 700, fontFamily: jetbrainsMono.style.fontFamily, lineHeight: 1 }}>{kpis.hot_accounts}</Typography>
+              </CardContent>
+            </Card>
+            <Card
+              component={Link}
+              href={paths.abm.accounts}
+              sx={{
+                flex: '0.92 1 0',
+                minWidth: 140,
+                backgroundColor: '#0A0A0A',
+                border: '1px solid #1a1a1a',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                '&:hover': { borderColor: '#3b82f6' },
+              }}
+            >
+              <CardContent>
+                <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', fontWeight: 500, textTransform: 'uppercase', mb: 1, whiteSpace: 'nowrap' }}>Surging Accounts</Typography>
+                <Typography sx={{ background: 'linear-gradient(180deg, #004C94 45%, #297BC4 90%)', backgroundClip: 'text', WebkitBackgroundClip: 'text', color: 'transparent', fontSize: '4rem', fontWeight: 700, fontFamily: jetbrainsMono.style.fontFamily, lineHeight: 1 }}>{kpis.surging_accounts}</Typography>
+              </CardContent>
+            </Card>
+            <Card
+              component={Link}
+              href={paths.abm.leadRequests}
+              sx={{
+                flex: '0.92 1 0',
+                minWidth: 140,
+                backgroundColor: '#0A0A0A',
+                border: '1px solid #1a1a1a',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                '&:hover': { borderColor: '#3b82f6' },
+              }}
+            >
+              <CardContent>
+                <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', fontWeight: 500, textTransform: 'uppercase', mb: 1, whiteSpace: 'nowrap' }}>New Lead Requests</Typography>
+                <Typography sx={{ background: 'linear-gradient(180deg, #004C94 45%, #297BC4 90%)', backgroundClip: 'text', WebkitBackgroundClip: 'text', color: 'transparent', fontSize: '4rem', fontWeight: 700, fontFamily: jetbrainsMono.style.fontFamily, lineHeight: 1 }}>{kpis.new_lead_requests}</Typography>
+              </CardContent>
+            </Card>
+            <Card
+              component={Link}
+              href={paths.abm.missions}
+              sx={{
+                flex: '0.92 1 0',
+                minWidth: 140,
+                backgroundColor: '#0A0A0A',
+                border: '1px solid #1a1a1a',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                '&:hover': { borderColor: '#3b82f6' },
+              }}
+            >
+              <CardContent>
+                <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', fontWeight: 500, textTransform: 'uppercase', mb: 1, whiteSpace: 'nowrap' }}>Missions</Typography>
+                <Typography sx={{ background: 'linear-gradient(180deg, #004C94 45%, #297BC4 90%)', backgroundClip: 'text', WebkitBackgroundClip: 'text', color: 'transparent', fontSize: '4rem', fontWeight: 700, fontFamily: jetbrainsMono.style.fontFamily, lineHeight: 1 }}>{missionsSummary?.active ?? 0}</Typography>
+              </CardContent>
+            </Card>
+            <Card
+              component={Link}
+              href={paths.abm.lanes}
+              sx={{
+                flex: '1.12 1 0',
+                minWidth: 140,
+                backgroundColor: '#0A0A0A',
+                border: '1px solid #1a1a1a',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                '&:hover': { borderColor: '#3b82f6' },
+              }}
+            >
+              <CardContent>
+                <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', fontWeight: 500, textTransform: 'uppercase', mb: 1, whiteSpace: 'nowrap' }}>Top Lane</Typography>
+                <Typography sx={{ background: 'linear-gradient(180deg, #004C94 45%, #297BC4 90%)', backgroundClip: 'text', WebkitBackgroundClip: 'text', color: 'transparent', fontSize: '4rem', fontWeight: 700, fontFamily: jetbrainsMono.style.fontFamily, lineHeight: 1 }}>{formatLaneDisplayName(kpis.top_lane)}</Typography>
+                {kpis.top_lane_hot_count != null && (
+                  <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', mt: 0.5 }}>{kpis.top_lane_hot_count} hot</Typography>
+                )}
+              </CardContent>
+            </Card>
+          </Box>
         </Grid>
 
         <Grid xs={12} md={6}>
@@ -254,6 +285,7 @@ export default function ABMOverviewPage(): React.JSX.Element {
                   <Tab value="new" label="New" />
                   <Tab value="spiking" label="Spiking" />
                   <Tab value="outbound" label="Outbound" />
+                  <Tab value="missions" label="Missions" />
                 </Tabs>
               </Box>
               {filteredQueue.length === 0 ? (
@@ -263,13 +295,19 @@ export default function ABMOverviewPage(): React.JSX.Element {
               ) : (
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                   {filteredQueue.map((item, idx) => {
-                    const primary = item.org_name ?? item.name ?? item.domain ?? '—';
+                    const primary = item.title ?? item.org_name ?? item.name ?? item.domain ?? '—';
                     const score = item.lead_score ?? item.intent_score;
-                    const timeStr = item.submitted_at ?? item.changed_at ?? item.last_contacted_at;
+                    const timeStr = item.next_step_due_at ?? item.last_activity_at ?? item.created_at ?? item.submitted_at ?? item.changed_at ?? item.last_contacted_at;
                     const isLead = item.type === 'new_lead_request';
+                    const isMission = item.type === 'mission_due' || item.type === 'mission_stale' || item.type === 'mission_new';
+                    const itemHref = isMission && item.mission_id
+                      ? `${paths.abm.missions}?id=${item.mission_id}`
+                      : isLead
+                        ? `${paths.abm.leadRequests}?id=${item.lead_request_id}`
+                        : paths.abm.account(String(item.prospect_company_id ?? ''));
                     return (
                       <Box
-                        key={`${item.type}-${item.lead_request_id ?? item.prospect_company_id}-${idx}`}
+                        key={`${item.type}-${item.mission_id ?? item.lead_request_id ?? item.prospect_company_id}-${idx}`}
                         sx={{
                           display: 'flex',
                           alignItems: 'center',
@@ -288,13 +326,13 @@ export default function ABMOverviewPage(): React.JSX.Element {
                         />
                         <Box sx={{ flex: 1, minWidth: 0 }}>
                           <Link
-                            href={isLead ? `${paths.abm.leadRequests}?id=${item.lead_request_id}` : paths.abm.account(String(item.prospect_company_id))}
+                            href={itemHref}
                             style={{ color: '#FFFFFF', fontWeight: 500, fontSize: '0.875rem', textDecoration: 'none' }}
                           >
                             {primary}
                           </Link>
                           <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', mt: 0.25 }}>
-                            {item.lane ?? item.top_lane ?? '—'} {score != null && `· ${score}`} {item.surge_level && `· ${item.surge_level}`}
+                            {formatLaneDisplayName(item.lane ?? item.top_lane)} {score != null && `· ${score}`} {item.surge_level && `· ${item.surge_level}`}
                           </Typography>
                           {item.why_hot && item.why_hot.length > 0 && (
                             <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 0.5 }}>
@@ -308,7 +346,7 @@ export default function ABMOverviewPage(): React.JSX.Element {
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                           <Button
                             component={Link}
-                            href={isLead ? `${paths.abm.leadRequests}?id=${item.lead_request_id}` : paths.abm.account(String(item.prospect_company_id))}
+                            href={itemHref}
                             size="small"
                             sx={{ fontSize: '0.7rem', color: '#3b82f6', minWidth: 'auto', px: 1 }}
                           >

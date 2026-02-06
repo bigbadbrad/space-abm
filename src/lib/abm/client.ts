@@ -57,6 +57,69 @@ export interface ABMAccountsResponse {
   limit: number;
 }
 
+export interface ABMMission {
+  id: string;
+  title: string;
+  service_lane?: string;
+  stage?: string;
+  priority?: string;
+  owner_user_id?: string;
+  prospect_company_id?: string;
+  primary_contact_id?: string;
+  lead_request_id?: string;
+  mission_type?: string;
+  mission_pattern?: string;
+  target_orbit?: string;
+  inclination_deg?: number;
+  payload_mass_kg?: number;
+  payload_volume?: string;
+  earliest_date?: string;
+  latest_date?: string;
+  schedule_urgency?: string;
+  integration_status?: string;
+  readiness_confidence?: string;
+  funding_status?: string;
+  budget_band?: string;
+  confidence?: number;
+  source?: string;
+  next_step?: string;
+  next_step_due_at?: string;
+  last_activity_at?: string;
+  created_at?: string;
+  updated_at?: string;
+  prospectCompany?: { id: string; name: string; domain: string };
+  owner?: { id: string; name?: string; preferred_name?: string; email?: string };
+  primaryContact?: { id: string; email?: string; first_name?: string; last_name?: string; title?: string };
+  leadRequest?: unknown;
+}
+
+export interface ABMMissionsSummaryResponse {
+  active: number;
+  due_soon: number;
+  stale: number;
+  hot: number;
+  by_stage: Record<string, number>;
+  by_lane: Record<string, number>;
+}
+
+export interface ABMMissionsResponse {
+  missions: ABMMission[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface ABMMissionDetailResponse {
+  mission: ABMMission & {
+    artifacts?: { id: string; type: string; title?: string; url?: string; createdBy?: { id: string; name?: string; preferred_name?: string } }[];
+    activities?: { id: string; type: string; body: string; created_at: string; createdBy?: { id: string; name?: string; preferred_name?: string } }[];
+    contacts?: { id: string; email?: string; first_name?: string; last_name?: string; title?: string; MissionContact?: { role?: string } }[];
+  };
+  account_summary?: { intent_score?: number; intent_stage?: string; surge_level?: string; top_lane?: string };
+  related_lead_requests?: unknown[];
+  related_intent_signals?: unknown[];
+}
+
 export interface ABMLeadRequest {
   id: number;
   lead_score?: number;
@@ -66,6 +129,7 @@ export interface ABMLeadRequest {
   organization_name?: string;
   organization_domain?: string;
   created_at: string;
+  mission_id?: string | null;
   prospectCompany?: { id: number; name: string; domain: string; intent_score: number; stage: string };
   contact?: { id: number; email?: string; title?: string; status?: string };
 }
@@ -170,6 +234,47 @@ export const abmApi = {
     return abmFetch<ABMLeadRequestsResponse>(`/lead-requests${q ? `?${q}` : ''}`);
   },
   getLeadRequest: (id: string) => abmFetch<ABMLeadRequest>(`/lead-requests/${id}`),
+  promoteLeadRequest: (id: string, body?: { title?: string; owner_user_id?: string; priority?: string }) =>
+    abmFetch<{ mission: ABMMission; message: string }>(`/lead-requests/${id}/promote`, { method: 'POST', body: JSON.stringify(body || {}) }),
+  getMissionsSummary: (params?: { range?: string }) => {
+    const sp = new URLSearchParams();
+    if (params?.range) sp.set('range', params.range);
+    return abmFetch<ABMMissionsSummaryResponse>(`/missions/summary${sp.toString() ? `?${sp}` : ''}`);
+  },
+  getMissions: (params?: { range?: string; stage?: string; lane?: string; owner?: string; search?: string; sort?: string; page?: number; limit?: number; due_soon?: string; stale?: string }) => {
+    const sp = new URLSearchParams();
+    if (params?.range) sp.set('range', params.range);
+    if (params?.stage) sp.set('stage', params.stage);
+    if (params?.lane) sp.set('lane', params.lane);
+    if (params?.owner) sp.set('owner', params.owner);
+    if (params?.search) sp.set('search', params.search);
+    if (params?.sort) sp.set('sort', params.sort);
+    if (params?.page) sp.set('page', String(params.page));
+    if (params?.limit) sp.set('limit', String(params.limit));
+    if (params?.due_soon) sp.set('due_soon', params.due_soon);
+    if (params?.stale) sp.set('stale', params.stale);
+    const q = sp.toString();
+    return abmFetch<ABMMissionsResponse>(`/missions${q ? `?${q}` : ''}`);
+  },
+  getMission: (id: string) => abmFetch<ABMMissionDetailResponse>(`/missions/${id}`),
+  postMission: (body: Partial<ABMMission>) => abmFetch<ABMMission>(`/missions`, { method: 'POST', body: JSON.stringify(body) }),
+  patchMission: (id: string, body: Partial<ABMMission>) => abmFetch<ABMMission>(`/missions/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  closeMission: (id: string, body: { outcome: 'won' | 'lost' | 'on_hold'; reason?: string }) =>
+    abmFetch<ABMMission>(`/missions/${id}/close`, { method: 'POST', body: JSON.stringify(body) }),
+  patchMissionNextStep: (id: string, next_step: string, next_step_due_at?: string) =>
+    abmFetch<ABMMission>(`/missions/${id}`, { method: 'PATCH', body: JSON.stringify({ next_step, next_step_due_at }) }),
+  postMissionContact: (id: string, body: { contact_id: string; role?: string }) =>
+    abmFetch<unknown>(`/missions/${id}/contacts`, { method: 'POST', body: JSON.stringify(body) }),
+  deleteMissionContact: (id: string, contactId: string) =>
+    abmFetch<{ message: string }>(`/missions/${id}/contacts/${contactId}`, { method: 'DELETE' }),
+  postMissionArtifact: (id: string, body: { type: string; title?: string; url?: string }) =>
+    abmFetch<unknown>(`/missions/${id}/artifacts`, { method: 'POST', body: JSON.stringify(body) }),
+  deleteMissionArtifact: (id: string, artifactId: string) =>
+    abmFetch<{ message: string }>(`/missions/${id}/artifacts/${artifactId}`, { method: 'DELETE' }),
+  postMissionActivity: (id: string, body: { type?: string; body: string }) =>
+    abmFetch<unknown>(`/missions/${id}/activities`, { method: 'POST', body: JSON.stringify(body) }),
+  postMissionAiBrief: (id: string) =>
+    abmFetch<{ summary_md: string; cached?: boolean }>(`/missions/${id}/ai-brief`, { method: 'POST' }),
   getActivity: (params?: { range?: string; limit?: number }) => {
     const sp = new URLSearchParams();
     if (params?.range) sp.set('range', params.range);
@@ -215,6 +320,10 @@ export const abmApi = {
   patchScoreConfig: (id: string, body: Partial<ABMScoreConfig>) => abmFetch<{ config: ABMScoreConfig }>(`/admin/score-configs/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
   activateScoreConfig: (id: string) => abmFetch<{ config: ABMScoreConfig }>(`/admin/score-configs/${id}/activate`, { method: 'POST' }),
   getScoreWeights: (scoreConfigId: string) => abmFetch<{ weights: ABMScoreWeight[] }>(`/admin/score-weights?score_config_id=${scoreConfigId}`),
+  getMissionTemplates: () => abmFetch<{ templates: ABMMissionTemplate[] }>('/admin/mission-templates'),
+  postMissionTemplate: (body: Partial<ABMMissionTemplate>) => abmFetch<{ template: ABMMissionTemplate }>('/admin/mission-templates', { method: 'POST', body: JSON.stringify(body) }),
+  patchMissionTemplate: (id: string, body: Partial<ABMMissionTemplate>) => abmFetch<{ template: ABMMissionTemplate }>(`/admin/mission-templates/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  deleteMissionTemplate: (id: string) => abmFetch<{ message: string }>(`/admin/mission-templates/${id}`, { method: 'DELETE' }),
   postScoreWeights: (scoreConfigId: string, weights: { event_name: string; content_type?: string | null; cta_id?: string | null; weight: number }[]) =>
     abmFetch<{ weights: ABMScoreWeight[] }>('/admin/score-weights', { method: 'POST', body: JSON.stringify({ score_config_id: scoreConfigId, weights }) }),
   getAccountScoringDetails: (accountId: string) => abmFetch<ABMScoringDetails>(`/accounts/${accountId}/scoring-details`),
@@ -278,6 +387,17 @@ export interface ABMEventRule {
   updated_at?: string;
 }
 
+export interface ABMMissionTemplate {
+  id: string;
+  lane: string;
+  template_name: string;
+  default_title_pattern?: string | null;
+  default_fields_json?: Record<string, unknown> | null;
+  enabled: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface ABMPromptTemplate {
   id: string;
   enabled: boolean;
@@ -319,15 +439,17 @@ export interface ABMOverviewResponse {
   hot_over_time: { date: string; hot_count: number }[];
 }
 
-export type ABMQueueItemType = 'new_lead_request' | 'newly_hot' | 'spiking' | 'outbound' | 'stale_followup';
+export type ABMQueueItemType = 'new_lead_request' | 'newly_hot' | 'spiking' | 'outbound' | 'stale_followup' | 'mission_due' | 'mission_stale' | 'mission_new';
 
 export interface ABMQueueItem {
   type: ABMQueueItemType;
   lead_request_id?: string;
   prospect_company_id?: string;
+  mission_id?: string;
   org_name?: string;
   name?: string;
   domain?: string;
+  title?: string;
   lane?: string;
   lead_score?: number;
   intent_score?: number;
@@ -336,7 +458,10 @@ export interface ABMQueueItem {
   why_hot?: string[];
   submitted_at?: string;
   changed_at?: string;
+  created_at?: string;
   last_contacted_at?: string | null;
+  next_step_due_at?: string;
+  last_activity_at?: string;
 }
 
 export interface ABMQueueResponse {

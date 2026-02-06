@@ -2,7 +2,7 @@
 
 The following explains how the Space ABM system works end-to-end. It covers:
 
-- The core ABM concepts (Accounts, Contacts, Lead Requests, Signals)
+- The core ABM concepts (Accounts, Contacts, Lead Requests, Signals, Missions)
 - The "Request a Reservation" modal ingestion pipeline
 - Lead scoring (exact rules)
 - Intent signals and account rollups
@@ -10,6 +10,7 @@ The following explains how the Space ABM system works end-to-end. It covers:
 - PostHog aggregation + daily batch job
 - Three dashboards (Hot Accounts, Service Lane Intent, People Inside Accounts)
 - AI Account Summary (cached)
+- Missions (tracking procurement opportunities)
 - Routing/workflow state
 - The API surface we've added
 
@@ -32,6 +33,99 @@ The ABM dashboard (internal) uses these entities to show:
 - **Hot Leads** (highest-scoring recent requests)
 - **Service Lane Intent** (which service areas are trending)
 - **Phase 2**: Hot Accounts, Service Lane Intent, and People Inside Accounts dashboards, plus AI-generated account summaries
+- **Missions**: Tracked procurement opportunities—real work objects that tie accounts, lead requests, and intent together
+
+---
+
+## Missions: Tracking Procurement Opportunities
+
+**Missions** turn ABM signals and lead requests into trackable procurement opportunities. While Accounts show *who* is hot and *why*, Missions answer *what* you're actually working on—a specific deal, demo, or program you want to close.
+
+### What is a Mission?
+
+A Mission represents a **specific procurement effort** you're tracking. It might have started from a Lead Request (someone submitted a reservation or hosted payload brief), been inferred from account activity, or created manually. Each Mission has:
+
+- A **title** and **service lane** (e.g., Launch, Hosted Payload)
+- **Stage** (new → qualified → solutioning → proposal → negotiation → won/lost/on_hold)
+- **Requirements** (orbit, schedule, budget, readiness)
+- **People** (primary contact and team)
+- **Next step** and due date
+- **Evidence** (linked lead requests, intent signals, artifacts)
+
+### Finding the Missions Page
+
+Open **Missions** from the left navigation (between Accounts and Lead Requests). The Missions page is your daily driver for space sales ops.
+
+### Summary Cards at the Top
+
+Four cards give you a quick snapshot:
+
+- **Active** — All missions not yet closed (won/lost/on_hold)
+- **Due Soon** — Missions with a next step due within 7 days
+- **Stale** — Missions with no activity in 14+ days
+- **Hot** — Missions where the account is hot or confidence is high
+
+Click any card to filter the list accordingly.
+
+### Filtering and Sorting
+
+Use the filter bar to narrow the list:
+
+- **Search** — By mission title or account name/domain
+- **Stage** — e.g., qualified, solutioning, proposal
+- **Lane** — Service lane (Launch, Refuel, etc.)
+- **Owner** — Show only your missions or all
+- **Due Soon** / **Stale** — Toggle chips to focus on time-sensitive or neglected missions
+- **Sort** — By due date, last activity, or priority
+
+Click **Apply** to refresh the list with your filters.
+
+### The Missions List and Detail Inspector
+
+The page uses a two-pane layout:
+
+- **Left pane** — Table of missions (stage, title, account, lane, due date). Click a row to select it.
+- **Right pane** — Detail inspector for the selected mission.
+
+### Working with a Mission
+
+In the detail inspector you can:
+
+1. **View the header** — Title, stage, priority, confidence, account name, and owner. Use **Open Account** to jump to the full account view.
+
+2. **Review requirements** — Lane, mission type, orbit, mass, schedule window, readiness, and budget.
+
+3. **Open the procurement brief** — If the mission came from a Lead Request, use **Open Lead Request** to see the full brief.
+
+4. **See people** — Primary contact and other linked contacts with their roles.
+
+5. **Edit the next step** — Update the next step text and due date, then click **Save**.
+
+6. **Add a note** — Type a note and click **Add** to log it on the mission timeline.
+
+7. **Generate Mission Brief** — Click to generate an AI summary of the opportunity: what we know, what's missing, and recommended next steps. The brief appears in a drawer.
+
+8. **Close the mission** — When the deal is done, use **Won**, **Lost**, or **On Hold**. You can optionally provide a reason.
+
+### Promoting a Lead Request to a Mission
+
+When a Lead Request looks like a real opportunity, turn it into a Mission:
+
+1. Open **Lead Requests** and select the lead request.
+2. In the detail panel, click **Promote to Mission**.
+3. You'll be taken to the new Mission with the lead request already linked. Key fields (lane, orbit, schedule, budget) are copied from the brief.
+
+The promoted mission appears in your Missions list and in Today's Priorities.
+
+### Missions in Today's Priorities
+
+On the **Overview** (Command Center) page, **Today's Priorities** now includes mission-related items:
+
+- **Mission Due** — Missions with a next step due soon
+- **Mission Stale** — Missions that need attention
+- **New Mission** — Missions recently created from lead requests
+
+Use the **Missions** tab to see only these items. Click any row to open that mission.
 
 ---
 
@@ -359,6 +453,7 @@ When a Lead Request is created, we write intent signals (lead_submitted, budget_
 - **Event Rule**: registry config that maps URL patterns + event type → content_type and lane (path_prefix, contains, equals, path_regex)
 - **Intent Score**: 0–100 normalized score from decayed event weights (Phase 2) or rolling 30-day sum (legacy)
 - **Intent Signal**: time-series event explaining why a company is heating up
+- **Mission**: a tracked procurement opportunity—ties an account, lead request(s), contacts, and requirements into one work object with stage, next step, and timeline
 - **Intent Stage**: Cold | Warm | Hot (from score thresholds)
 - **Lead Request**: one completed reservation/procurement submission (canonical record)
 - **Lead Score**: qualification score computed from a submission (per Lead Request)

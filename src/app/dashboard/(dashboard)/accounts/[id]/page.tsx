@@ -20,6 +20,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import dayjs from 'dayjs';
 
 import { paths } from '@/paths';
+import { formatLaneDisplayName } from '@/components/abm/layout/config';
 import { abmApi } from '@/lib/abm/client';
 import { ScoringDetailsDrawer } from '@/components/abm/ScoringDetailsDrawer';
 
@@ -73,7 +74,7 @@ export default function ABMAccountDetailPage(): React.JSX.Element {
             <Chip label={`Score: ${latest?.intent_score ?? account.intent_score ?? '—'}`} size="small" sx={{ bgcolor: '#3b82f6', color: '#fff', fontFamily: 'monospace' }} />
             <Chip label={latest?.intent_stage ?? account.intent_stage ?? '—'} size="small" sx={{ bgcolor: '#262626', color: '#fff' }} />
             <Chip label={latest?.surge_level ?? account.surge_level ?? 'Normal'} size="small" sx={{ bgcolor: '#262626', color: '#fff' }} />
-            <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem' }}>Top lane: {latest?.top_lane ?? account.top_lane ?? '—'}</Typography>
+            <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem' }}>Top lane: {formatLaneDisplayName(latest?.top_lane ?? account.top_lane)}</Typography>
             <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem' }}>Last seen: {account.last_seen_at ? dayjs(account.last_seen_at).format('MMM DD, YYYY') : '—'}</Typography>
             <Button component={Link} href={paths.abm.leadRequests} size="small" sx={{ color: '#3b82f6' }}>View Lead Requests</Button>
             <Typography component="span" sx={{ color: '#9CA3AF', fontSize: '0.75rem' }}>
@@ -168,7 +169,7 @@ export default function ABMAccountDetailPage(): React.JSX.Element {
                   {leadRequests.map((lr: any) => (
                     <TableRow key={lr.id}>
                       <TableCell sx={{ color: '#FFFFFF', borderColor: '#262626', fontSize: '0.875rem', fontFamily: 'monospace' }}>{lr.lead_score ?? '—'}</TableCell>
-                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.875rem' }}>{lr.service_needed || '—'}</TableCell>
+                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.875rem' }}>{formatLaneDisplayName(lr.service_needed)}</TableCell>
                       <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.875rem', fontFamily: 'monospace' }}>{dayjs(lr.created_at).format('MMM DD, YYYY')}</TableCell>
                       <TableCell sx={{ borderColor: '#262626' }}><Chip label={lr.routing_status || 'new'} size="small" sx={{ bgcolor: '#262626', color: '#fff', fontSize: '0.75rem' }} /></TableCell>
                       <TableCell sx={{ borderColor: '#262626' }}><Button component={Link} href={`${paths.abm.leadRequests}?id=${lr.id}`} size="small" sx={{ color: '#3b82f6' }}>View</Button></TableCell>

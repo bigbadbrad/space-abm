@@ -15,6 +15,7 @@ import { CurrencyDollar as CurrencyDollarIcon } from '@phosphor-icons/react/dist
 import { Funnel as FunnelIcon } from '@phosphor-icons/react/dist/ssr/Funnel';
 import { MagnifyingGlass as MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr/MagnifyingGlass';
 import { ShieldStar as ShieldStarIcon } from '@phosphor-icons/react/dist/ssr/ShieldStar';
+import { RocketLaunch as RocketLaunchIcon } from '@phosphor-icons/react/dist/ssr/RocketLaunch';
 
 export const navIcons = {
   'chart-pie': ChartPieIcon,
@@ -34,4 +35,5 @@ export const navIcons = {
   'file-text': FileTextIcon,
   'currency-dollar': CurrencyDollarIcon,
   'shield-star': ShieldStarIcon,
+  'rocket-launch': RocketLaunchIcon,
 } as Record<string, Icon>;

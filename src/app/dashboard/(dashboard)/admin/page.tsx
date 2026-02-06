@@ -13,6 +13,7 @@ import { paths } from '@/paths';
 
 import { AdminEventRules } from '@/components/abm/admin/AdminEventRules';
 import { AdminPromptTemplates } from '@/components/abm/admin/AdminPromptTemplates';
+import { AdminMissionTemplates } from '@/components/abm/admin/AdminMissionTemplates';
 import { AdminScoringModels } from '@/components/abm/admin/AdminScoringModels';
 import { AdminAuditLog } from '@/components/abm/admin/AdminAuditLog';
 import { AdminJobs } from '@/components/abm/admin/AdminJobs';
@@ -53,12 +54,14 @@ export default function ABMAdminPage(): React.JSX.Element {
         <Tab label="Event Rules" value="event-rules" />
         <Tab label="Scoring Models" value="scoring-models" />
         <Tab label="Prompt Templates" value="prompt-templates" />
+        <Tab label="Mission Templates" value="mission-templates" />
         <Tab label="Audit Log" value="audit-log" />
         <Tab label="Jobs & Health" value="jobs" />
       </Tabs>
       {tab === 'event-rules' && <AdminEventRules />}
       {tab === 'scoring-models' && <AdminScoringModels />}
       {tab === 'prompt-templates' && <AdminPromptTemplates />}
+      {tab === 'mission-templates' && <AdminMissionTemplates />}
       {tab === 'audit-log' && <AdminAuditLog />}
       {tab === 'jobs' && <AdminJobs />}
     </Box>

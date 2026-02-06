@@ -18,8 +18,45 @@ import CircularProgress from '@mui/material/CircularProgress';
 import dayjs from 'dayjs';
 
 import { paths } from '@/paths';
+import { formatLaneDisplayName } from '@/components/abm/layout/config';
 import { abmApi } from '@/lib/abm/client';
 import { ScoringDetailsDrawer } from '@/components/abm/ScoringDetailsDrawer';
+
+function PromoteToMissionButton({ leadRequestId }: { leadRequestId: string }): React.JSX.Element {
+  const router = useRouter();
+  const [promoting, setPromoting] = React.useState(false);
+  const handlePromote = () => {
+    setPromoting(true);
+    abmApi.promoteLeadRequest(leadRequestId).then((res) => {
+      setPromoting(false);
+      if (res.data?.mission) {
+        router.push(`${paths.abm.missions}?id=${res.data.mission.id}`);
+      } else if (res.error) {
+        alert(res.error);
+      }
+    });
+  };
+  return (
+    <Button
+      variant="outlined"
+      size="small"
+      onClick={handlePromote}
+      disabled={promoting}
+      sx={{
+        borderColor: '#FF791B',
+        color: '#FF791B',
+        mr: 1,
+        '&:hover': {
+          borderColor: '#FF791B',
+          backgroundColor: '#FF791B',
+          color: '#FFFFFF',
+        },
+      }}
+    >
+      {promoting ? 'Promoting...' : 'Promote to Mission'}
+    </Button>
+  );
+}
 
 export default function ABMLeadRequestsPage(): React.JSX.Element {
   const router = useRouter();
@@ -359,7 +396,7 @@ export default function ABMLeadRequestsPage(): React.JSX.Element {
                       onClick={() => router.push(`${paths.abm.leadRequests}?id=${lr.id}`)}
                     >
                       <TableCell sx={{ color: '#FFFFFF', borderColor: '#262626', fontSize: '0.8rem' }}><Chip label={lr.lead_score ?? '—'} size="small" sx={{ fontFamily: 'monospace', bgcolor: '#262626', color: '#fff' }} /></TableCell>
-                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.8rem' }}>{lr.service_needed || '—'}</TableCell>
+                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.8rem' }}>{formatLaneDisplayName(lr.service_needed)}</TableCell>
                       <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.8rem' }}>{lr.organization_domain || lr.prospectCompany?.domain || '—'}</TableCell>
                       <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.8rem', fontFamily: 'monospace' }}>{dayjs(lr.created_at).format('MM/DD')}</TableCell>
                       <TableCell sx={{ borderColor: '#262626' }}>
@@ -384,7 +421,7 @@ export default function ABMLeadRequestsPage(): React.JSX.Element {
             ) : detail ? (
               <Box sx={{ '& > *': { mb: 1.5 } }}>
                 <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', textTransform: 'uppercase' }}>Service + Mission</Typography>
-                <Typography sx={{ color: '#FFFFFF', fontSize: '0.875rem' }}>{detail.service_needed || '—'}</Typography>
+                <Typography sx={{ color: '#FFFFFF', fontSize: '0.875rem' }}>{formatLaneDisplayName(detail.service_needed)}</Typography>
                 <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', textTransform: 'uppercase', mt: 2 }}>Organization + Contact</Typography>
                 <Typography sx={{ color: '#FFFFFF', fontSize: '0.875rem' }}>{detail.organization_name || detail.organization_domain || '—'}</Typography>
                 <Typography sx={{ color: '#9CA3AF', fontSize: '0.875rem' }}>{detail.work_email || detail.contact?.email || '—'}</Typography>
@@ -397,6 +434,9 @@ export default function ABMLeadRequestsPage(): React.JSX.Element {
                     <Button component={Link} href={paths.abm.account(String(detail.prospectCompany.id))} variant="outlined" size="small" sx={{ borderColor: '#262626', color: '#3b82f6', mr: 1 }}>
                       Open Account
                     </Button>
+                  )}
+                  {!detail.mission_id && (
+                    <PromoteToMissionButton leadRequestId={String(detail.id)} />
                   )}
                   <Box
                     component="span"

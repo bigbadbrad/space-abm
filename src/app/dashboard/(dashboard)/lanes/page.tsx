@@ -21,7 +21,7 @@ import dayjs from 'dayjs';
 import { paths } from '@/paths';
 import { abmApi } from '@/lib/abm/client';
 import { useABMFilters } from '@/contexts/abm-filter-context';
-import { LANE_OPTIONS } from '@/components/abm/layout/config';
+import { formatLaneDisplayName, LANE_OPTIONS } from '@/components/abm/layout/config';
 
 export default function ABMLanesPage(): React.JSX.Element {
   const { filters } = useABMFilters();
@@ -112,14 +112,15 @@ export default function ABMLanesPage(): React.JSX.Element {
               borderRadius: '8px !important',
               px: 2,
               py: 1,
+              textDecoration: 'none',
               '&.Mui-selected': { color: '#3b82f6', borderColor: '#3b82f6', bgcolor: 'rgba(59,130,246,0.08)' },
-              '&:hover': { borderColor: '#525252', bgcolor: 'rgba(255,255,255,0.04)' },
+              '&:hover': { borderColor: '#525252', bgcolor: 'rgba(255,255,255,0.04)', textDecoration: 'none' },
             },
           }}
         >
           {laneNames.map((name) => (
             <ToggleButton key={name} value={name}>
-              {name}
+              {formatLaneDisplayName(name)}
             </ToggleButton>
           ))}
         </ToggleButtonGroup>
@@ -130,7 +131,7 @@ export default function ABMLanesPage(): React.JSX.Element {
           <Card sx={{ backgroundColor: '#0A0A0A', border: '1px solid #262626', flex: 1, minWidth: 0 }}>
             <CardContent>
               <Typography sx={{ color: '#FFFFFF', fontSize: '1.125rem', fontWeight: 600, mb: 2 }}>
-                Accounts in {selectedLane}
+                Accounts in {formatLaneDisplayName(selectedLane)}
                 {explainer?.why_trending && (
                   <Typography component="span" sx={{ color: '#9CA3AF', fontSize: '0.875rem', fontWeight: 400, ml: 1 }}>
                     ({explainer.why_trending})
