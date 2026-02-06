@@ -201,6 +201,15 @@ export default function ABMMissionsPage(): React.JSX.Element {
             </Card>
             <Card
               sx={{ backgroundColor: '#0A0A0A', border: '1px solid #262626', cursor: 'pointer', minWidth: 140 }}
+              onClick={() => setFilters((f) => ({ ...f, stage: '', due_soon: '', stale: '', hot: 'true' }))}
+            >
+              <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
+                <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', textTransform: 'uppercase' }}>Hot</Typography>
+                <Typography sx={{ color: '#10B981', fontSize: '1.5rem', fontWeight: 600 }}>{summary.hot}</Typography>
+              </CardContent>
+            </Card>
+            <Card
+              sx={{ backgroundColor: '#0A0A0A', border: '1px solid #262626', cursor: 'pointer', minWidth: 140 }}
               onClick={() => setFilters((f) => ({ ...f, due_soon: 'true', stale: '', hot: '' }))}
             >
               <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
@@ -215,15 +224,6 @@ export default function ABMMissionsPage(): React.JSX.Element {
               <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
                 <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', textTransform: 'uppercase' }}>Stale</Typography>
                 <Typography sx={{ color: '#EF4444', fontSize: '1.5rem', fontWeight: 600 }}>{summary.stale}</Typography>
-              </CardContent>
-            </Card>
-            <Card
-              sx={{ backgroundColor: '#0A0A0A', border: '1px solid #262626', cursor: 'pointer', minWidth: 140 }}
-              onClick={() => setFilters((f) => ({ ...f, stage: '', due_soon: '', stale: '', hot: 'true' }))}
-            >
-              <CardContent sx={{ py: 1.5, '&:last-child': { pb: 1.5 } }}>
-                <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', textTransform: 'uppercase' }}>Hot</Typography>
-                <Typography sx={{ color: '#10B981', fontSize: '1.5rem', fontWeight: 600 }}>{summary.hot}</Typography>
               </CardContent>
             </Card>
           </>

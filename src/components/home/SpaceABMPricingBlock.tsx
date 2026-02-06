@@ -73,7 +73,6 @@ export function SpaceABMPricingBlock({
         py: { xs: 8, md: 10 },
         backgroundColor: '#000000',
         color: '#FFFFFF',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
       }}
     >
       <Container maxWidth="lg">

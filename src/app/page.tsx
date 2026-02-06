@@ -5,6 +5,7 @@ import { HeroBlock } from '@/components/HeroBlock';
 import { HowSpaceABMWorksBlock } from '@/components/home/HowSpaceABMWorksBlock';
 import { WidgetProcurementBriefBlock } from '@/components/home/WidgetProcurementBriefBlock';
 import { ABMBuiltForSpaceBlock } from '@/components/home/ABMBuiltForSpaceBlock';
+import { RevenueLifecycleBlock } from '@/components/home/RevenueLifecycleBlock';
 import { SpaceABMPricingBlock } from '@/components/home/SpaceABMPricingBlock';
 import { MarkdownRenderer } from '@/components/dashboard/docs/markdown-renderer';
 
@@ -24,6 +25,7 @@ export default function Page() {
       <HowSpaceABMWorksBlock />
       <WidgetProcurementBriefBlock />
       <ABMBuiltForSpaceBlock />
+      <RevenueLifecycleBlock />
       <SpaceABMPricingBlock />
       <Box sx={{ py: 6, backgroundColor: '#000000', color: '#e5e7eb' }}>
         <Container maxWidth="md">

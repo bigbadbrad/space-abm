@@ -8,7 +8,7 @@ const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'] });
 
 export const HeroBlock: FC = () => {
   return (
-    <Box sx={{ backgroundColor: '#000000', pt: { xs: 12, md: 16 }, pb: { xs: 8, md: 12 }, borderBottom: '1px solid rgba(255, 255, 255, 0.12)' }}>
+    <Box sx={{ backgroundColor: '#000000', pt: { xs: 12, md: 16 }, pb: { xs: 8, md: 12 } }}>
       <Container maxWidth="md">
         <Typography
           component="h1"

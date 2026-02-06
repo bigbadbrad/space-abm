@@ -15,7 +15,6 @@ export function WidgetProcurementBriefBlock() {
       sx={{
         py: { xs: 8, md: 10 },
         backgroundColor: '#000000',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.12)',
       }}
     >
       <Container maxWidth="md">
