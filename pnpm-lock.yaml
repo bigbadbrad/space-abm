@@ -38,9 +38,6 @@ importers:
       '@fontsource/plus-jakarta-sans':
         specifier: 5.0.20
         version: 5.0.20
-      '@fontsource/rajdhani':
-        specifier: ^5.2.7
-        version: 5.2.7
       '@fontsource/roboto-mono':
         specifier: 5.0.18
         version: 5.0.18
@@ -505,9 +502,6 @@ packages:
 
   '@fontsource/plus-jakarta-sans@5.0.20':
     resolution: {integrity: sha512-a887FrG31RWqliRg1jXZM8tjzqee2NlO3Vuc5uGdws2EFvOg46P9VMaeS5eM3jihFq8Kj0zUQD0GYQqcxdkfCA==}
-
-  '@fontsource/rajdhani@5.2.7':
-    resolution: {integrity: sha512-7Gy10U688fCdeFfYKebUF2TZotdgH/ghKyMsseXPmB60lpaUHC8aoCSJl5/OpZ+KHKSU2TqBfKfteVkcIXxTAQ==}
 
   '@fontsource/roboto-mono@5.0.18':
     resolution: {integrity: sha512-hKuwk/cy3i6fWPzazT5xjgWq4YNqZWDHVbJh2Wwj3KYvWGi2v3ToBw/4LKQ+ggEkPLcIG6VU8GpCT3Xtf+mbbA==}
@@ -4701,8 +4695,6 @@ snapshots:
   '@fontsource/inter@5.0.18': {}
 
   '@fontsource/plus-jakarta-sans@5.0.20': {}
-
-  '@fontsource/rajdhani@5.2.7': {}
 
   '@fontsource/roboto-mono@5.0.18': {}
 
