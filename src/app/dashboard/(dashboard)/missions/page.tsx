@@ -28,7 +28,6 @@ import { paths } from '@/paths';
 import { abmApi, type ABMMission, type ABMMissionDetailResponse } from '@/lib/abm/client';
 import { formatLaneDisplayName, LANE_OPTIONS } from '@/components/abm/layout/config';
 
-const MISSION_STAGES = ['new', 'qualified', 'solutioning', 'proposal', 'negotiation', 'won', 'lost', 'on_hold'];
 const ACTIVE_STAGES = ['new', 'qualified', 'solutioning', 'proposal', 'negotiation'];
 
 export default function ABMMissionsPage(): React.JSX.Element {
@@ -168,11 +167,11 @@ export default function ABMMissionsPage(): React.JSX.Element {
   const handleCloseMission = (outcome: 'won' | 'lost' | 'on_hold') => {
     if (!selectedId) return;
     const reason = prompt(`Reason (optional):`);
+    if (reason === null) return; // User clicked Cancel
     abmApi.closeMission(selectedId, { outcome, reason: reason || undefined }).then((res) => {
       if (res.data) {
-        setDetail(null);
-        router.push(paths.abm.missions);
-        fetchMissions();
+        setFilters((f) => ({ ...f, stage: outcome }));
+        abmApi.getMission(selectedId).then((r) => r.data && setDetail(r.data));
         abmApi.getMissionsSummary({ range: '7d' }).then((s) => s.data && setSummary(s.data));
       }
     });
@@ -241,20 +240,18 @@ export default function ABMMissionsPage(): React.JSX.Element {
           onKeyDown={(e) => e.key === 'Enter' && fetchMissions()}
           sx={{ minWidth: 180, '& .MuiInputBase-root': { backgroundColor: '#0A0A0A', color: '#fff' } }}
         />
-        <FormControl size="small" sx={{ minWidth: 120 }}>
-          <InputLabel sx={{ color: '#9CA3AF' }}>Stage</InputLabel>
-          <Select
-            value={filters.stage}
-            label="Stage"
-            onChange={(e) => setFilters((f) => ({ ...f, stage: e.target.value }))}
-            sx={{ backgroundColor: '#0A0A0A', color: '#fff' }}
-          >
-            <MenuItem value="">All active</MenuItem>
-            {MISSION_STAGES.map((s) => (
-              <MenuItem key={s} value={s}>{s}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <Chip
+          label="Active"
+          size="small"
+          onClick={() => setFilters((f) => ({ ...f, stage: '' }))}
+          sx={{ cursor: 'pointer', bgcolor: filters.stage === '' ? '#3b82f633' : '#262626', color: filters.stage === '' ? '#3b82f6' : '#9CA3AF' }}
+        />
+        <Chip
+          label="Closed"
+          size="small"
+          onClick={() => setFilters((f) => ({ ...f, stage: 'closed' }))}
+          sx={{ cursor: 'pointer', bgcolor: filters.stage === 'closed' ? '#3b82f633' : '#262626', color: filters.stage === 'closed' ? '#3b82f6' : '#9CA3AF' }}
+        />
         <FormControl size="small" sx={{ minWidth: 180 }}>
           <InputLabel sx={{ color: '#9CA3AF' }}>Lane</InputLabel>
           <Select
@@ -434,6 +431,33 @@ export default function ABMMissionsPage(): React.JSX.Element {
                       </Button>
                     </Box>
                   )}
+
+                  {/* Related Programs (Procurement Radar) */}
+                  <Box>
+                    <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', textTransform: 'uppercase', mb: 0.5 }}>Related Programs</Typography>
+                    {(detail as { linked_programs?: { id: string; procurement_program_id: string; program?: { id: string; title: string; status: string; due_at?: string; url?: string } }[] }).linked_programs?.length ? (
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, mb: 1 }}>
+                        {(detail as any).linked_programs.map((lp: { id: string; procurement_program_id: string; program?: { id: string; title: string; status: string; due_at?: string; url?: string } }) => (
+                          <Box key={lp.id}>
+                            {lp.program?.url ? (
+                              <Button component="a" href={lp.program.url} target="_blank" rel="noopener noreferrer" size="small" sx={{ color: '#3b82f6', minWidth: 0, p: 0, justifyContent: 'flex-start', textAlign: 'left' }}>
+                                {lp.program?.title?.slice(0, 50) || lp.procurement_program_id} {lp.program?.due_at ? `· Due ${dayjs(lp.program.due_at).format('MM/DD')}` : ''} →
+                              </Button>
+                            ) : (
+                              <Button component={Link} href={`${paths.abm.programs}?id=${lp.procurement_program_id}`} size="small" sx={{ color: '#3b82f6', minWidth: 0, p: 0, justifyContent: 'flex-start', textAlign: 'left' }}>
+                                {lp.program?.title?.slice(0, 50) || lp.procurement_program_id} {lp.program?.due_at ? `· Due ${dayjs(lp.program.due_at).format('MM/DD')}` : ''} →
+                              </Button>
+                            )}
+                          </Box>
+                        ))}
+                      </Box>
+                    ) : (
+                      <Typography sx={{ color: '#9CA3AF', fontSize: '0.85rem', mb: 0.5 }}>No programs linked</Typography>
+                    )}
+                    <Button component={Link} href={`${paths.abm.programs}?attachMissionId=${selectedId}`} variant="outlined" size="small" sx={{ borderColor: '#262626', color: '#3b82f6' }}>
+                      Attach Program
+                    </Button>
+                  </Box>
 
                   {/* People */}
                   <Box>

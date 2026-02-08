@@ -109,6 +109,13 @@ export interface ABMMissionsResponse {
   limit: number;
 }
 
+export interface ABMMissionLinkedProgram {
+  id: string;
+  mission_id: string;
+  procurement_program_id: string;
+  program?: { id: string; title: string; status: string; posted_at?: string; due_at?: string; service_lane?: string; url?: string };
+}
+
 export interface ABMMissionDetailResponse {
   mission: ABMMission & {
     artifacts?: { id: string; type: string; title?: string; url?: string; createdBy?: { id: string; name?: string; preferred_name?: string } }[];
@@ -118,6 +125,138 @@ export interface ABMMissionDetailResponse {
   account_summary?: { intent_score?: number; intent_stage?: string; surge_level?: string; top_lane?: string };
   related_lead_requests?: unknown[];
   related_intent_signals?: unknown[];
+  linked_programs?: ABMMissionLinkedProgram[];
+}
+
+export interface ABMProgram {
+  id: string;
+  title: string;
+  source: string;
+  status: string;
+  posted_at?: string | null;
+  due_at?: string | null;
+  service_lane?: string | null;
+  topic?: string | null;
+  agency?: string | null;
+  url?: string | null;
+  external_id?: string;
+  linked_accounts_count?: number;
+  linked_missions_count?: number;
+  relevance_score?: number;
+  match_confidence?: number;
+  suppressed?: boolean;
+  suppressed_reason?: string | null;
+  reasons_summary?: string | null;
+}
+
+export interface ABMProgramsSummaryResponse {
+  counts_by_lane: Record<string, number>;
+  open_count: number;
+  due_soon_count: number;
+  new_posted_count: number;
+  awarded_count: number;
+  top_agencies: { name: string; count: number }[];
+}
+
+export interface ABMProgramsResponse {
+  programs: ABMProgram[];
+  total: number;
+}
+
+export interface ABMProgramAccountLink {
+  id: string;
+  prospect_company_id: string;
+  link_type: string;
+  confidence: number;
+  prospectCompany?: { id: string; name: string; domain: string };
+}
+
+export interface ABMProgramMissionLink {
+  id: string;
+  mission_id: string;
+  notes?: string | null;
+  mission?: { id: string; title: string; stage?: string; service_lane?: string };
+}
+
+export interface ABMProgramDetail {
+  id: string;
+  title: string;
+  source: string;
+  status: string;
+  summary?: string | null;
+  agency?: string | null;
+  office?: string | null;
+  naics?: string | null;
+  psc?: string | null;
+  set_aside?: string | null;
+  notice_type?: string | null;
+  posted_at?: string | null;
+  due_at?: string | null;
+  url?: string | null;
+  service_lane?: string | null;
+  topic?: string | null;
+  weight_override?: number | null;
+  accountLinks?: (ABMProgramAccountLink & { prospectCompany?: { id: string; name: string; domain: string } })[];
+  missionLinks?: (ABMProgramMissionLink & { mission?: { id: string; title: string; stage?: string; service_lane?: string } })[];
+  intent_signals?: { id: string; prospect_company_id: string; occurred_at: string; topic?: string; weight?: number; source?: string }[];
+  relevance_score?: number;
+  match_confidence?: number;
+  match_reasons_json?: { type: string; rule_id?: string; label?: string; add_score?: number }[];
+  suppressed?: boolean;
+  suppressed_reason?: string | null;
+  suppression_reason?: string | null;
+}
+
+/** Program detail view model (API returns this shape) */
+export interface ABMProgramDetailView {
+  program: ABMProgramDetail;
+  overview: {
+    agency?: string | null;
+    office?: string | null;
+    agency_path?: string | null;
+    notice_type?: string | null;
+    posted_at?: string | null;
+    updated_at_source?: string | null;
+    due_at?: string | null;
+    set_aside?: string | null;
+    naics?: string | null;
+    psc?: string | null;
+    place_of_performance?: { country?: string; state?: string; city?: string } | null;
+    contract_type?: string | null;
+    estimated_value?: unknown;
+    solicitation_number?: string | null;
+    primary_urls?: string[];
+  };
+  requirements: {
+    description?: string | null;
+    extracted?: {
+      objective?: string | null;
+      scope?: string[];
+      deliverables?: string[];
+      submission?: string[];
+      evaluation?: string[];
+    };
+  };
+  attachments: { url: string; title?: string }[];
+  contacts: { role?: string; name?: string | null; email?: string | null; phone?: string | null }[];
+  triage: {
+    owner_user_id?: string | null;
+    owner?: { id: string; name?: string; email?: string } | null;
+    triage_status?: string | null;
+    priority?: string | null;
+    internal_notes?: string | null;
+    last_triaged_at?: string | null;
+  };
+  matching: {
+    relevance_score?: number;
+    match_confidence?: number;
+    match_reasons_json?: { label?: string; add_score?: number }[];
+    classification_version?: string;
+    suppressed?: boolean;
+    suppressed_reason?: string | null;
+  };
+  why_matched?: string;
+  notes: { id: string; note: string; created_at: string; user?: { id: string; name?: string; preferred_name?: string; email?: string } }[];
 }
 
 export interface ABMLeadRequest {
@@ -236,6 +375,43 @@ export const abmApi = {
   getLeadRequest: (id: string) => abmFetch<ABMLeadRequest>(`/lead-requests/${id}`),
   promoteLeadRequest: (id: string, body?: { title?: string; owner_user_id?: string; priority?: string }) =>
     abmFetch<{ mission: ABMMission; message: string }>(`/lead-requests/${id}/promote`, { method: 'POST', body: JSON.stringify(body || {}) }),
+  // Programs (Procurement Radar)
+  getProgramsSummary: (params?: { range?: string }) => {
+    const sp = new URLSearchParams();
+    if (params?.range) sp.set('range', params.range);
+    return abmFetch<ABMProgramsSummaryResponse>(`/programs/summary${sp.toString() ? `?${sp}` : ''}`);
+  },
+  getPrograms: (params?: { range?: string; status?: string; lane?: string; source?: string; topic?: string; agency?: string; due?: string; search?: string; page?: number; limit?: number; sort?: string; relevant?: 'true' | 'false' | 'suppressed'; min_score?: number; suppressed?: string }) => {
+    const sp = new URLSearchParams();
+    if (params?.range) sp.set('range', params.range);
+    if (params?.status) sp.set('status', params.status);
+    if (params?.lane) sp.set('lane', params.lane);
+    if (params?.source) sp.set('source', params.source);
+    if (params?.topic) sp.set('topic', params.topic);
+    if (params?.agency) sp.set('agency', params.agency);
+    if (params?.due) sp.set('due', params.due);
+    if (params?.search) sp.set('search', params.search);
+    if (params?.page) sp.set('page', String(params.page));
+    if (params?.limit) sp.set('limit', String(params.limit));
+    if (params?.sort) sp.set('sort', params.sort);
+    if (params?.relevant) sp.set('relevant', params.relevant);
+    if (params?.min_score != null) sp.set('min_score', String(params.min_score));
+    if (params?.suppressed) sp.set('suppressed', params.suppressed);
+    const q = sp.toString();
+    return abmFetch<ABMProgramsResponse>(`/programs${q ? `?${q}` : ''}`);
+  },
+  getProgram: (id: string) => abmFetch<ABMProgramDetailView>(`/programs/${id}`),
+  patchProgram: (id: string, body: { owner_user_id?: string; triage_status?: string; priority?: string; internal_notes?: string; suppressed?: boolean; suppressed_reason?: string }) =>
+    abmFetch<ABMProgramDetail>(`/programs/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  postProgramNote: (id: string, note: string) => abmFetch<{ note: { id: string; note: string; created_at: string; user?: { id: string; name?: string; preferred_name?: string } } }>(`/programs/${id}/notes`, { method: 'POST', body: JSON.stringify({ note }) }),
+  postProgramLinkAccount: (id: string, body: { prospect_company_id: string; link_type?: string; confidence?: number; evidence_json?: object }) =>
+    abmFetch<{ link: ABMProgramAccountLink }>(`/programs/${id}/link-account`, { method: 'POST', body: JSON.stringify(body) }),
+  deleteProgramLinkAccount: (id: string, linkId: string) =>
+    abmFetch<{ message: string }>(`/programs/${id}/link-account/${linkId}`, { method: 'DELETE' }),
+  postProgramLinkMission: (id: string, body: { mission_id: string; notes?: string }) =>
+    abmFetch<{ link: ABMProgramMissionLink }>(`/programs/${id}/link-mission`, { method: 'POST', body: JSON.stringify(body) }),
+  postProgramCreateMission: (id: string, body?: { owner_user_id?: string; title?: string; priority?: string }) =>
+    abmFetch<{ mission: ABMMission; message: string }>(`/programs/${id}/create-mission`, { method: 'POST', body: JSON.stringify(body || {}) }),
   getMissionsSummary: (params?: { range?: string }) => {
     const sp = new URLSearchParams();
     if (params?.range) sp.set('range', params.range);
@@ -329,6 +505,35 @@ export const abmApi = {
     abmFetch<{ weights: ABMScoreWeight[] }>('/admin/score-weights', { method: 'POST', body: JSON.stringify({ score_config_id: scoreConfigId, weights }) }),
   getAccountScoringDetails: (accountId: string) => abmFetch<ABMScoringDetails>(`/accounts/${accountId}/scoring-details`),
   getLeadRequestScoringDetails: (leadRequestId: string) => abmFetch<ABMScoringDetails>(`/lead-requests/${leadRequestId}/scoring-details`),
+  // Procurement admin
+  getTopicRules: () => abmFetch<{ rules: ABMTopicRule[] }>('/admin/topic-rules'),
+  postTopicRule: (body: Partial<ABMTopicRule>) => abmFetch<{ rule: ABMTopicRule }>('/admin/topic-rules', { method: 'POST', body: JSON.stringify(body) }),
+  patchTopicRule: (id: string, body: Partial<ABMTopicRule>) => abmFetch<{ rule: ABMTopicRule }>(`/admin/topic-rules/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  reorderTopicRules: (ids: string[]) => abmFetch<{ message: string }>('/admin/topic-rules/reorder', { method: 'POST', body: JSON.stringify({ ids }) }),
+  getSourceWeights: () => abmFetch<{ weights: ABMSourceWeight[] }>('/admin/source-weights'),
+  postSourceWeight: (body: { source: string; multiplier?: number; enabled?: boolean }) => abmFetch<{ weight: ABMSourceWeight }>('/admin/source-weights', { method: 'POST', body: JSON.stringify(body) }),
+  getImportRuns: () => abmFetch<{ runs: ABMImportRun[] }>('/admin/import-runs'),
+  runSamImport: () => abmFetch<{ message: string }>('/jobs/import-sam', { method: 'POST' }),
+  runUsaspendingIngest: (days?: number) =>
+    abmFetch<{ message: string }>('/jobs/ingest-usaspending', { method: 'POST', body: JSON.stringify({ days: days ?? 30 }) }),
+  runSpacewerxIngest: () => abmFetch<{ message: string }>('/jobs/ingest-spacewerx', { method: 'POST' }),
+  flushCache: () => abmFetch<{ message: string }>('/admin/cache/flush', { method: 'POST' }),
+  getProgramRules: () => abmFetch<{ rules: ABMProgramRule[] }>('/admin/program-rules'),
+  postProgramRule: (body: Partial<ABMProgramRule>) => abmFetch<{ rule: ABMProgramRule }>('/admin/program-rules', { method: 'POST', body: JSON.stringify(body) }),
+  patchProgramRule: (id: string, body: Partial<ABMProgramRule>) => abmFetch<{ rule: ABMProgramRule }>(`/admin/program-rules/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  getProgramSuppressionRules: () => abmFetch<{ rules: ABMProgramSuppressionRule[] }>('/admin/program-suppression-rules'),
+  postProgramSuppressionRule: (body: Partial<ABMProgramSuppressionRule>) => abmFetch<{ rule: ABMProgramSuppressionRule }>('/admin/program-suppression-rules', { method: 'POST', body: JSON.stringify(body) }),
+  patchProgramSuppressionRule: (id: string, body: Partial<ABMProgramSuppressionRule>) => abmFetch<{ rule: ABMProgramSuppressionRule }>(`/admin/program-suppression-rules/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  getLaneDefinitions: () => abmFetch<{ lanes: ABMLaneDefinition[] }>('/admin/lane-definitions'),
+  getAgencyBlacklist: () => abmFetch<{ entries: ABMAgencyBlacklistEntry[] }>('/admin/agency-blacklist'),
+  postAgencyBlacklist: (body: { agency_pattern: string; notes?: string; enabled?: boolean }) =>
+    abmFetch<{ entry: ABMAgencyBlacklistEntry }>('/admin/agency-blacklist', { method: 'POST', body: JSON.stringify(body) }),
+  deleteAgencyBlacklist: (id: string) => abmFetch<{ message: string }>(`/admin/agency-blacklist/${id}`, { method: 'DELETE' }),
+  patchAgencyBlacklist: (id: string, body: { agency_pattern?: string; notes?: string; enabled?: boolean }) =>
+    abmFetch<{ entry: ABMAgencyBlacklistEntry }>(`/admin/agency-blacklist/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  reclassifyPrograms: (range?: string) => abmFetch<{ message: string }>(`/admin/programs/reclassify?range=${range || '7d'}`, { method: 'POST' }),
+  overrideProgramClassification: (id: string, body: { service_lane?: string; topic?: string; relevance_score?: number; suppressed?: boolean; notes?: string }) =>
+    abmFetch<{ program: ABMProgramDetail }>(`/admin/programs/${id}/override`, { method: 'POST', body: JSON.stringify(body) }),
 };
 
 export interface ABMScoringDetails {
@@ -395,6 +600,84 @@ export interface ABMMissionTemplate {
   default_title_pattern?: string | null;
   default_fields_json?: Record<string, unknown> | null;
   enabled: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ABMTopicRule {
+  id: string;
+  enabled: boolean;
+  priority: number;
+  source?: string | null;
+  match_field?: string | null;
+  match_type?: string | null;
+  match_value?: string | null;
+  service_lane?: string | null;
+  topic?: string | null;
+  weight?: number | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ABMSourceWeight {
+  source: string;
+  multiplier: number;
+  enabled: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ABMImportRun {
+  id: string;
+  source: string;
+  started_at: string;
+  finished_at?: string | null;
+  status: string;
+  records_fetched?: number | null;
+  records_upserted?: number | null;
+  error_count?: number | null;
+  error_sample_json?: unknown | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ABMProgramRule {
+  id: string;
+  enabled: boolean;
+  priority: number;
+  match_field?: string | null;
+  match_type?: string | null;
+  match_value?: string | null;
+  service_lane?: string | null;
+  topic?: string | null;
+  add_score: number;
+  set_confidence?: number | null;
+  notes?: string | null;
+}
+
+export interface ABMProgramSuppressionRule {
+  id: string;
+  enabled: boolean;
+  priority: number;
+  match_field?: string | null;
+  match_type?: string | null;
+  match_value?: string | null;
+  suppress_reason?: string | null;
+  suppress_score_threshold?: number | null;
+}
+
+export interface ABMLaneDefinition {
+  lane_key: string;
+  display_name: string;
+  description?: string | null;
+  keywords_json?: string[] | null;
+}
+
+export interface ABMAgencyBlacklistEntry {
+  id: string;
+  agency_pattern: string;
+  enabled: boolean;
+  notes?: string | null;
   created_at?: string;
   updated_at?: string;
 }

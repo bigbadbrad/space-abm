@@ -299,11 +299,11 @@ export default function ABMOverviewPage(): React.JSX.Element {
               ) : (
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                   {filteredQueue.map((item, idx) => {
-                    const primary = item.title ?? item.org_name ?? item.name ?? item.domain ?? '—';
-                    const score = item.lead_score ?? item.intent_score;
-                    const timeStr = item.next_step_due_at ?? item.last_activity_at ?? item.created_at ?? item.submitted_at ?? item.changed_at ?? item.last_contacted_at;
                     const isLead = item.type === 'new_lead_request';
                     const isMission = item.type === 'mission_due' || item.type === 'mission_stale' || item.type === 'mission_new';
+                    const primary = isMission ? (item.org_name ?? item.name ?? item.domain ?? '—') : (item.title ?? item.org_name ?? item.name ?? item.domain ?? '—');
+                    const score = item.lead_score ?? item.intent_score;
+                    const timeStr = item.next_step_due_at ?? item.last_activity_at ?? item.created_at ?? item.submitted_at ?? item.changed_at ?? item.last_contacted_at;
                     const itemHref = isMission && item.mission_id
                       ? `${paths.abm.missions}?id=${item.mission_id}`
                       : isLead
@@ -356,7 +356,7 @@ export default function ABMOverviewPage(): React.JSX.Element {
                           >
                             View
                           </Button>
-                          {!isLead && item.prospect_company_id && (
+                          {!isLead && !isMission && item.prospect_company_id && (
                             <Button
                               size="small"
                               sx={{ fontSize: '0.7rem', color: '#3b82f6', minWidth: 'auto', px: 1 }}

@@ -7,15 +7,27 @@ export const abmNavItems: NavItemConfig[] = [
   { key: 'people', title: 'People', href: paths.abm.people, icon: 'users' },
   { key: 'lanes', title: 'Service Lanes', href: paths.abm.lanes, icon: 'columns' },
   { key: 'missions', title: 'Missions', href: paths.abm.missions, icon: 'rocket-launch', matcher: { type: 'startsWith', href: paths.abm.missions } },
+  { key: 'programs', title: 'Programs', href: paths.abm.programs, icon: 'shield-star', matcher: { type: 'startsWith', href: paths.abm.programs } },
   { key: 'lead-requests', title: 'Lead Requests', href: paths.abm.leadRequests, icon: 'file-text', matcher: { type: 'startsWith', href: paths.abm.leadRequests } },
   { key: 'activity', title: 'Activity', href: paths.abm.activity, icon: 'chart-line' },
   { key: 'admin', title: 'Admin', href: paths.abm.admin, icon: 'gear-six', adminOnly: true },
 ];
 
-/** Converts lane keys like "hosted_payload" to user-friendly "hosted payload" */
+/** Converts lane keys like "hosted_payload" to user-friendly "Hosted Payload" */
 export function formatLaneDisplayName(lane: string | null | undefined): string {
   if (!lane) return '—';
-  return lane.replace(/_/g, ' ');
+  return lane.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+/** Converts source_type to display label (Sprint 2: SAM, USAspending, SpaceWERX) */
+export function formatSourceLabel(source: string | null | undefined): string {
+  if (!source) return '—';
+  const labels: Record<string, string> = {
+    sam_opportunity: 'SAM.gov',
+    usaspending_award: 'USAspending',
+    spacewerx_award: 'SpaceWERX',
+  };
+  return labels[source] ?? source.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 export const LANE_OPTIONS = [

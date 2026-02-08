@@ -18,6 +18,7 @@ import { AdminMissionTemplates } from '@/components/abm/admin/AdminMissionTempla
 import { AdminScoringModels } from '@/components/abm/admin/AdminScoringModels';
 import { AdminAuditLog } from '@/components/abm/admin/AdminAuditLog';
 import { AdminJobs } from '@/components/abm/admin/AdminJobs';
+import { AdminProcurement } from '@/components/abm/admin/AdminProcurement';
 
 export default function ABMAdminPage(): React.JSX.Element {
   const router = useRouter();
@@ -61,6 +62,7 @@ export default function ABMAdminPage(): React.JSX.Element {
         <Tab label="Mission Templates" value="mission-templates" />
         <Tab label="Audit Log" value="audit-log" />
         <Tab label="Jobs & Health" value="jobs" />
+        <Tab label="Procurement" value="procurement" />
       </Tabs>
       {tab === 'event-rules' && <AdminEventRules />}
       {tab === 'scoring-models' && <AdminScoringModels />}
@@ -68,6 +70,7 @@ export default function ABMAdminPage(): React.JSX.Element {
       {tab === 'mission-templates' && <AdminMissionTemplates />}
       {tab === 'audit-log' && <AdminAuditLog />}
       {tab === 'jobs' && <AdminJobs />}
+      {tab === 'procurement' && <AdminProcurement />}
     </Box>
   );
 }
