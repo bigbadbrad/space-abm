@@ -14,7 +14,7 @@ export const HomeHero: FC<HomeHeroProps> = ({ backgroundColor = '#000000' }) => 
     <Box
       sx={{
         backgroundColor: '#000000',
-        pt: { xs: 0, md: 4 },
+        pt: { xs: 0, md: 20 },
         width: '100%',
         position: 'relative',
         overflow: 'hidden',

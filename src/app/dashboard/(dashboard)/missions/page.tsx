@@ -29,6 +29,7 @@ import { abmApi, type ABMMission, type ABMMissionDetailResponse } from '@/lib/ab
 import { formatLaneDisplayName, LANE_OPTIONS } from '@/components/abm/layout/config';
 
 const ACTIVE_STAGES = ['new', 'qualified', 'solutioning', 'proposal', 'negotiation'];
+const CLOSED_STAGES = ['won', 'lost', 'on_hold'];
 
 export default function ABMMissionsPage(): React.JSX.Element {
   const router = useRouter();
@@ -148,6 +149,21 @@ export default function ABMMissionsPage(): React.JSX.Element {
         abmApi.getMission(selectedId).then((r) => r.data && setDetail(r.data));
       }
     });
+  };
+
+  const handleReopenMission = () => {
+    if (!selectedId || !detail) return;
+    const targetStage = 'qualified';
+    abmApi
+      .patchMission(selectedId, { stage: targetStage })
+      .then((res) => {
+        if (res.data) {
+          setDetail({ ...detail, mission: { ...detail.mission, ...res.data } });
+          setFilters((f) => ({ ...f, stage: '' }));
+          fetchMissions();
+          abmApi.getMissionsSummary({ range: '7d' }).then((s) => s.data && setSummary(s.data));
+        }
+      });
   };
 
   const handleAddNote = () => {
@@ -577,7 +593,7 @@ export default function ABMMissionsPage(): React.JSX.Element {
                     </Box>
                   </Drawer>
 
-                  {/* Close mission */}
+                  {/* Close / reopen mission */}
                   {ACTIVE_STAGES.includes(detail.mission.stage || '') && (
                     <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
                       <Button variant="outlined" size="small" onClick={() => handleCloseMission('won')} sx={{ borderColor: '#10B981', color: '#10B981' }}>
@@ -588,6 +604,13 @@ export default function ABMMissionsPage(): React.JSX.Element {
                       </Button>
                       <Button variant="outlined" size="small" onClick={() => handleCloseMission('on_hold')} sx={{ borderColor: '#F59E0B', color: '#F59E0B' }}>
                         On Hold
+                      </Button>
+                    </Box>
+                  )}
+                  {CLOSED_STAGES.includes(detail.mission.stage || '') && (
+                    <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                      <Button variant="outlined" size="small" onClick={handleReopenMission} sx={{ borderColor: '#3b82f6', color: '#3b82f6' }}>
+                        Reopen (set to qualified)
                       </Button>
                     </Box>
                   )}

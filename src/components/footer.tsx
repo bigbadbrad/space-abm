@@ -27,9 +27,8 @@ export const Footer: FC = () => {
             <LogoSpaceGtmStacked color={colorScheme === 'dark' ? '#F5F5F7' : '#111827'} height={120} />
           </Link>
           <Box sx={{ mt: 4, display: 'flex', flexDirection: { xs: 'row', md: 'row' }, alignItems: 'center', justifyContent: 'center', gap: 1, width: '100%' }}>
-            <Link href="/dashboard/how-it-works"><Button sx={{ color: iconColor, textTransform: 'none' }}>How it works</Button></Link>
             <Link href="/"><Button sx={{ color: iconColor, textTransform: 'none' }}>About</Button></Link>
-            <Link href="/"><Button sx={{ color: iconColor, textTransform: 'none' }}>Press</Button></Link>
+            <Link href="/dashboard/how-it-works"><Button sx={{ color: iconColor, textTransform: 'none' }}>How It Works</Button></Link>
             <Box sx={{ position: 'relative', display: 'inline-block', '&:hover::before': { content: '"hello@fullorbit.co"', position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', backgroundColor: 'rgba(0, 0, 0, 0.9)', color: 'white', padding: '8px 12px', borderRadius: '4px', fontSize: '0.875rem', whiteSpace: 'nowrap', zIndex: 9999, pointerEvents: 'none', marginBottom: '8px' } }}>
               <Button sx={{ color: iconColor, textTransform: 'none' }}>Contact</Button>
             </Box>
