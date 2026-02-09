@@ -11,6 +11,7 @@ The following explains how the Space ABM system works end-to-end. It covers:
 - Three dashboards (Hot Accounts, Service Lane Intent, People Inside Accounts)
 - AI Account Summary (cached)
 - Missions (tracking procurement opportunities)
+- Programs (unified procurement opportunities from SAM.gov, USAspending, SpaceWERX)
 - Routing/workflow state
 - The API surface we've added
 
@@ -126,6 +127,94 @@ On the **Overview** (Command Center) page, **Today's Priorities** now includes m
 - **New Mission** — Missions recently created from lead requests
 
 Use the **Missions** tab to see only these items. Click any row to open that mission.
+
+---
+
+## Programs: Procurement Opportunities Across Sources
+
+The **Programs** tab is your unified view of federal procurement opportunities. It aggregates programs from multiple sources and lets you filter, triage, and link them to accounts and missions.
+
+### What is a Program?
+
+A **Program** is a procurement opportunity—a notice, solicitation, or award from federal sources. Programs are ingested from:
+
+- **SAM.gov** — Federal opportunities (solicitations, pre-solicitations, sources sought)
+- **USAspending** — Contract awards (obligations in the last 30 days)
+- **SpaceWERX** — STRATFI/TACFI awards and company selections
+
+Each program has a title, agency, status (open, awarded, etc.), posted date, and links to the source. Programs are **classified** by rules—assigning a **service lane** (Launch, Hosted Payload, Ground Station, etc.) and a **relevance score**—so you can focus on space-related opportunities.
+
+### Finding the Programs Page
+
+Open **Programs** from the left navigation (between Missions and Lead Requests). The page uses a two-pane layout: list on the left, detail inspector on the right.
+
+### Summary Cards at the Top
+
+Four cards give you a quick snapshot:
+
+- **NEW (30D)** — Programs posted in the last 30 days
+- **DUE SOON** — Programs with a due date in the next 14 days
+- **AWARDED** — Programs that have been awarded
+- **OPEN** — Programs still open for response
+
+### Filtering and Sorting
+
+Use the filter bar to narrow the list:
+
+- **Search** — By title, agency, or source ID
+- **Range** — 7, 30, or 90 days (posted date range)
+- **Status** — All, open, awarded, etc.
+- **View** — **Relevant** (default): programs with relevance score ≥ 35; **All**: all non-suppressed; **Suppressed**: programs that matched suppression rules
+- **Source** — All, SAM.gov, USAspending, SpaceWERX
+- **Lane** — Launch, Hosted Payload, Ground Station, Relocation, Fueling, Isam, Reentry Return
+- **Sort** — Posted (newest), Due soon, etc.
+
+Source and Lane filters work together. Lane filters apply to all sources—programs from SAM, USAspending, and SpaceWERX are all classified with the same rules.
+
+Click **Apply** to refresh the list with your filters.
+
+### The Programs List and Detail Inspector
+
+- **Left pane** — Table of programs (status, source, title, agency, lane, posted date). Click a row to select it.
+- **Right pane** — Detail inspector for the selected program.
+
+### Working with a Program
+
+In the detail inspector you can:
+
+1. **View the header** — Title, source badge, status, lane, relevance score, and match confidence. Use **Open** (e.g. "Open SAM.gov") to jump to the source.
+
+2. **Review key facts** — Agency, notice type, posted date, due date, set-aside, NAICS/PSC, place of performance.
+
+3. **See requirements** — Full description and requirements (when available).
+
+4. **Create Mission** — Turn the program into a Mission you can track. The mission is created with the program linked.
+
+5. **Link Account** — Associate the program with a Prospect Company.
+
+6. **Link Mission** — Associate the program with an existing Mission.
+
+7. **Add notes** — Log internal notes or actions on the program.
+
+8. **Matching** — See which rules matched (e.g. "Matched 'space'").
+
+### Reclassify 30d
+
+Admin users can click **Reclassify 30d** to re-run the classifier on all programs in the last 30 days. This updates relevance scores and service lanes when rules have changed.
+
+### Importing Programs
+
+Programs are fetched by import jobs that run on a schedule (e.g. daily at 2am UTC) or manually from Admin:
+
+- **Run SAM import** — Fetches opportunities from SAM.gov (requires `SAM_API_KEY`)
+- **Run USAspending ingest** — Fetches awards from USAspending.gov
+- **Run SpaceWERX ingest** — Fetches STRATFI/TACFI awards from spacewerx.us
+
+If the program list is empty, run the import from the Admin page.
+
+### Programs and Missions
+
+Programs are raw procurement data. When you find one worth pursuing, **Create Mission** to turn it into a trackable Mission with stage, next step, and timeline. The mission stays linked to the program, so you can always jump back to the source notice or award.
 
 ---
 
@@ -409,6 +498,17 @@ When a Lead Request is created, we write intent signals (lead_submitted, budget_
 - `GET /api/abm/lanes` — Service Lane Intent (hot/surging/exploding counts per lane)
 - `GET /api/abm/people` — People Inside Accounts (account_id optional)
 
+### Internal ABM — Programs
+- `GET /api/abm/programs` — List programs (range, status, lane, source, relevant, search, sort, page, limit)
+- `GET /api/abm/programs/summary` — Summary counts (new, due soon, awarded, open)
+- `GET /api/abm/programs/:id` — Program detail
+- `PATCH /api/abm/programs/:id` — Update program (triage, priority, notes)
+- `POST /api/abm/programs/:id/notes` — Add note
+- `GET /api/abm/programs/:id/notes` — List notes
+- `POST /api/abm/programs/:id/link-account` — Link to Prospect Company
+- `POST /api/abm/programs/:id/link-mission` — Link to Mission
+- `POST /api/abm/programs/:id/create-mission` — Create Mission from program
+
 ### Internal ABM — Jobs
 - `POST /api/abm/jobs/recompute-intent` — Enqueue intent recompute job
 
@@ -454,6 +554,7 @@ When a Lead Request is created, we write intent signals (lead_submitted, budget_
 - **Intent Score**: 0–100 normalized score from decayed event weights (Phase 2) or rolling 30-day sum (legacy)
 - **Intent Signal**: time-series event explaining why a company is heating up
 - **Mission**: a tracked procurement opportunity—ties an account, lead request(s), contacts, and requirements into one work object with stage, next step, and timeline
+- **Program**: a procurement opportunity from SAM.gov, USAspending, or SpaceWERX; classified with service lane and relevance score; can be linked to accounts and missions
 - **Intent Stage**: Cold | Warm | Hot (from score thresholds)
 - **Lead Request**: one completed reservation/procurement submission (canonical record)
 - **Lead Score**: qualification score computed from a submission (per Lead Request)

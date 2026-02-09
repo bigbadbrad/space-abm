@@ -24,6 +24,7 @@ import { authClient } from '@/lib/auth/client';
 import { logger } from '@/lib/default-logger';
 import { useUser } from '@/hooks/use-user';
 import { LogoCool } from './logo-cool';
+import { LogoSpaceGtm } from './logo-space-gtm';
 
 export const MainNavbar: FC = () => {
   const colorScheme: 'dark' | 'light' = 'dark';
@@ -117,9 +118,9 @@ export const MainNavbar: FC = () => {
               margin: '0 auto',
             }}
           >
-            <LogoCool
+            <LogoSpaceGtm
               textColor={logoTextColor}
-              height={20}
+              height={18}
             />
           </Link>
         </Box>

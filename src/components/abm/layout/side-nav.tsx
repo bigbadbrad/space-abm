@@ -12,6 +12,7 @@ import type { NavItemConfig } from '@/types/nav';
 import { paths } from '@/paths';
 import { isNavItemActive } from '@/lib/is-nav-item-active';
 import { LogoMoney } from '@/components/logo-money';
+import { LogoSpaceGtmStacked } from '@/components/logo-space-gtm-stacked';
 import { useUser } from '@/hooks/use-user';
 
 import { abmNavItems } from './config';
@@ -66,7 +67,7 @@ export function ABMSideNav(): React.JSX.Element {
             '&:hover': { opacity: 0.8 },
           }}
         >
-          <LogoMoney color="#F5F5F7" height={82} />
+          <LogoSpaceGtmStacked color="#F5F5F7" height={82} />
         </Box>
       </Stack>
       <Divider sx={{ borderColor: 'var(--mui-palette-neutral-700)' }} />

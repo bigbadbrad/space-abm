@@ -34,7 +34,16 @@ export default function ABMAccountsPage(): React.JSX.Element {
     let cancelled = false;
     setLoading(true);
     setError(null);
-    abmApi.getAccounts({ range: filters.range, stage: filters.stage !== 'All' ? filters.stage : undefined, surge: filters.surge !== 'All' ? filters.surge : undefined, lane: filters.lane !== 'All' ? filters.lane : undefined, search: filters.search || undefined, limit: 50, page: 1 }).then((res) => {
+    abmApi.getAccounts({
+      range: filters.range,
+      stage: filters.stage !== 'All' ? filters.stage : undefined,
+      surge: filters.surge !== 'All' ? filters.surge : undefined,
+      lane: filters.lane !== 'All' ? filters.lane : undefined,
+      search: filters.search || undefined,
+      show_all: true,
+      limit: 100,
+      page: 1,
+    }).then((res) => {
       if (cancelled) return;
       if (res.error) setError(res.error);
       else if (res.data) {
@@ -59,9 +68,17 @@ export default function ABMAccountsPage(): React.JSX.Element {
       {error && <Typography sx={{ color: '#EF4444', mb: 2 }}>{error}</Typography>}
       <Card sx={{ backgroundColor: '#0A0A0A', border: '1px solid #262626' }}>
         <CardContent>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, mb: 2 }}>
-            <BuildingOfficeIcon size={18} style={{ color: '#FFFFFF' }} />
-            <Typography sx={{ color: '#FFFFFF', fontSize: '1.25rem', fontWeight: 600 }}>Hot Accounts</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1.25, mb: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+              <BuildingOfficeIcon size={18} style={{ color: '#FFFFFF' }} />
+              <Typography sx={{ color: '#FFFFFF', fontSize: '1.25rem', fontWeight: 600 }}>Accounts</Typography>
+              <Typography sx={{ color: '#9CA3AF', fontSize: '0.875rem', fontWeight: 400 }}>(Hot first)</Typography>
+            </Box>
+            {total > 0 && (
+              <Typography sx={{ color: '#9CA3AF', fontSize: '0.8rem' }}>
+                Showing {accounts.length} of {total}
+              </Typography>
+            )}
           </Box>
           <Table>
             <TableHead>

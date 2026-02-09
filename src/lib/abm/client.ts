@@ -327,7 +327,7 @@ export interface ABMPeopleResponse {
 }
 
 export const abmApi = {
-  getAccounts: (params?: { range?: string; stage?: string; lane?: string; surge?: string; search?: string; page?: number; limit?: number }) => {
+  getAccounts: (params?: { range?: string; stage?: string; lane?: string; surge?: string; search?: string; page?: number; limit?: number; show_all?: boolean }) => {
     const sp = new URLSearchParams();
     if (params?.range) sp.set('range', params.range);
     if (params?.stage) sp.set('stage', params.stage);
@@ -336,6 +336,7 @@ export const abmApi = {
     if (params?.search) sp.set('search', params.search);
     if (params?.page) sp.set('page', String(params.page));
     if (params?.limit) sp.set('limit', String(params.limit));
+    if (params?.show_all) sp.set('show_all', 'true');
     const q = sp.toString();
     return abmFetch<ABMAccountsResponse>(`/accounts${q ? `?${q}` : ''}`);
   },

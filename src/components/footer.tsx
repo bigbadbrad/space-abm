@@ -4,6 +4,7 @@ import type { FC } from 'react';
 import { Box, Container, Typography, Button } from '@mui/material';
 import Link from 'next/link';
 import { LogoMoney } from './logo-money';
+import { LogoSpaceGtmStacked } from './logo-space-gtm-stacked';
 import XIcon from '@mui/icons-material/X';
 
 export const Footer: FC = () => {
@@ -23,7 +24,7 @@ export const Footer: FC = () => {
       <Container maxWidth="md">
         <Box sx={{ flexDirection: 'column', display: 'flex', alignItems: 'center', marginBottom: 4 }}>
           <Link href="/" style={{ display: 'flex', justifyContent: 'center' }}>
-            <LogoMoney color={colorScheme === 'dark' ? '#F5F5F7' : '#111827'} height={120} />
+            <LogoSpaceGtmStacked color={colorScheme === 'dark' ? '#F5F5F7' : '#111827'} height={120} />
           </Link>
           <Box sx={{ mt: 4, display: 'flex', flexDirection: { xs: 'row', md: 'row' }, alignItems: 'center', justifyContent: 'center', gap: 1, width: '100%' }}>
             <Link href="/dashboard/how-it-works"><Button sx={{ color: iconColor, textTransform: 'none' }}>How it works</Button></Link>
