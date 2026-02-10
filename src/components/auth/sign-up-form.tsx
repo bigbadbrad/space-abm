@@ -81,7 +81,7 @@ export function SignUpForm(): React.JSX.Element {
           </Link>
         </Typography>
       </Stack>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)} autoComplete="off">
         <Stack spacing={2}>
           <Controller
             control={control}
@@ -167,6 +167,7 @@ export function SignUpForm(): React.JSX.Element {
                   {...field}
                   label="Password"
                   type="password"
+                  inputProps={{ autoComplete: 'off' }}
                   sx={{
                     input: { color: '#fff' },
                     '& .MuiOutlinedInput-notchedOutline': {
