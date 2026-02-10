@@ -13,9 +13,8 @@ import { SpaceABMPricingBlock } from '@/components/home/SpaceABMPricingBlock';
 import { MarkdownRenderer } from '@/components/dashboard/docs/markdown-renderer';
 
 export const metadata = {
-  title: 'Space ABM — Purpose-Built ABM for Space Services',
-  description:
-    'SpaceABM is designed around the actual unit of work in space: a mission-driven procurement request. Less vendor glue code, less brittle customization, optimized for closing space services deals.',
+  title: 'Space GTM — Purpose-Built ABM for Space Services',
+  description: 'The first ABM platform built for missions, not just leads.',
 };
 
 export default function Page() {

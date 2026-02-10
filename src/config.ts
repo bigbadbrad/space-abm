@@ -7,7 +7,7 @@ export interface Config {
 }
 
 export const config: Config = {
-  site: { name: 'Space ABM', description: '', themeColor: '#090a0b', url: getSiteURL() },
+  site: { name: 'Space GTM', description: 'The first ABM platform built for missions, not just leads.', themeColor: '#090a0b', url: getSiteURL() },
   logLevel: (process.env.NEXT_PUBLIC_LOG_LEVEL as keyof typeof LogLevel) ?? LogLevel.ALL,
 };
 

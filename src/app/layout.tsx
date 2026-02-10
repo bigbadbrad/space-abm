@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   manifest: '/site.webmanifest',
   appleWebApp: {
     capable: true,
-    title: 'Orbital',
+    title: 'Space GTM',
   },
 };
 
