@@ -103,13 +103,14 @@ export const MainNavbar: FC = () => {
         {/* LEFT spacer (reserved for future nav) */}
         <Box sx={{ gridColumn: { xs: '1 / 2', sm: '1 / 2' } }} />
 
-        {/* CENTER — logo */}
+        {/* CENTER — logo (smaller on mobile) */}
         <Box
           sx={{
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
             gridColumn: { xs: '2 / 3', sm: '2 / 3' },
+            height: { xs: 14, sm: 18 },
           }}
         >
           <Link
@@ -121,11 +122,12 @@ export const MainNavbar: FC = () => {
               width: '100%',
               maxWidth: '350px',
               margin: '0 auto',
+              height: '100%',
             }}
           >
             <LogoSpaceGtm
               textColor={logoTextColor}
-              height={18}
+              height="100%"
             />
           </Link>
         </Box>
