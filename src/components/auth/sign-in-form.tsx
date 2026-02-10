@@ -3,6 +3,7 @@
 import * as React from 'react';
 import RouterLink from 'next/link';
 import { useRouter } from 'next/navigation';
+import { JetBrains_Mono } from 'next/font/google';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
@@ -22,6 +23,8 @@ import { paths } from '@/paths';
 import { authClient } from '@/lib/auth/client';
 import { useUser } from '@/hooks/use-user';
 import { PrimaryColor } from '@/config';
+
+const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'] });
 
 const schema = zod.object({
   phone: zod.string().min(1, { message: 'Phone number is required' }).regex(/^[0-9]{10,15}$/, { message: 'Invalid phone number' }),
@@ -73,7 +76,7 @@ export function SignInForm(): React.JSX.Element {
   return (
     <Stack spacing={4} sx={{ color: 'common.white' }}>
       <Stack spacing={1}>
-        <Typography variant="h4">Sign in</Typography>
+        <Typography variant="h4" sx={{ fontFamily: jetbrainsMono.style.fontFamily }}>Sign in</Typography>
         <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
           Don&apos;t have an account?{' '}
           <Link component={RouterLink} href={paths.auth.signUp} underline="hover" variant="subtitle2">

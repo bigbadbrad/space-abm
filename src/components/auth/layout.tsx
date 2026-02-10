@@ -23,9 +23,9 @@ export function Layout({ children }: LayoutProps): React.JSX.Element {
             display: 'flex',
             flex: '1 1 auto',
             justifyContent: 'center',
-            pt: 16,
+            pt: { xs: 4, sm: 16 },
             px: 3,
-            pb: 10,
+            pb: { xs: 4, sm: 10 },
           }}
         >
           <Box sx={{ maxWidth: '450px', width: '100%' }}>{children}</Box>
