@@ -32,6 +32,11 @@ export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): Reac
     window.location.href = paths.auth.signIn;
   }, [onClose]);
 
+  const handleSignUp = React.useCallback(() => {
+    onClose();
+    window.location.href = paths.auth.signUp;
+  }, [onClose]);
+
   const handleSignOut = React.useCallback(async (): Promise<void> => {
     try {
       const { error } = await authClient.signOut();
@@ -100,12 +105,17 @@ export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): Reac
             Sign out
           </MenuItem>
         ) : (
-          <MenuItem onClick={handleSignIn} sx={{ color: '#e5e7eb', '&:hover': { bgcolor: '#1f1f1f' } }}>
-            <ListItemIcon>
-              <SignInIcon fontSize="var(--icon-fontSize-md)" style={{ color: '#9ca3af' }} />
-            </ListItemIcon>
-            Sign in
-          </MenuItem>
+          <>
+            <MenuItem onClick={handleSignIn} sx={{ color: '#e5e7eb', '&:hover': { bgcolor: '#1f1f1f' } }}>
+              <ListItemIcon>
+                <SignInIcon fontSize="var(--icon-fontSize-md)" style={{ color: '#9ca3af' }} />
+              </ListItemIcon>
+              Sign in
+            </MenuItem>
+            <MenuItem onClick={handleSignUp} sx={{ color: '#e5e7eb', '&:hover': { bgcolor: '#1f1f1f' } }}>
+              Sign up
+            </MenuItem>
+          </>
         )}
       </MenuList>
     </Popover>

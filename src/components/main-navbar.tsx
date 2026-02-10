@@ -51,6 +51,11 @@ export const MainNavbar: FC = () => {
     window.location.href = paths.auth.signIn;
   }, []);
 
+  const handleSignUp = React.useCallback(() => {
+    handleMenuClose();
+    window.location.href = paths.auth.signUp;
+  }, []);
+
   const handleSignOut = React.useCallback(async (): Promise<void> => {
     try {
       const { error } = await authClient.signOut();
@@ -167,7 +172,10 @@ export const MainNavbar: FC = () => {
               {user ? (
                 <MenuItem onClick={handleSignOut}>Sign out</MenuItem>
               ) : (
-                <MenuItem onClick={handleSignIn}>Sign in</MenuItem>
+                <>
+                  <MenuItem onClick={handleSignIn}>Sign in</MenuItem>
+                  <MenuItem onClick={handleSignUp}>Sign up</MenuItem>
+                </>
               )}
             </MenuList>
           </Popover>
