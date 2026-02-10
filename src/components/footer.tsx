@@ -39,7 +39,7 @@ export const Footer: FC = () => {
             </a>
           </Box>
           <Typography variant="subtitle1" sx={{ pt: 3, pb: 5 }}>
-            © 2026 Space ABM<br />
+            © 2026 Space GTM<br />
             All Rights Reserved.
           </Typography>
         </Box>

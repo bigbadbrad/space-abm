@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { JetBrains_Mono } from 'next/font/google';
-import { Box, Container, Typography } from '@mui/material';
+import { Box, Button, Container, Typography } from '@mui/material';
 import { PrimaryColor } from '@/config';
 
 const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'] });
@@ -48,6 +48,34 @@ export function WidgetProcurementBriefBlock() {
             <BulletItem text="Instant routing + prioritization: The backend scores each submission and assigns it to the right lane/owner without manual triage." />
             <BulletItem text="No lost context: The brief stays linked to the Account and Person, so sales + ops see the same canonical artifact." />
             <BulletItem text="Built for &quot;quote-ready&quot; deals: Captures the details vendors need to respond fast (not a generic marketing lead)." />
+          </Box>
+          <Box sx={{ mt: 4 }}>
+            <Button
+              component="a"
+              href="https://fullorbit.co?utm_source=space-gtm&utm_medium=cta&utm_campaign=homepage-widget"
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="outlined"
+              sx={{
+                borderRadius: 999,
+                px: 3,
+                textTransform: 'none',
+                bgcolor: 'transparent',
+                color: '#FFFFFF',
+                borderColor: PrimaryColor,
+                '&:hover': {
+                  bgcolor: PrimaryColor,
+                  borderColor: PrimaryColor,
+                  color: '#FFFFFF',
+                },
+                '&:focus-visible': {
+                  outline: `2px solid ${PrimaryColor}`,
+                  outlineOffset: 2,
+                },
+              }}
+            >
+              See widget in action
+            </Button>
           </Box>
         </Box>
       </Container>

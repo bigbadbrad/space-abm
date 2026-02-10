@@ -195,12 +195,12 @@ export function SpaceABMPricingBlock({
                 px: 3,
                 textTransform: 'none',
                 bgcolor: 'transparent',
-                color: PrimaryColor,
+                color: '#FFFFFF',
                 borderColor: PrimaryColor,
                 '&:hover': {
                   bgcolor: PrimaryColor,
                   borderColor: PrimaryColor,
-                  color: '#FFF',
+                  color: '#FFFFFF',
                 },
                 '&:focus-visible': {
                   outline: `2px solid ${PrimaryColor}`,
