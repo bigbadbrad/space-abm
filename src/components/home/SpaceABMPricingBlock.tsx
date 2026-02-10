@@ -32,7 +32,7 @@ const DEFAULT_CARDS: PricingCard[] = [
   },
   {
     badge: 'MOST POPULAR',
-    title: 'Account Context (SpaceABM portal)',
+    title: 'Account Context (Space GTM portal)',
     bullets: [
       'Account + domain, intent level (H/M/L)',
       'Evidence: pages, widget steps, fields',
@@ -50,13 +50,13 @@ const DEFAULT_CARDS: PricingCard[] = [
 ];
 
 const DEFAULT_FOOTNOTE =
-  'The biggest quality drivers are brief completeness, verification (domain + role), and evidence depth. Want comparables? Generate a quote-grade procurement brief.';
+  'The biggest quality drivers are brief completeness, verification (domain + role), and evidence depth.';
 
 const DEFAULT_CTA_LABEL = 'Contact Sales';
 
-const DEFAULT_HEADLINE = 'How Space ABM qualified opportunities are priced.';
+const DEFAULT_HEADLINE = "You're not buying a lead.";
 const DEFAULT_SUBHEAD =
-  "You're not buying a lead. You're buying a quote-grade opportunity + account intent + proof trail.";
+  "You’re buying a quote-grade opportunity + account intent + proof trail.";
 
 export function SpaceABMPricingBlock({
   headline = DEFAULT_HEADLINE,
@@ -86,17 +86,19 @@ export function SpaceABMPricingBlock({
               fontWeight: 700,
               color: '#F5F5F7',
               mb: subhead ? 2 : 6,
+              textAlign: 'center',
             }}
           >
-            {headline}
+            You're not buying a lead.
           </Typography>
           {subhead && (
             <Typography
               sx={{
-                fontSize: '1rem',
+                fontSize: { xs: '1.25rem', md: '1.375rem' },
                 lineHeight: 1.5,
                 color: 'rgba(148,163,184,0.9)',
                 mb: 6,
+                textAlign: 'center',
               }}
             >
               {subhead}
@@ -125,7 +127,7 @@ export function SpaceABMPricingBlock({
                     },
                   }}
                 >
-                  <Box sx={{ height: '1.75rem', mb: 0.5, display: 'flex', alignItems: 'flex-start' }}>
+                  <Box sx={{ height: '1.75rem', mb: 0.5, display: 'flex', justifyContent: 'center' }}>
                     {card.badge && (
                       <Typography
                         sx={{
@@ -148,11 +150,12 @@ export function SpaceABMPricingBlock({
                       fontWeight: 700,
                       color: '#FFFFFF',
                       mb: 1.5,
+                      textAlign: 'center',
                     }}
                   >
                     {card.title}
                   </Typography>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75, textAlign: 'center' }}>
                     {card.bullets.map((bullet, idx) => (
                       <Typography
                         key={idx}
@@ -174,10 +177,10 @@ export function SpaceABMPricingBlock({
           <Box sx={{ textAlign: 'center', mb: 3 }}>
             <Typography
               sx={{
-                fontSize: '1rem',
+                fontSize: { xs: '1.25rem', md: '1.375rem' },
+                lineHeight: 1.5,
                 color: 'rgba(148,163,184,0.9)',
-                fontStyle: 'italic',
-                maxWidth: 720,
+                maxWidth: '50%',
                 mx: 'auto',
               }}
             >

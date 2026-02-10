@@ -17,8 +17,21 @@ export function ABMBuiltForSpaceBlock() {
         backgroundColor: '#000000',
       }}
     >
-      <Container maxWidth="md">
+      <Container maxWidth="md" sx={{ transform: { xs: 'none', md: 'translateX(-20%)' } }}>
         <Box sx={{ mb: 6 }}>
+          <Typography
+            sx={{
+              fontSize: '0.875rem',
+              color: 'white',
+              letterSpacing: 1.6,
+              mb: 2,
+              display: 'block',
+              textTransform: 'uppercase',
+              fontWeight: 500,
+            }}
+          >
+            THE DEAL OBJECT
+          </Typography>
           <Typography
             component="h2"
             sx={{
@@ -40,7 +53,7 @@ export function ABMBuiltForSpaceBlock() {
               mb: 3,
             }}
           >
-            Space ABM is the first ABM built for space programs, not SaaS pipelines.  Demandbase and 6sense can tell you who&apos;s showing intent. SpaceABM tells you what they&apos;re trying to fly — and tracks it as a Mission from first signal to reservation.
+            Demandbase/6sense can tell you who is showing intent. Space GTM tells you what they&apos;re trying to fly — and tracks it as a Mission from first signal to reservation.
           </Typography>
 
           <Box sx={{ display: 'flex', flexDirection: 'column', mt: 3 }}>

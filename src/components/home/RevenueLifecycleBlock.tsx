@@ -17,8 +17,21 @@ export function RevenueLifecycleBlock() {
         backgroundColor: '#000000',
       }}
     >
-      <Container maxWidth="md">
+      <Container maxWidth="md" sx={{ transform: { xs: 'none', md: 'translateX(20%)' } }}>
         <Box sx={{ mb: 6 }}>
+          <Typography
+            sx={{
+              fontSize: '0.875rem',
+              color: 'white',
+              letterSpacing: 1.6,
+              mb: 2,
+              display: 'block',
+              textTransform: 'uppercase',
+              fontWeight: 500,
+            }}
+          >
+            REVENUE LIFECYCLE
+          </Typography>
           <Typography
             component="h2"
             sx={{
@@ -30,17 +43,7 @@ export function RevenueLifecycleBlock() {
               mb: 2,
             }}
           >
-            Revenue lifecycle for space.
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: { xs: '1.25rem', md: '1.375rem' },
-              lineHeight: 1.5,
-              color: 'rgba(148,163,184,0.9)',
-              mb: 3,
-            }}
-          >
-            From procurement brief to committed mission.
+            From procurement brief to committed mission. 
           </Typography>
           <Typography
             sx={{
@@ -48,8 +51,7 @@ export function RevenueLifecycleBlock() {
               lineHeight: 1.6,
               color: 'rgba(148,163,184,0.9)',
             }}
-          >
-            In space, deals don&apos;t move through generic CRMs—they move through requirements, readiness gates, and schedule windows. Space ABM turns every qualified request into an executable opportunity with owners, due dates, and an audit trail—so you can progress with full visibility from:
+          > In space, deals don&apos;t move through generic CRM stages — they move through requirements, readiness gates, and schedule windows. Space GTM turns every qualified request into an executable opportunity with owners, due dates, and an audit trail:
             <br /><br />
             <Box component="span" sx={{ color: PrimaryColor, fontWeight: 500 }}>interest → qualified brief → routed providers → committed schedule → closed revenue</Box>
           </Typography>

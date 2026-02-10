@@ -7,17 +7,17 @@ import { PrimaryColor } from '@/config';
 
 const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'] });
 
-export function WidgetProcurementBriefBlock() {
+export function SpaceABMStartsBlock() {
   return (
     <Box
       component="section"
-      id="widget-procurement-brief"
+      id="space-abm-starts"
       sx={{
         py: { xs: 8, md: 10 },
         backgroundColor: '#000000',
       }}
     >
-      <Container maxWidth="md" sx={{ transform: { xs: 'none', md: 'translateX(20%)' } }}>
+      <Container maxWidth="md" sx={{ transform: { xs: 'none', md: 'translateX(25%)' } }}>
         <Box sx={{ mb: 6 }}>
           <Typography
             component="h2"
@@ -30,7 +30,7 @@ export function WidgetProcurementBriefBlock() {
               mb: 3,
             }}
           >
-            The widget that produces a procurement brief.
+            Space GTM starts where those platforms stop.
           </Typography>
           <Typography
             sx={{
@@ -39,15 +39,14 @@ export function WidgetProcurementBriefBlock() {
               color: 'rgba(148,163,184,0.9)',
               mb: 3,
             }}
-          >Not a &quot;contact us&quot; form — a progressive Request a Reservation flow that adapts to the selected service lane and only asks what matters.
+          >
+            Space GTM captures intent as prospects explore service lanes, then generates procurement-grade briefs and orchestrates next steps all the way to quotes, scheduling, and routing to fulfillable capacity — with explainable &quot;why this is hot&quot; logic (not a black-box score).
           </Typography>
 
           <Box sx={{ display: 'flex', flexDirection: 'column', mt: 3 }}>
-            <BulletItem text="Progressive qualification: Step-by-step questions adapt to the selected service lane so you only ask what matters." />
-            <BulletItem text="Procurement Brief output: Every submission becomes a structured, auditable brief (requirements, schedule, readiness, budget band, contact + org)." />
-            <BulletItem text="Instant routing + prioritization: The backend scores each submission and assigns it to the right lane/owner without manual triage." />
-            <BulletItem text="No lost context: The brief stays linked to the Account and Person, so sales + ops see the same canonical artifact." />
-            <BulletItem text="Built for &quot;quote-ready&quot; deals: Captures the details vendors need to respond fast (not a generic marketing lead)." />
+            <BulletItem text="Procurement brief (quote-grade)" />
+            <BulletItem text="Explainable intent trail (why now)" />
+            <BulletItem text="Mission object to track from first signal → reservation" />
           </Box>
         </Box>
       </Container>
