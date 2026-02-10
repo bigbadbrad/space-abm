@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { JetBrains_Mono } from 'next/font/google';
 import { Box, Container, Typography } from '@mui/material';
 import { PrimaryColor } from '@/config';
@@ -83,7 +84,7 @@ const STEPS: StepData[] = [
   {
     index: 10,
     title: 'Create / update a Salesforce Opportunity (system of record sync)',
-    body: 'When a Lead Request becomes Qualified (quote-ready), Space GTM syncs it to Salesforce:',
+    body: 'When a Lead Request becomes Qualified (quote-ready), Space GTM syncs it to Salesforce or HubSpot:',
     subBullets: [
       'Upsert Account + Contact (if needed)',
       'Create Opportunity (or attach to an open one)',
@@ -142,6 +143,31 @@ export function HowSpaceABMWorksBlock() {
                 subBullets={step.subBullets}
               />
             ))}
+          </Box>
+          <Box
+            sx={{
+              mt: 3,
+              display: 'flex',
+              justifyContent: 'flex-start',
+              alignItems: 'center',
+              gap: 3,
+              ml: 9,
+            }}
+          >
+            <Image
+              src="/salesforce-logo.png"
+              alt="Salesforce logo"
+              width={96}
+              height={48}
+              style={{ objectFit: 'contain' }}
+            />
+            <Image
+              src="/hubspot.png"
+              alt="HubSpot logo"
+              width={96}
+              height={48}
+              style={{ objectFit: 'contain' }}
+            />
           </Box>
           <Typography
             sx={{
