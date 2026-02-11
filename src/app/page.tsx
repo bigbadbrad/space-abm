@@ -7,6 +7,7 @@ import { HorizontalABMBlock } from '@/components/home/HorizontalABMBlock';
 import { SpaceABMStartsBlock } from '@/components/home/SpaceABMStartsBlock';
 import { AuditableArtifactBlock } from '@/components/home/AuditableArtifactBlock';
 import { WidgetProcurementBriefBlock } from '@/components/home/WidgetProcurementBriefBlock';
+import { IntentTrackingBlock } from '@/components/home/IntentTrackingBlock';
 import { ABMBuiltForSpaceBlock } from '@/components/home/ABMBuiltForSpaceBlock';
 import { RevenueLifecycleBlock } from '@/components/home/RevenueLifecycleBlock';
 import { SpaceABMPricingBlock } from '@/components/home/SpaceABMPricingBlock';
@@ -29,6 +30,7 @@ export default function Page() {
       <AuditableArtifactBlock />
       <WidgetProcurementBriefBlock />
       <HowSpaceABMWorksBlock />
+      <IntentTrackingBlock />
       <ABMBuiltForSpaceBlock />
       <RevenueLifecycleBlock />
       <SpaceABMPricingBlock />

@@ -18,6 +18,7 @@ import { usePathname } from 'next/navigation';
 import { usePopover } from '@/hooks/use-popover';
 import { paths } from '@/paths';
 import { useUser } from '@/hooks/use-user';
+import { PrimaryColor } from '@/config';
 import { useABMFilters } from '@/contexts/abm-filter-context';
 
 import { ABMMobileNav } from './mobile-nav';
@@ -132,17 +133,17 @@ export function ABMMainNav(): React.JSX.Element {
               </IconButton>
             </Tooltip>
             <Chip
-              label="ABM Live"
+              label="GTM Live"
               size="small"
               sx={{
-                backgroundColor: '#10B981',
-                color: '#FFFFFF',
+                bgcolor: PrimaryColor,
+                color: '#000',
                 fontSize: '0.75rem',
-                fontWeight: 500,
+                fontWeight: 600,
                 '& .MuiChip-label': { px: 1.5 },
               }}
               icon={
-                <Box sx={{ backgroundColor: '#10B981', borderRadius: '50%', boxShadow: '0 0 8px #10B98140', height: 6, width: 6 }} />
+                <Box sx={{ bgcolor: PrimaryColor, borderRadius: '50%', boxShadow: `0 0 8px ${PrimaryColor}40`, height: 6, width: 6 }} />
               }
             />
             <Avatar onClick={userPopover.handleOpen} ref={userPopover.anchorRef} sx={{ cursor: 'pointer', width: 32, height: 32 }} src={user?.avatar}>
