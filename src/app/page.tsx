@@ -12,6 +12,7 @@ import { ABMBuiltForSpaceBlock } from '@/components/home/ABMBuiltForSpaceBlock';
 import { RevenueLifecycleBlock } from '@/components/home/RevenueLifecycleBlock';
 import { SpaceABMPricingBlock } from '@/components/home/SpaceABMPricingBlock';
 import { MarkdownRenderer } from '@/components/dashboard/docs/markdown-renderer';
+import { MotionSection } from '@/components/home/MotionSection';
 
 export const metadata = {
   title: 'Space GTM — Purpose-Built ABM for Space Services',
@@ -24,16 +25,36 @@ export default function Page() {
 
   return (
     <>
-      <HeroBlock />
-      <HorizontalABMBlock />
-      <SpaceABMStartsBlock />
-      <AuditableArtifactBlock />
-      <WidgetProcurementBriefBlock />
-      <HowSpaceABMWorksBlock />
-      <IntentTrackingBlock />
-      <ABMBuiltForSpaceBlock />
-      <RevenueLifecycleBlock />
-      <SpaceABMPricingBlock />
+      <MotionSection id="hero">
+        <HeroBlock />
+      </MotionSection>
+      <MotionSection id="lanes">
+        <HorizontalABMBlock />
+      </MotionSection>
+      <MotionSection id="starts">
+        <SpaceABMStartsBlock />
+      </MotionSection>
+      <MotionSection id="audit">
+        <AuditableArtifactBlock />
+      </MotionSection>
+      <MotionSection id="widget-brief">
+        <WidgetProcurementBriefBlock />
+      </MotionSection>
+      <MotionSection id="how-it-works">
+        <HowSpaceABMWorksBlock />
+      </MotionSection>
+      <MotionSection id="intent-tracking">
+        <IntentTrackingBlock />
+      </MotionSection>
+      <MotionSection id="built-for-space">
+        <ABMBuiltForSpaceBlock />
+      </MotionSection>
+      <MotionSection id="revenue-lifecycle">
+        <RevenueLifecycleBlock />
+      </MotionSection>
+      <MotionSection id="pricing">
+        <SpaceABMPricingBlock />
+      </MotionSection>
     </>
   );
 }
