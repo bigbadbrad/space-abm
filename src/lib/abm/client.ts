@@ -326,6 +326,27 @@ export interface ABMPeopleResponse {
   people: ABMPerson[];
 }
 
+/** People Debug feed row (known / anonymous / unmatched) */
+export interface ABMPeopleDebugRow {
+  type: 'known' | 'anonymous' | 'unmatched';
+  person_label: string;
+  person_id: string;
+  account_id: string | null;
+  account_name: string | null;
+  account_domain: string | null;
+  role_title: string | null;
+  events_count: number | null;
+  last_seen_at: string | null;
+}
+
+export interface ABMPeopleDebugResponse {
+  range: string;
+  min_events: number;
+  include_unmatched: boolean;
+  rows: ABMPeopleDebugRow[];
+  generated_at: string;
+}
+
 /** People Inside Accounts: known contact row */
 export interface ABMAccountKnownContact {
   id: string;
@@ -406,6 +427,15 @@ export const abmApi = {
     if (params?.account_id) sp.set('account_id', params.account_id);
     const q = sp.toString();
     return abmFetch<ABMPeopleResponse>(`/people${q ? `?${q}` : ''}`);
+  },
+  getPeopleDebug: (params?: { range?: string; min_events?: number; include_unmatched?: boolean; search?: string }) => {
+    const sp = new URLSearchParams();
+    if (params?.range) sp.set('range', params.range);
+    if (params?.min_events != null) sp.set('min_events', String(params.min_events));
+    if (params?.include_unmatched) sp.set('include_unmatched', 'true');
+    if (params?.search) sp.set('search', params.search);
+    const q = sp.toString();
+    return abmFetch<ABMPeopleDebugResponse>(`/people/debug${q ? `?${q}` : ''}`);
   },
   getLeadRequests: (params?: { status?: string; min_score?: number; service_needed?: string; prospect_company_id?: string; limit?: number; page?: number }) => {
     const sp = new URLSearchParams();
