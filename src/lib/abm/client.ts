@@ -326,6 +326,51 @@ export interface ABMPeopleResponse {
   people: ABMPerson[];
 }
 
+/** People Inside Accounts: known contact row */
+export interface ABMAccountKnownContact {
+  id: string;
+  email?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  title?: string | null;
+  status?: string | null;
+  last_seen_at?: string | null;
+  posthog_distinct_id?: string | null;
+}
+
+/** People Inside Accounts: anonymous visitor row (masked) */
+export interface ABMAccountAnonymousVisitor {
+  visitor_id: string;
+  label: string;
+  last_seen_at: string;
+  events_7d: number;
+  top_pages_7d?: string[];
+  top_events_7d?: string[];
+  lane_hint?: string | null;
+}
+
+/** People Inside Accounts: unmatched row */
+export interface ABMAccountUnmatched {
+  visitor_id: string;
+  label: string;
+  last_seen_at: string;
+  events_7d: number;
+  top_pages_7d?: string[];
+  top_events_7d?: string[];
+  lane_hint?: string | null;
+}
+
+export interface ABMAccountPeopleResponse {
+  account: { id: string; name: string; domain: string; account_key: string };
+  range_days: number;
+  known_contacts: ABMAccountKnownContact[];
+  anonymous_visitors: ABMAccountAnonymousVisitor[];
+  unmatched: ABMAccountUnmatched[];
+  generated_at: string;
+  posthog_configured: boolean;
+  banner?: string;
+}
+
 export const abmApi = {
   getAccounts: (params?: { range?: string; stage?: string; lane?: string; surge?: string; search?: string; page?: number; limit?: number; show_all?: boolean }) => {
     const sp = new URLSearchParams();
@@ -505,6 +550,13 @@ export const abmApi = {
   postScoreWeights: (scoreConfigId: string, weights: { event_name: string; content_type?: string | null; cta_id?: string | null; weight: number }[]) =>
     abmFetch<{ weights: ABMScoreWeight[] }>('/admin/score-weights', { method: 'POST', body: JSON.stringify({ score_config_id: scoreConfigId, weights }) }),
   getAccountScoringDetails: (accountId: string) => abmFetch<ABMScoringDetails>(`/accounts/${accountId}/scoring-details`),
+  getAccountPeople: (accountId: string, params?: { range_days?: number; include_unmatched?: boolean }) => {
+    const sp = new URLSearchParams();
+    if (params?.range_days != null) sp.set('range_days', String(params.range_days));
+    if (params?.include_unmatched) sp.set('include_unmatched', 'true');
+    const q = sp.toString();
+    return abmFetch<ABMAccountPeopleResponse>(`/accounts/${accountId}/people${q ? `?${q}` : ''}`);
+  },
   getLeadRequestScoringDetails: (leadRequestId: string) => abmFetch<ABMScoringDetails>(`/lead-requests/${leadRequestId}/scoring-details`),
   // Procurement admin
   getTopicRules: () => abmFetch<{ rules: ABMTopicRule[] }>('/admin/topic-rules'),

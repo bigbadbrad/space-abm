@@ -22,7 +22,10 @@ import dayjs from 'dayjs';
 import { paths } from '@/paths';
 import { formatLaneDisplayName } from '@/components/abm/layout/config';
 import { abmApi } from '@/lib/abm/client';
+import type { ABMAccountPeopleResponse } from '@/lib/abm/client';
 import { ScoringDetailsDrawer } from '@/components/abm/ScoringDetailsDrawer';
+
+type PeopleTier = 'known' | 'anonymous' | 'unmatched';
 
 export default function ABMAccountDetailPage(): React.JSX.Element {
   const params = useParams();
@@ -33,6 +36,12 @@ export default function ABMAccountDetailPage(): React.JSX.Element {
   const [tab, setTab] = React.useState(0);
   const [scoringDrawerOpen, setScoringDrawerOpen] = React.useState(false);
   const [scoringDetails, setScoringDetails] = React.useState<{ loading: boolean; data: any }>({ loading: false, data: null });
+  const [peopleData, setPeopleData] = React.useState<ABMAccountPeopleResponse | null>(null);
+  const [peopleLoading, setPeopleLoading] = React.useState(false);
+  const [peopleTier, setPeopleTier] = React.useState<PeopleTier>('known');
+  const [peopleRangeDays, setPeopleRangeDays] = React.useState(7);
+  const [peopleIncludeUnmatched, setPeopleIncludeUnmatched] = React.useState(false);
+  const [peopleMinEvents, setPeopleMinEvents] = React.useState(2);
 
   React.useEffect(() => {
     if (!id) return;
@@ -47,6 +56,19 @@ export default function ABMAccountDetailPage(): React.JSX.Element {
     });
     return () => { cancelled = true; };
   }, [id]);
+
+  React.useEffect(() => {
+    if (tab !== 2 || !id) return;
+    let cancelled = false;
+    setPeopleLoading(true);
+    abmApi.getAccountPeople(id, { range_days: peopleRangeDays, include_unmatched: peopleIncludeUnmatched }).then((res) => {
+      if (cancelled) return;
+      if (res.data) setPeopleData(res.data);
+      else setPeopleData(null);
+      setPeopleLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [tab, id, peopleRangeDays, peopleIncludeUnmatched]);
 
   if (loading || !data) {
     return (
@@ -130,27 +152,104 @@ export default function ABMAccountDetailPage(): React.JSX.Element {
           )}
           {tab === 2 && (
             <Box sx={{ mt: 2 }}>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Person</TableCell>
-                    <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Email</TableCell>
-                    <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Title</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {contacts.map((c: any) => (
-                    <TableRow key={c.id}>
-                      <TableCell sx={{ color: '#FFFFFF', borderColor: '#262626', fontSize: '0.875rem' }}>{(c.first_name || c.last_name) ? `${c.first_name || ''} ${c.last_name || ''}`.trim() : c.email || '—'}</TableCell>
-                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.875rem' }}>{c.email || '—'}</TableCell>
-                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.875rem' }}>{c.title || '—'}</TableCell>
+              {peopleData?.banner && (
+                <Typography sx={{ color: '#F59E0B', fontSize: '0.875rem', mb: 2 }}>{peopleData.banner}</Typography>
+              )}
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center', mb: 2 }}>
+                <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', textTransform: 'uppercase' }}>Tier</Typography>
+                <Button size="small" variant={peopleTier === 'known' ? 'contained' : 'outlined'} onClick={() => setPeopleTier('known')} sx={{ color: peopleTier === 'known' ? '#fff' : '#9CA3AF', borderColor: '#262626', textTransform: 'none' }}>Known</Button>
+                <Button size="small" variant={peopleTier === 'anonymous' ? 'contained' : 'outlined'} onClick={() => setPeopleTier('anonymous')} sx={{ color: peopleTier === 'anonymous' ? '#fff' : '#9CA3AF', borderColor: '#262626', textTransform: 'none' }}>Anonymous Visitors</Button>
+                {peopleIncludeUnmatched && (
+                  <Button size="small" variant={peopleTier === 'unmatched' ? 'contained' : 'outlined'} onClick={() => setPeopleTier('unmatched')} sx={{ color: peopleTier === 'unmatched' ? '#fff' : '#9CA3AF', borderColor: '#262626', textTransform: 'none' }}>Unmatched</Button>
+                )}
+                <Typography component="span" sx={{ color: '#9CA3AF', fontSize: '0.75rem', ml: 1 }}>Range</Typography>
+                <Button size="small" variant={peopleRangeDays === 7 ? 'contained' : 'outlined'} onClick={() => setPeopleRangeDays(7)} sx={{ minWidth: 32, color: peopleRangeDays === 7 ? '#fff' : '#9CA3AF', borderColor: '#262626' }}>7d</Button>
+                <Button size="small" variant={peopleRangeDays === 30 ? 'contained' : 'outlined'} onClick={() => setPeopleRangeDays(30)} sx={{ minWidth: 32, color: peopleRangeDays === 30 ? '#fff' : '#9CA3AF', borderColor: '#262626' }}>30d</Button>
+                <Button size="small" variant="text" onClick={() => setPeopleIncludeUnmatched((v) => !v)} sx={{ color: '#9CA3AF', fontSize: '0.75rem', textTransform: 'none' }}>{peopleIncludeUnmatched ? 'Hide Unmatched' : 'Show Unmatched'}</Button>
+              </Box>
+              {peopleLoading ? (
+                <Box sx={{ py: 3, display: 'flex', justifyContent: 'center' }}><CircularProgress size={24} sx={{ color: '#9CA3AF' }} /></Box>
+              ) : peopleTier === 'known' && (
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Person</TableCell>
+                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Email</TableCell>
+                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Title</TableCell>
+                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Last seen</TableCell>
                     </TableRow>
-                  ))}
-                  {contacts.length === 0 && (
-                    <TableRow><TableCell colSpan={3} sx={{ color: '#9CA3AF', borderColor: '#262626', textAlign: 'center', py: 2 }}>No contacts</TableCell></TableRow>
-                  )}
-                </TableBody>
-              </Table>
+                  </TableHead>
+                  <TableBody>
+                    {(peopleData?.known_contacts ?? contacts).map((c: any) => (
+                      <TableRow key={c.id}>
+                        <TableCell sx={{ color: '#FFFFFF', borderColor: '#262626', fontSize: '0.875rem' }}>{(c.first_name || c.last_name) ? `${c.first_name || ''} ${c.last_name || ''}`.trim() : c.email || '—'}</TableCell>
+                        <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.875rem' }}>{c.email || '—'}</TableCell>
+                        <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.875rem' }}>{c.title || '—'}</TableCell>
+                        <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.875rem' }}>{c.last_seen_at ? dayjs(c.last_seen_at).format('MMM DD, YYYY') : '—'}</TableCell>
+                      </TableRow>
+                    ))}
+                    {((peopleData?.known_contacts ?? contacts).length === 0) && (
+                      <TableRow><TableCell colSpan={4} sx={{ color: '#9CA3AF', borderColor: '#262626', textAlign: 'center', py: 2 }}>No known contacts</TableCell></TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              )}
+              {!peopleLoading && peopleTier === 'anonymous' && (
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Label</TableCell>
+                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Last seen</TableCell>
+                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Events</TableCell>
+                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Evidence</TableCell>
+                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Lane hint</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {(peopleData?.anonymous_visitors ?? [])
+                      .filter((v: any) => v.events_7d >= peopleMinEvents)
+                      .map((v: any) => (
+                        <TableRow key={v.visitor_id}>
+                          <TableCell sx={{ color: '#FFFFFF', borderColor: '#262626', fontSize: '0.875rem' }}>{v.label}</TableCell>
+                          <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.875rem' }}>{dayjs(v.last_seen_at).format('MMM DD, YYYY')}</TableCell>
+                          <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.875rem', fontFamily: 'monospace' }}>{v.events_7d ?? 0}</TableCell>
+                          <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.875rem' }}>{(v.top_pages_7d?.length || v.top_events_7d?.length) ? [...(v.top_pages_7d || []).slice(0, 2), ...(v.top_events_7d || []).slice(0, 2)].join(', ') || '—' : '—'}</TableCell>
+                          <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.875rem' }}>{v.lane_hint || '—'}</TableCell>
+                        </TableRow>
+                      ))}
+                    {(peopleData?.anonymous_visitors ?? []).filter((v: any) => v.events_7d >= peopleMinEvents).length === 0 && (
+                      <TableRow><TableCell colSpan={5} sx={{ color: '#9CA3AF', borderColor: '#262626', textAlign: 'center', py: 2 }}>No anonymous visitors (or PostHog not configured)</TableCell></TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              )}
+              {!peopleLoading && peopleTier === 'unmatched' && (
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Label</TableCell>
+                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Last seen</TableCell>
+                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Events</TableCell>
+                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Evidence</TableCell>
+                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Lane hint</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {(peopleData?.unmatched ?? []).filter((v: any) => v.events_7d >= peopleMinEvents).map((v: any) => (
+                      <TableRow key={v.visitor_id}>
+                        <TableCell sx={{ color: '#FFFFFF', borderColor: '#262626', fontSize: '0.875rem' }}>{v.label}</TableCell>
+                        <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.875rem' }}>{dayjs(v.last_seen_at).format('MMM DD, YYYY')}</TableCell>
+                        <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.875rem', fontFamily: 'monospace' }}>{v.events_7d ?? 0}</TableCell>
+                        <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.875rem' }}>{(v.top_pages_7d?.length || v.top_events_7d?.length) ? [...(v.top_pages_7d || []).slice(0, 2), ...(v.top_events_7d || []).slice(0, 2)].join(', ') || '—' : '—'}</TableCell>
+                        <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.875rem' }}>{v.lane_hint || '—'}</TableCell>
+                      </TableRow>
+                    ))}
+                    {(peopleData?.unmatched ?? []).length === 0 && (
+                      <TableRow><TableCell colSpan={5} sx={{ color: '#9CA3AF', borderColor: '#262626', textAlign: 'center', py: 2 }}>No unmatched visitors</TableCell></TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              )}
             </Box>
           )}
           {tab === 3 && (
