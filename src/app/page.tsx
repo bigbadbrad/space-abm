@@ -15,7 +15,7 @@ import { MarkdownRenderer } from '@/components/dashboard/docs/markdown-renderer'
 import { MotionSection } from '@/components/home/MotionSection';
 
 export const metadata = {
-  title: 'Space GTM — Purpose-Built ABM for Space Services',
+  title: 'SpaceGTM — Purpose-Built ABM for Space Services',
   description: 'The first ABM platform built for missions, not just leads.',
 };
 

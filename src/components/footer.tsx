@@ -29,7 +29,7 @@ export const Footer: FC = () => {
           <Box sx={{ mt: 4, display: 'flex', flexDirection: { xs: 'row', md: 'row' }, alignItems: 'center', justifyContent: 'center', gap: 1, width: '100%' }}>
             <Link href="/"><Button sx={{ color: iconColor, textTransform: 'none' }}>About</Button></Link>
             <Link href="/dashboard/how-it-works"><Button sx={{ color: iconColor, textTransform: 'none' }}>How It Works</Button></Link>
-            <Box sx={{ position: 'relative', display: 'inline-block', '&:hover::before': { content: '"hello@fullorbit.co"', position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', backgroundColor: 'rgba(0, 0, 0, 0.9)', color: 'white', padding: '8px 12px', borderRadius: '4px', fontSize: '0.875rem', whiteSpace: 'nowrap', zIndex: 9999, pointerEvents: 'none', marginBottom: '8px' } }}>
+            <Box sx={{ position: 'relative', display: 'inline-block', '&:hover::before': { content: '"hello@spacegtm"', position: 'absolute', bottom: '100%', left: '50%', transform: 'translateX(-50%)', backgroundColor: 'rgba(0, 0, 0, 0.9)', color: 'white', padding: '8px 12px', borderRadius: '4px', fontSize: '0.875rem', whiteSpace: 'nowrap', zIndex: 9999, pointerEvents: 'none', marginBottom: '8px' } }}>
               <Button sx={{ color: iconColor, textTransform: 'none' }}>Contact</Button>
             </Box>
           </Box>
@@ -39,7 +39,7 @@ export const Footer: FC = () => {
             </a>
           </Box>
           <Typography variant="subtitle1" sx={{ pt: 3, pb: 5 }}>
-            © 2026 Space GTM<br />
+            © 2026 SpaceGTM<br />
             All Rights Reserved.
           </Typography>
         </Box>

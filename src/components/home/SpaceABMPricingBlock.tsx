@@ -32,7 +32,7 @@ const DEFAULT_CARDS: PricingCard[] = [
   },
   {
     badge: 'MOST POPULAR',
-    title: 'Account Context (Space GTM portal)',
+    title: 'Account Context (SpaceGTM portal)',
     bullets: [
       'Account + domain, intent level (H/M/L)',
       'Evidence: pages, widget steps, fields',

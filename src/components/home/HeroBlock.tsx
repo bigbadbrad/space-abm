@@ -33,7 +33,7 @@ export const HeroBlock: FC = () => {
             mb: 3,
           }}
         >
-          Space GTM turns first-party behavior into service-lane intent + mission constraints, then outputs a procurement-ready brief your team can route to quotes, scheduling, and fulfillable capacity.
+          SpaceGTM turns first-party behavior into service-lane intent + mission constraints, then outputs a procurement-ready brief your team can route to quotes, scheduling, and fulfillable capacity.
         </Typography>
         <Typography
           sx={{

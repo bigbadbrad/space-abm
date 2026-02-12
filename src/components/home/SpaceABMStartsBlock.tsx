@@ -30,7 +30,7 @@ export function SpaceABMStartsBlock() {
               mb: 3,
             }}
           >
-            Space GTM starts where those platforms stop.
+            SpaceGTM starts where those platforms stop.
           </Typography>
           <Typography
             sx={{
@@ -40,7 +40,7 @@ export function SpaceABMStartsBlock() {
               mb: 3,
             }}
           >
-            Space GTM captures intent as prospects explore service lanes, then generates procurement-grade briefs and orchestrates next steps all the way to quotes, scheduling, and routing to fulfillable capacity — with explainable &quot;why this is hot&quot; logic (not a black-box score).
+            SpaceGTM captures intent as prospects explore service lanes, then generates procurement-grade briefs and orchestrates next steps all the way to quotes, scheduling, and routing to fulfillable capacity — with explainable &quot;why this is hot&quot; logic (not a black-box score).
           </Typography>
 
           <Box sx={{ display: 'flex', flexDirection: 'column', mt: 3 }}>

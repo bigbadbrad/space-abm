@@ -53,7 +53,7 @@ export function ABMBuiltForSpaceBlock() {
               mb: 3,
             }}
           >
-            Demandbase/6sense can tell you who is showing intent. Space GTM tells you what they&apos;re trying to fly — and tracks it as a Mission from first signal to reservation.
+            Demandbase/6sense can tell you who is showing intent. SpaceGTM tells you what they&apos;re trying to fly — and tracks it as a Mission from first signal to reservation.
           </Typography>
 
           <Box sx={{ display: 'flex', flexDirection: 'column', mt: 3 }}>

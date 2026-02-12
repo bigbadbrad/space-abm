@@ -51,7 +51,7 @@ export function RevenueLifecycleBlock() {
               lineHeight: 1.6,
               color: 'rgba(148,163,184,0.9)',
             }}
-          > In space, deals don&apos;t move through generic CRM stages — they move through requirements, readiness gates, and schedule windows. Space GTM turns every qualified request into an executable opportunity with owners, due dates, and an audit trail:
+          > In space, deals don&apos;t move through generic CRM stages — they move through requirements, readiness gates, and schedule windows. SpaceGTM turns every qualified request into an executable opportunity with owners, due dates, and an audit trail:
             <br /><br />
             <Box component="span" sx={{ color: PrimaryColor, fontWeight: 500 }}>interest → qualified brief → routed providers → committed schedule → closed revenue</Box>
           </Typography>

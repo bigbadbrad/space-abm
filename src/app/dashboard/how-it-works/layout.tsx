@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'ABM How It Works | Space GTM',
-  description: 'How the Space GTM system works end-to-end.',
+  title: 'ABM How It Works | SpaceGTM',
+  description: 'How the SpaceGTM system works end-to-end.',
 };
 
 export default function ABMHowItWorksLayout({

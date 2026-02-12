@@ -84,7 +84,7 @@ const STEPS: StepData[] = [
   {
     index: 10,
     title: 'Create / update a Salesforce Opportunity (system of record sync)',
-    body: 'When a Lead Request becomes Qualified (quote-ready), Space GTM syncs it to Salesforce or HubSpot:',
+    body: 'When a Lead Request becomes Qualified (quote-ready), SpaceGTM syncs it to Salesforce or HubSpot:',
     subBullets: [
       'Upsert Account + Contact (if needed)',
       'Create Opportunity (or attach to an open one)',
@@ -178,7 +178,7 @@ export function HowSpaceABMWorksBlock() {
               mt: 8,
             }}
           >
-            End-to-end, Space GTM takes you from first-party intent to a procurement-ready, qualified, routed work item—and syncs it into Salesforce as a ready-to-run Opportunity.
+            End-to-end, SpaceGTM takes you from first-party intent to a procurement-ready, qualified, routed work item—and syncs it into Salesforce as a ready-to-run Opportunity.
           </Typography>
         </Box>
       </Container>
