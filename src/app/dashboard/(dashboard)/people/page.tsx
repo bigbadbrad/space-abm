@@ -12,7 +12,9 @@ import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
+import Drawer from '@mui/material/Drawer';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
@@ -46,6 +48,11 @@ export default function ABMPeoplePage(): React.JSX.Element {
   const [searchDebounced, setSearchDebounced] = React.useState('');
   const [debugRows, setDebugRows] = React.useState<ABMPeopleDebugRow[]>([]);
   const [debugLoading, setDebugLoading] = React.useState(false);
+
+  const [activityDrawerOpen, setActivityDrawerOpen] = React.useState(false);
+  const [activityDrawerPerson, setActivityDrawerPerson] = React.useState<{ accountId: string; contactId: number; display: string } | null>(null);
+  const [activityData, setActivityData] = React.useState<Awaited<ReturnType<typeof abmApi.getAccountPeopleActivity>>['data']>(null);
+  const [activityLoading, setActivityLoading] = React.useState(false);
 
   React.useEffect(() => {
     const t = setTimeout(() => setSearchDebounced(search), 300);
@@ -84,6 +91,24 @@ export default function ABMPeoplePage(): React.JSX.Element {
     });
     return () => { cancelled = true; };
   }, [debugEnabled, debugRange, minEvents, searchDebounced]);
+
+  React.useEffect(() => {
+    if (!activityDrawerOpen || !activityDrawerPerson) return;
+    let cancelled = false;
+    setActivityLoading(true);
+    setActivityData(null);
+    abmApi.getAccountPeopleActivity(activityDrawerPerson.accountId, { range_days: 7 }).then((res) => {
+      if (cancelled) return;
+      setActivityData(res.data ?? null);
+      setActivityLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [activityDrawerOpen, activityDrawerPerson?.accountId, activityDrawerPerson?.contactId]);
+
+  const activityDrawerPersonData = React.useMemo(() => {
+    if (!activityData?.people || !activityDrawerPerson) return null;
+    return activityData.people.find((q) => String(q.contact_id) === String(activityDrawerPerson.contactId)) ?? null;
+  }, [activityData?.people, activityDrawerPerson]);
 
   const filteredDebugRows = React.useMemo(() => {
     if (!searchDebounced.trim()) return debugRows;
@@ -228,7 +253,25 @@ export default function ABMPeoplePage(): React.JSX.Element {
                       <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.8rem' }}>{(p.top_categories_7d || []).slice(0, 2).join(', ') || '—'}</TableCell>
                       <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.875rem', fontFamily: 'monospace' }}>{p.last_seen_at ? dayjs(p.last_seen_at).format('MMM DD, HH:mm') : '—'}</TableCell>
                       <TableCell sx={{ borderColor: '#262626' }}>
-                        <Button component={Link} href={paths.abm.accounts} size="small" sx={{ color: '#3b82f6' }}>View Account</Button>
+                        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'nowrap', alignItems: 'center' }}>
+                          {p.account_id != null && (
+                            <Button component={Link} href={paths.abm.account(String(p.account_id))} size="small" sx={{ color: '#3b82f6', textTransform: 'none', whiteSpace: 'nowrap' }}>View Account</Button>
+                          )}
+                          {p.account_id != null && (
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              onClick={() => {
+                                setActivityDrawerPerson({ accountId: String(p.account_id), contactId: p.id, display: p.display || p.email || '—' });
+                                setActivityDrawerOpen(true);
+                              }}
+                              sx={{ color: '#3B82F6', borderColor: '#3B82F6', fontSize: '0.75rem', textTransform: 'none', whiteSpace: 'nowrap' }}
+                            >
+                              View Activity
+                            </Button>
+                          )}
+                          {p.account_id == null && <Typography sx={{ color: '#6b7280', fontSize: '0.875rem' }}>—</Typography>}
+                        </Box>
                       </TableCell>
                     </TableRow>
                   ))
@@ -238,6 +281,61 @@ export default function ABMPeoplePage(): React.JSX.Element {
           )}
         </CardContent>
       </Card>
+
+      <Drawer
+        anchor="right"
+        open={activityDrawerOpen}
+        onClose={() => { setActivityDrawerOpen(false); setActivityDrawerPerson(null); }}
+        PaperProps={{ sx: { backgroundColor: '#0A0A0A', borderLeft: '1px solid #262626', width: 'min(100%, 680px)' } }}
+      >
+        <Box sx={{ p: 2 }}>
+          <Typography sx={{ color: '#FFFFFF', fontSize: '1.125rem', fontWeight: 600, mb: 1 }}>
+            Activity — {activityDrawerPerson?.display ?? '—'}
+          </Typography>
+          <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', mb: 2 }}>Last 7 days (anonymous → known)</Typography>
+          {activityLoading ? (
+            <Box sx={{ py: 4, display: 'flex', justifyContent: 'center' }}><CircularProgress size={28} sx={{ color: '#9CA3AF' }} /></Box>
+          ) : !activityDrawerPersonData ? (
+            <Typography sx={{ color: '#9CA3AF', fontSize: '0.875rem' }}>No activity data for this person.</Typography>
+          ) : activityDrawerPersonData.events.length === 0 ? (
+            <Typography sx={{ color: '#9CA3AF', fontSize: '0.875rem' }}>No events in the last 7 days.</Typography>
+          ) : (
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.7rem', fontWeight: 600 }}>Event</TableCell>
+                  <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.7rem', fontWeight: 600 }}>When</TableCell>
+                  <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.7rem', fontWeight: 600 }}>Path</TableCell>
+                  <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.7rem', fontWeight: 600 }}>Identity</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {[...activityDrawerPersonData.events]
+                  .sort((a, b) => {
+                    const tA = new Date(a.timestamp).getTime();
+                    const tB = new Date(b.timestamp).getTime();
+                    if (tB !== tA) return tB - tA;
+                    return String(a.event + (a.path ?? '')).localeCompare(String(b.event + (b.path ?? '')));
+                  })
+                  .map((ev, idx) => (
+                    <TableRow key={idx}>
+                      <TableCell sx={{ color: '#E5E7EB', borderColor: '#262626', fontSize: '0.8rem' }}>{ev.event_display ?? ev.event}</TableCell>
+                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.8rem' }}>{dayjs(ev.timestamp).format('MMM D, YYYY h:mm A')}</TableCell>
+                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.8rem' }}>{ev.path ?? '—'}</TableCell>
+                      <TableCell sx={{ borderColor: '#262626' }}>
+                        <Chip
+                          label={ev.identity}
+                          size="small"
+                          sx={{ fontSize: '0.7rem', bgcolor: ev.identity === 'known' ? '#065f46' : '#374151', color: '#fff' }}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          )}
+        </Box>
+      </Drawer>
     </Box>
   );
 }

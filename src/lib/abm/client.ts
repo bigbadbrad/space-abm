@@ -313,6 +313,7 @@ export interface ABMLaneExplainerResponse {
 
 export interface ABMPerson {
   id: number;
+  account_id?: string | number | null;
   display: string;
   email?: string;
   account_name?: string;
@@ -390,6 +391,24 @@ export interface ABMAccountPeopleResponse {
   generated_at: string;
   posthog_configured: boolean;
   banner?: string;
+}
+
+/** Response from GET /api/abm/accounts/:id/people-activity (contact-centric, all activity with identity) */
+export interface ABMAccountPeopleActivityResponse {
+  range_days: number;
+  people: Array<{
+    contact_id: string;
+    email: string | null;
+    first_name: string | null;
+    last_name: string | null;
+    title: string | null;
+    identified_distinct_id: string | null;
+    events_count: number;
+    last_seen_at: string | null;
+    events: Array<{ event: string; event_display?: string; timestamp: string; path: string | null; identity: 'anonymous' | 'known' }>;
+    top_events: string[];
+  }>;
+  posthog_configured: boolean;
 }
 
 export const abmApi = {
@@ -586,6 +605,12 @@ export const abmApi = {
     if (params?.include_unmatched) sp.set('include_unmatched', 'true');
     const q = sp.toString();
     return abmFetch<ABMAccountPeopleResponse>(`/accounts/${accountId}/people${q ? `?${q}` : ''}`);
+  },
+  getAccountPeopleActivity: (accountId: string, params?: { range_days?: number }) => {
+    const sp = new URLSearchParams();
+    if (params?.range_days != null) sp.set('range_days', String(params.range_days));
+    const q = sp.toString();
+    return abmFetch<ABMAccountPeopleActivityResponse>(`/accounts/${accountId}/people-activity${q ? `?${q}` : ''}`);
   },
   getLeadRequestScoringDetails: (leadRequestId: string) => abmFetch<ABMScoringDetails>(`/lead-requests/${leadRequestId}/scoring-details`),
   // Procurement admin
