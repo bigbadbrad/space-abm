@@ -113,16 +113,26 @@ export default function ABMAccountDetailPage(): React.JSX.Element {
           </Tabs>
           {tab === 0 && (
             <Box sx={{ mt: 2 }}>
-              <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', textTransform: 'uppercase', mb: 1 }}>Why hot (7d)</Typography>
+              <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', textTransform: 'uppercase', mb: 1 }}>Why this score (7d)</Typography>
               <Box component="ul" sx={{ pl: 3, m: 0, color: '#FFFFFF', fontSize: '0.875rem' }}>
                 {(() => {
-                  const whyHot = latest?.key_events_7d_json && typeof latest.key_events_7d_json === 'object'
-                    ? Object.entries(latest.key_events_7d_json)
-                        .sort((a: [string, any], b: [string, any]) => (b[1] || 0) - (a[1] || 0))
-                        .slice(0, 5)
-                        .map(([k, v]: [string, any]) => `${v}× ${String(k).replace(/_page_view|cta_click_/g, ' ').trim()}`)
-                    : [];
-                  return whyHot.length ? whyHot.map((s, i) => <li key={i}>{s}</li>) : <li>No data</li>;
+                  const raw = account?.intent_evidence_7d;
+                  let evidenceList: string[] = [];
+                  if (raw != null && raw !== '') {
+                    try {
+                      evidenceList = typeof raw === 'string' ? JSON.parse(raw) : raw;
+                      if (!Array.isArray(evidenceList)) evidenceList = [];
+                    } catch {
+                      evidenceList = [];
+                    }
+                  }
+                  if (evidenceList.length === 0 && latest?.key_events_7d_json && typeof latest.key_events_7d_json === 'object') {
+                    evidenceList = Object.entries(latest.key_events_7d_json)
+                      .sort((a: [string, any], b: [string, any]) => (b[1] || 0) - (a[1] || 0))
+                      .slice(0, 5)
+                      .map(([k, v]: [string, any]) => `${v}× ${String(k).replace(/_page_view|cta_click_/g, ' ').trim()}`);
+                  }
+                  return evidenceList.length ? evidenceList.map((s, i) => <li key={i}>{s}</li>) : <li>No evidence yet. Run recompute or wait for next daily run.</li>;
                 })()}
               </Box>
             </Box>
