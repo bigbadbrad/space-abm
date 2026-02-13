@@ -51,7 +51,7 @@ export default function ABMPeoplePage(): React.JSX.Element {
 
   const [activityDrawerOpen, setActivityDrawerOpen] = React.useState(false);
   const [activityDrawerPerson, setActivityDrawerPerson] = React.useState<{ accountId: string; contactId: number; display: string } | null>(null);
-  const [activityData, setActivityData] = React.useState<Awaited<ReturnType<typeof abmApi.getAccountPeopleActivity>>['data']>(null);
+  const [activityData, setActivityData] = React.useState<Awaited<ReturnType<typeof abmApi.getAccountPeopleActivity>>['data']>(undefined);
   const [activityLoading, setActivityLoading] = React.useState(false);
 
   React.useEffect(() => {
@@ -96,10 +96,10 @@ export default function ABMPeoplePage(): React.JSX.Element {
     if (!activityDrawerOpen || !activityDrawerPerson) return;
     let cancelled = false;
     setActivityLoading(true);
-    setActivityData(null);
+    setActivityData(undefined);
     abmApi.getAccountPeopleActivity(activityDrawerPerson.accountId, { range_days: 7 }).then((res) => {
       if (cancelled) return;
-      setActivityData(res.data ?? null);
+      setActivityData(res.data ?? undefined);
       setActivityLoading(false);
     });
     return () => { cancelled = true; };
