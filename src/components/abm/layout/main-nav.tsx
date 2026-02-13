@@ -13,12 +13,11 @@ import Tooltip from '@mui/material/Tooltip';
 import { Funnel as FunnelIcon } from '@phosphor-icons/react/dist/ssr/Funnel';
 import { List as ListIcon } from '@phosphor-icons/react/dist/ssr/List';
 import { MagnifyingGlass as MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr/MagnifyingGlass';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 import { usePopover } from '@/hooks/use-popover';
 import { paths } from '@/paths';
 import { useUser } from '@/hooks/use-user';
-import { PrimaryColor } from '@/config';
 import { useABMFilters } from '@/contexts/abm-filter-context';
 
 import { ABMMobileNav } from './mobile-nav';
@@ -47,6 +46,8 @@ export function ABMMainNav(): React.JSX.Element {
   const [openNav, setOpenNav] = React.useState<boolean>(false);
   const [filtersOpen, setFiltersOpen] = React.useState<boolean>(false);
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const debugMode = pathname === paths.abm.people && searchParams.get('debug') === '1';
   const userPopover = usePopover<HTMLDivElement>();
   const { user } = useUser();
   const { filters, applyFilters, hasActiveFilters } = useABMFilters();
@@ -133,17 +134,17 @@ export function ABMMainNav(): React.JSX.Element {
               </IconButton>
             </Tooltip>
             <Chip
-              label="GTM Live"
+              label={debugMode ? 'Debug Mode' : 'GTM Live'}
               size="small"
               sx={{
-                bgcolor: PrimaryColor,
-                color: '#000',
+                bgcolor: debugMode ? '#F59E0B' : '#3b82f6',
+                color: debugMode ? '#000' : '#fff',
                 fontSize: '0.75rem',
                 fontWeight: 600,
-                '& .MuiChip-label': { px: 1.5 },
+                '& .MuiChip-label': { px: debugMode ? 0.4 : 1.5 },
               }}
               icon={
-                <Box sx={{ bgcolor: PrimaryColor, borderRadius: '50%', boxShadow: `0 0 8px ${PrimaryColor}40`, height: 6, width: 6 }} />
+                <Box sx={{ bgcolor: debugMode ? '#F59E0B' : '#3b82f6', borderRadius: '50%', boxShadow: debugMode ? '0 0 8px rgba(245,158,11,0.25)' : '0 0 8px rgba(59,130,246,0.4)', height: 6, width: 6 }} />
               }
             />
             <Avatar onClick={userPopover.handleOpen} ref={userPopover.anchorRef} sx={{ cursor: 'pointer', width: 32, height: 32 }} src={user?.avatar}>

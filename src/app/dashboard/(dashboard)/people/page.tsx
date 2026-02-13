@@ -16,10 +16,10 @@ import CircularProgress from '@mui/material/CircularProgress';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
-import Tooltip from '@mui/material/Tooltip';
 import dayjs from 'dayjs';
 import { Users as UsersIcon } from '@phosphor-icons/react/dist/ssr/Users';
 
+import { useRouter, useSearchParams } from 'next/navigation';
 import { paths } from '@/paths';
 import { abmApi } from '@/lib/abm/client';
 import type { ABMPeopleDebugRow } from '@/lib/abm/client';
@@ -28,13 +28,18 @@ import { useABMFilters } from '@/contexts/abm-filter-context';
 const RANGE_OPTIONS = ['15m', '1h', '24h', '7d', '30d'] as const;
 
 export default function ABMPeoplePage(): React.JSX.Element {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const { filters } = useABMFilters();
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [people, setPeople] = React.useState<any[]>([]);
 
-  const [debugEnabled, setDebugEnabled] = React.useState(false);
-  const [includeUnmatched, setIncludeUnmatched] = React.useState(false);
+  const [debugEnabled, setDebugEnabled] = React.useState(searchParams.get('debug') === '1');
+
+  React.useEffect(() => {
+    setDebugEnabled(searchParams.get('debug') === '1');
+  }, [searchParams]);
   const [debugRange, setDebugRange] = React.useState<string>('24h');
   const [minEvents, setMinEvents] = React.useState(1);
   const [search, setSearch] = React.useState('');
@@ -69,7 +74,7 @@ export default function ABMPeoplePage(): React.JSX.Element {
     abmApi.getPeopleDebug({
       range: debugRange,
       min_events: minEvents,
-      include_unmatched: includeUnmatched,
+      include_unmatched: true,
       search: searchDebounced || undefined,
     }).then((res) => {
       if (cancelled) return;
@@ -78,7 +83,7 @@ export default function ABMPeoplePage(): React.JSX.Element {
       setDebugLoading(false);
     });
     return () => { cancelled = true; };
-  }, [debugEnabled, debugRange, minEvents, includeUnmatched, searchDebounced]);
+  }, [debugEnabled, debugRange, minEvents, searchDebounced]);
 
   const filteredDebugRows = React.useMemo(() => {
     if (!searchDebounced.trim()) return debugRows;
@@ -124,26 +129,20 @@ export default function ABMPeoplePage(): React.JSX.Element {
                 control={
                   <Switch
                     checked={debugEnabled}
-                    onChange={(_, v) => setDebugEnabled(v)}
+                    onChange={(_, v) => {
+                      setDebugEnabled(v);
+                      router.replace(v ? `${paths.abm.people}?debug=1` : paths.abm.people);
+                    }}
                     sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: '#F59E0B' }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: '#F59E0B' } }}
                   />
                 }
                 label={<Typography sx={{ color: '#9CA3AF', fontSize: '0.875rem' }}>Debug</Typography>}
               />
-              {debugEnabled && (
-                <Tooltip title="Shows anonymous and unmatched visitors for troubleshooting.">
-                  <Typography component="span" sx={{ bgcolor: '#F59E0B', color: '#000', fontSize: '0.65rem', fontWeight: 700, px: 1, py: 0.25, borderRadius: 1 }}>DEBUG MODE</Typography>
-                </Tooltip>
-              )}
             </Box>
           </Box>
 
           {debugEnabled && (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 2, mb: 2, pl: 0.5 }}>
-              <FormControlLabel
-                control={<Switch checked={includeUnmatched} onChange={(_, v) => setIncludeUnmatched(v)} size="small" sx={{ color: '#9CA3AF' }} />}
-                label={<Typography sx={{ color: '#9CA3AF', fontSize: '0.8rem' }}>Include Unmatched</Typography>}
-              />
               <Typography sx={{ color: '#9CA3AF', fontSize: '0.8rem' }}>Range</Typography>
               {RANGE_OPTIONS.map((r) => (
                 <Button key={r} size="small" variant={debugRange === r ? 'contained' : 'outlined'} onClick={() => setDebugRange(r)} sx={{ minWidth: 40, color: debugRange === r ? '#fff' : '#9CA3AF', borderColor: '#262626', textTransform: 'none' }}>{r}</Button>
