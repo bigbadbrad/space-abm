@@ -395,13 +395,15 @@ export default function ABMLeadRequestsPage(): React.JSX.Element {
                   <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Lane</TableCell>
                   <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Org</TableCell>
                   <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Date</TableCell>
+                  <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Status</TableCell>
+                  <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Mission</TableCell>
                   <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {leadRequests.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} sx={{ color: '#9CA3AF', borderColor: '#262626', textAlign: 'center', py: 3 }}>No lead requests</TableCell>
+                    <TableCell colSpan={7} sx={{ color: '#9CA3AF', borderColor: '#262626', textAlign: 'center', py: 3 }}>No lead requests</TableCell>
                   </TableRow>
                 ) : (
                   leadRequests.map((lr) => (
@@ -414,6 +416,16 @@ export default function ABMLeadRequestsPage(): React.JSX.Element {
                       <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.8rem' }}>{formatLaneDisplayName(lr.service_needed)}</TableCell>
                       <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.8rem' }}>{lr.organization_domain || lr.prospectCompany?.domain || '—'}</TableCell>
                       <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.8rem', fontFamily: 'monospace' }}>{dayjs(lr.created_at).format('MM/DD')}</TableCell>
+                      <TableCell sx={{ borderColor: '#262626' }}>
+                        <Chip label={lr.routing_status || 'new'} size="small" sx={{ bgcolor: '#262626', color: '#fff', fontSize: '0.7rem', textTransform: 'capitalize' }} />
+                      </TableCell>
+                      <TableCell sx={{ borderColor: '#262626', fontSize: '0.8rem' }}>
+                        {lr.mission_id ? (
+                          <Button size="small" component={Link} href={`${paths.abm.missions}?id=${lr.mission_id}`} sx={{ color: '#3b82f6', minWidth: 0, fontSize: '0.75rem' }} onClick={(e) => e.stopPropagation()}>Mission →</Button>
+                        ) : (
+                          <span style={{ color: '#6b7280' }}>—</span>
+                        )}
+                      </TableCell>
                       <TableCell sx={{ borderColor: '#262626' }}>
                         <Button size="small" component={Link} href={`${paths.abm.leadRequests}?id=${lr.id}`} sx={{ color: '#3b82f6', minWidth: 0 }} onClick={(e) => e.stopPropagation()}>View →</Button>
                       </TableCell>
@@ -443,7 +455,12 @@ export default function ABMLeadRequestsPage(): React.JSX.Element {
                 <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', textTransform: 'uppercase', mt: 2 }}>Submitted at</Typography>
                 <Typography sx={{ color: '#FFFFFF', fontSize: '0.875rem', fontFamily: 'monospace' }}>{dayjs(detail.created_at).format('MMM DD, YYYY HH:mm')}</Typography>
                 <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', textTransform: 'uppercase', mt: 2 }}>Status</Typography>
-                <Chip label={detail.routing_status || 'new'} size="small" sx={{ bgcolor: '#262626', color: '#fff' }} />
+                <Chip label={detail.routing_status || 'new'} size="small" sx={{ bgcolor: '#262626', color: '#fff', textTransform: 'capitalize' }} />
+                {detail.mission_id && (
+                  <Typography sx={{ color: '#9CA3AF', fontSize: '0.8rem', mt: 0.5 }}>
+                    Mission: <Link href={`${paths.abm.missions}?id=${detail.mission_id}`} style={{ color: '#3b82f6' }}>Open Mission →</Link>
+                  </Typography>
+                )}
                 <Box sx={{ mt: 2 }}>
                   {detail.prospectCompany?.id && (
                     <Button component={Link} href={paths.abm.account(String(detail.prospectCompany.id))} variant="outlined" size="small" sx={{ borderColor: '#262626', color: '#3b82f6', mr: 1 }}>

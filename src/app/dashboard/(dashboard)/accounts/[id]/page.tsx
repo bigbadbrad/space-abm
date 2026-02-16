@@ -295,6 +295,7 @@ export default function ABMAccountDetailPage(): React.JSX.Element {
                     <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Service</TableCell>
                     <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Submitted</TableCell>
                     <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Status</TableCell>
+                    <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Mission</TableCell>
                     <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Action</TableCell>
                   </TableRow>
                 </TableHead>
@@ -304,12 +305,19 @@ export default function ABMAccountDetailPage(): React.JSX.Element {
                       <TableCell sx={{ color: '#FFFFFF', borderColor: '#262626', fontSize: '0.875rem', fontFamily: 'monospace' }}>{lr.lead_score ?? '—'}</TableCell>
                       <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.875rem' }}>{formatLaneDisplayName(lr.service_needed)}</TableCell>
                       <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.875rem', fontFamily: 'monospace' }}>{dayjs(lr.created_at).format('MMM DD, YYYY')}</TableCell>
-                      <TableCell sx={{ borderColor: '#262626' }}><Chip label={lr.routing_status || 'new'} size="small" sx={{ bgcolor: '#262626', color: '#fff', fontSize: '0.75rem' }} /></TableCell>
+                      <TableCell sx={{ borderColor: '#262626' }}><Chip label={lr.routing_status || 'new'} size="small" sx={{ bgcolor: '#262626', color: '#fff', fontSize: '0.75rem', textTransform: 'capitalize' }} /></TableCell>
+                      <TableCell sx={{ borderColor: '#262626' }}>
+                        {lr.mission_id ? (
+                          <Button component={Link} href={`${paths.abm.missions}?id=${lr.mission_id}`} size="small" sx={{ color: '#3b82f6' }}>Mission →</Button>
+                        ) : (
+                          <span style={{ color: '#6b7280' }}>—</span>
+                        )}
+                      </TableCell>
                       <TableCell sx={{ borderColor: '#262626' }}><Button component={Link} href={`${paths.abm.leadRequests}?id=${lr.id}`} size="small" sx={{ color: '#3b82f6' }}>View</Button></TableCell>
                     </TableRow>
                   ))}
                   {leadRequests.length === 0 && (
-                    <TableRow><TableCell colSpan={5} sx={{ color: '#9CA3AF', borderColor: '#262626', textAlign: 'center', py: 2 }}>No lead requests</TableCell></TableRow>
+                    <TableRow><TableCell colSpan={6} sx={{ color: '#9CA3AF', borderColor: '#262626', textAlign: 'center', py: 2 }}>No lead requests</TableCell></TableRow>
                   )}
                 </TableBody>
               </Table>

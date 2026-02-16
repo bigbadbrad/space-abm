@@ -438,9 +438,19 @@ export default function ABMMissionsPage(): React.JSX.Element {
                     </Typography>
                   </Box>
 
-                  {/* Procurement brief / Lead Request */}
+                  {/* Source: Lead Request (when mission created from lead) */}
                   {(detail.mission.lead_request_id || (detail.mission.leadRequest as { id?: string })?.id) && (
                     <Box>
+                      <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', textTransform: 'uppercase', mb: 0.5 }}>Source</Typography>
+                      <Typography sx={{ color: '#E5E7EB', fontSize: '0.875rem', mb: 0.5 }}>
+                        <Link href={`${paths.abm.leadRequests}?id=${detail.mission.lead_request_id || (detail.mission.leadRequest as { id?: string })?.id}`} style={{ color: '#3b82f6' }}>
+                          Lead Request
+                        </Link>
+                        {' from '}
+                        {(detail.mission.leadRequest as { organization_name?: string; organization_domain?: string })?.organization_name || (detail.mission.leadRequest as { organization_domain?: string })?.organization_domain || 'Unknown'}
+                        {', '}
+                        {dayjs((detail.mission.leadRequest as { created_at?: string })?.created_at).format('MMM DD, YYYY')}
+                      </Typography>
                       <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', textTransform: 'uppercase', mb: 0.5 }}>Procurement Brief</Typography>
                       <Button component={Link} href={`${paths.abm.leadRequests}?id=${detail.mission.lead_request_id || (detail.mission.leadRequest as { id?: string })?.id}`} variant="outlined" size="small" sx={{ borderColor: '#262626', color: '#3b82f6' }}>
                         Open Lead Request
