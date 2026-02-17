@@ -539,14 +539,17 @@ export default function ABMMissionsPage(): React.JSX.Element {
                                 return (
                                   <Tooltip title={!sf.eligible ? sf.reason : ''}>
                                     <span>
-                                      <Button
-                                        size="small"
-                                        sx={{ color: '#10B981', minWidth: 0 }}
-                                        onClick={(e) => { e.stopPropagation(); handlePushToSalesforce(m.id); }}
-                                        disabled={pushSfLoading || !sf.eligible}
-                                      >
-                                        Sync SF
-                                      </Button>
+                                      <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+                                        <Button
+                                          size="small"
+                                          sx={{ color: '#10B981', minWidth: 0 }}
+                                          onClick={(e) => { e.stopPropagation(); handlePushToSalesforce(m.id); }}
+                                          disabled={pushSfLoading || !sf.eligible}
+                                        >
+                                          Sync SF
+                                        </Button>
+                                        <img src="/salesforce-logo.png" alt="" style={{ height: 28, width: 'auto' }} />
+                                      </Box>
                                     </span>
                                   </Tooltip>
                                 );
@@ -617,9 +620,12 @@ export default function ABMMissionsPage(): React.JSX.Element {
                       return (
                         <Tooltip title={!sf.eligible ? sf.reason : ''}>
                           <span style={{ display: 'inline-flex' }}>
-                            <Button variant="outlined" size="small" onClick={() => handlePushToSalesforce(missionId)} disabled={pushSfLoading || !sf.eligible} sx={{ borderColor: '#10B981', color: '#10B981' }}>
-                              {pushSfLoading ? 'Syncing...' : 'Sync to Salesforce'}
-                            </Button>
+                            <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75 }}>
+                              <Button variant="outlined" size="small" onClick={() => handlePushToSalesforce(missionId)} disabled={pushSfLoading || !sf.eligible} sx={{ borderColor: '#10B981', color: '#10B981' }}>
+                                {pushSfLoading ? 'Syncing...' : 'Sync to Salesforce'}
+                              </Button>
+                              <img src="/salesforce-logo.png" alt="" style={{ height: 32, width: 'auto' }} />
+                            </Box>
                           </span>
                         </Tooltip>
                       );
@@ -929,9 +935,12 @@ export default function ABMMissionsPage(): React.JSX.Element {
                       return (
                         <Tooltip title={!sf.eligible ? sf.reason : ''}>
                           <span style={{ display: 'inline-flex' }}>
-                            <Button variant="outlined" size="small" onClick={() => handlePushToSalesforce(missionId)} disabled={pushSfLoading || !sf.eligible} sx={{ borderColor: '#10B981', color: '#10B981', mt: 1 }}>
-                              {pushSfLoading ? 'Syncing...' : 'Sync to Salesforce now'}
-                            </Button>
+                            <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75, mt: 1 }}>
+                              <Button variant="outlined" size="small" onClick={() => handlePushToSalesforce(missionId)} disabled={pushSfLoading || !sf.eligible} sx={{ borderColor: '#10B981', color: '#10B981' }}>
+                                {pushSfLoading ? 'Syncing...' : 'Sync to Salesforce now'}
+                              </Button>
+                              <img src="/salesforce-logo.png" alt="" style={{ height: 28, width: 'auto' }} />
+                            </Box>
                           </span>
                         </Tooltip>
                       );
