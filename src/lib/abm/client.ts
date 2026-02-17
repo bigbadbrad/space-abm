@@ -57,6 +57,20 @@ export interface ABMAccountsResponse {
   limit: number;
 }
 
+export interface ABMMissionTask {
+  id: string;
+  mission_id: string;
+  title: string;
+  task_type: string;
+  status: string;
+  priority: string;
+  owner_user_id?: string | null;
+  due_at?: string | null;
+  owner?: { id: string; name?: string; preferred_name?: string; email?: string };
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface ABMMission {
   id: string;
   title: string;
@@ -87,10 +101,18 @@ export interface ABMMission {
   last_activity_at?: string;
   created_at?: string;
   updated_at?: string;
+  next_task_due_at?: string | null;
+  open_tasks_count?: number;
+  salesforce_opportunity_id?: string | null;
+  salesforce_account_id?: string | null;
+  salesforce_sync_status?: string | null;
+  salesforce_last_synced_at?: string | null;
+  salesforce_last_error?: string | null;
   prospectCompany?: { id: string; name: string; domain: string };
   owner?: { id: string; name?: string; preferred_name?: string; email?: string };
   primaryContact?: { id: string; email?: string; first_name?: string; last_name?: string; title?: string };
   leadRequest?: unknown;
+  tasks?: ABMMissionTask[];
 }
 
 export interface ABMMissionsSummaryResponse {
@@ -512,6 +534,12 @@ export const abmApi = {
     if (params?.range) sp.set('range', params.range);
     return abmFetch<ABMMissionsSummaryResponse>(`/missions/summary${sp.toString() ? `?${sp}` : ''}`);
   },
+  getWorkQueue: () =>
+    abmFetch<{
+      overdue_tasks: { task: ABMMissionTask; mission: { id: string; title: string } | null }[];
+      due_soon_tasks: { task: ABMMissionTask; mission: { id: string; title: string } | null }[];
+      missions_needing_qualification: ABMMission[];
+    }>('/missions/work-queue'),
   getMissions: (params?: { range?: string; stage?: string; lane?: string; owner?: string; search?: string; sort?: string; page?: number; limit?: number; due_soon?: string; stale?: string; hot?: string }) => {
     const sp = new URLSearchParams();
     if (params?.range) sp.set('range', params.range);
@@ -547,6 +575,27 @@ export const abmApi = {
     abmFetch<unknown>(`/missions/${id}/activities`, { method: 'POST', body: JSON.stringify(body) }),
   postMissionAiBrief: (id: string) =>
     abmFetch<{ summary_md: string; cached?: boolean }>(`/missions/${id}/ai-brief`, { method: 'POST' }),
+  getMissionTasks: (id: string, params?: { status?: string }) => {
+    const q = params?.status ? `?status=${params.status}` : '';
+    return abmFetch<{ items: ABMMissionTask[] }>(`/missions/${id}/tasks${q}`);
+  },
+  postMissionTask: (id: string, body: { title: string; task_type?: string; priority?: string; owner_user_id?: string; due_at?: string }) =>
+    abmFetch<ABMMissionTask>(`/missions/${id}/tasks`, { method: 'POST', body: JSON.stringify(body) }),
+  patchMissionTask: (id: string, taskId: string, body: Partial<ABMMissionTask>) =>
+    abmFetch<ABMMissionTask>(`/missions/${id}/tasks/${taskId}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  getMissionActivity: (id: string, params?: { page?: number; limit?: number }) => {
+    const sp = new URLSearchParams();
+    if (params?.page != null) sp.set('page', String(params.page));
+    if (params?.limit != null) sp.set('limit', String(params.limit));
+    const q = sp.toString();
+    return abmFetch<{ items: { id: string; type: string; body: string | null; meta_json: unknown; created_at: string; createdBy?: { id: string; name?: string; preferred_name?: string } }[]; total: number; page: number; limit: number }>(`/missions/${id}/activity${q ? `?${q}` : ''}`);
+  },
+  getMissionArtifacts: (id: string, type?: string) =>
+    abmFetch<{ artifact: unknown; content_md: string | null }>(`/missions/${id}/artifacts${type ? `?type=${type}` : ''}`),
+  postGenerateBrief: (id: string) =>
+    abmFetch<{ summary_md: string; cached?: boolean }>(`/missions/${id}/generate-brief`, { method: 'POST' }),
+  postPushToSalesforce: (id: string) =>
+    abmFetch<{ message: string; success?: boolean; error?: string; mission: { salesforce_sync_status?: string; salesforce_last_error?: string } }>(`/missions/${id}/push-to-salesforce`, { method: 'POST' }),
   getActivity: (params?: { range?: string; limit?: number }) => {
     const sp = new URLSearchParams();
     if (params?.range) sp.set('range', params.range);

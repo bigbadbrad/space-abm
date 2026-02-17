@@ -7,6 +7,7 @@ export const abmNavItems: NavItemConfig[] = [
   { key: 'people', title: 'People', href: paths.abm.people, icon: 'users' },
   { key: 'lanes', title: 'Service Lanes', href: paths.abm.lanes, icon: 'columns' },
   { key: 'missions', title: 'Missions', href: paths.abm.missions, icon: 'rocket-launch', matcher: { type: 'startsWith', href: paths.abm.missions } },
+  { key: 'work-queue', title: 'Work Queue', href: paths.abm.workQueue, icon: 'calendar' },
   { key: 'programs', title: 'Programs', href: paths.abm.programs, icon: 'shield-star', matcher: { type: 'startsWith', href: paths.abm.programs } },
   { key: 'lead-requests', title: 'Lead Requests', href: paths.abm.leadRequests, icon: 'file-text', matcher: { type: 'startsWith', href: paths.abm.leadRequests } },
   { key: 'activity', title: 'Activity', href: paths.abm.activity, icon: 'chart-line' },

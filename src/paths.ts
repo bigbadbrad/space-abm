@@ -10,6 +10,7 @@ export const paths = {
     people: '/dashboard/people',
     missions: '/dashboard/missions',
     mission: (id: string) => `/dashboard/missions?id=${id}`,
+    workQueue: '/dashboard/work-queue',
     programs: '/dashboard/programs',
     program: (id: string) => `/dashboard/programs?id=${id}`,
     leadRequests: '/dashboard/lead-requests',

@@ -115,17 +115,17 @@ A **Service Lane** is a category of service interest: *“What kind of service i
 
 Each **Lead Request** is one completed “Request a Reservation” submission. The list is filterable and sortable; click a row to see the full brief (service needed, organization, contact, budget, schedule, etc.).
 
-**Routing:** Each lead request has a **routing status**: `new` → `routed` → `contacted` → `closed_won` / `closed_lost`. You can assign an owner, add internal notes, and set disposition.
+**Routing status:** Each lead request has a **routing status**: **`new`** | **`promoted`** | **`closed`**. There is no separate "routed" or "contacted"; once you promote a lead to a Mission, its status becomes **promoted** and all deal progression lives on the Mission. If you close the lead without promoting (e.g. not a fit), set status to **closed**.
 
-**Promote to Mission:** When a lead request is a real opportunity, use **Promote to Mission** in the detail panel. A new Mission is created with the lead request linked; key fields (lane, orbit, schedule, budget) are copied from the brief. The mission shows up in Missions and in Today’s Priorities.
+**Promote to Mission:** When a lead request is a real opportunity, use **Promote to Mission** in the detail panel. A new Mission is created with the lead request linked; key fields (lane, orbit, schedule, budget) are copied from the brief. The lead's status becomes **promoted** and the Mission shows a **Source: Lead Request from [org], [date]** link. The mission appears in **Missions** and in Today's Priorities. If the lead is already promoted, the detail panel shows **Mission: Open Mission** and the Promote button is hidden.
 
 ---
 
 ## 7. Missions: Tracking opportunities
 
-**Where:** **Missions** in the left nav (between Accounts and Lead Requests).
+**Where:** **Missions** in the left nav (between Accounts and **Work Queue**).
 
-**Missions** turn ABM signals and lead requests into trackable procurement opportunities. Accounts answer *who* is hot and *why*; Missions answer *what* you’re working on—a specific deal or program.
+**Missions** turn ABM signals and lead requests into trackable procurement opportunities. Accounts answer *who* is hot and *why*; Missions answer *what* you’re working on—a specific deal or program. Missions are the operational center for capture: they have **Tasks**, a **Timeline**, a **Mission Brief**, and optional **Salesforce** sync.
 
 ### What is a Mission?
 
@@ -133,27 +133,46 @@ A Mission is a **specific procurement effort** you’re tracking. It may have st
 
 - **Title** and **service lane**
 - **Stage**: new → qualified → solutioning → proposal → negotiation → won / lost / on_hold
+- **Priority** (low / medium / high)
 - **Requirements** (orbit, schedule, budget, readiness)
 - **People** (primary contact and team)
 - **Next step** and due date
-- **Evidence** (linked lead requests, intent signals)
+- **Tasks** — Action items with type (e.g. qualify, research_account, outreach, proposal), due date, and owner; ordered overdue first, then due soon, then no date.
+- **Timeline** — Audit trail of events (promoted from lead, task created/completed, note added, brief generated, Salesforce push).
+- **Mission Brief** — AI-generated one-pager (cached; regenerates when stage, linked data, or tasks change, or after 7 days).
+- **Salesforce** — Optional one-way sync: push Mission → Opportunity when ready (manual button; no auto-create).
 
 ### Using the Missions page
 
 - **Summary cards** — Active, Due Soon, Stale, Hot. Click to filter the list.
 - **Filter bar** — Search (title or account), Stage, Lane, Owner, Due Soon / Stale chips, Sort. Click **Apply** to refresh.
+- **List columns** — Stage, Priority, Title, Account, Lane, **Next Task Due** (or “Overdue”), **Open Tasks** count, **Source** (Lead / Manual), **Salesforce** status (Not synced / Queued / Synced / Error).
+- **Quick actions per row** — **Open** (detail), **Push SF** (queue a Salesforce push; disabled or errors if the mission doesn’t meet eligibility).
 - **Two panes** — List on the left; click a row to open the detail inspector on the right.
 
 ### In the detail inspector
 
-1. **Header** — Title, stage, priority, confidence, account, owner. **Open Account** goes to full account view.
-2. **Requirements** — Lane, mission type, orbit, mass, schedule, readiness, budget.
-3. **Open Lead Request** — If the mission came from a lead request, jump to the full brief.
-4. **People** — Primary contact and linked contacts.
-5. **Next step** — Edit text and due date, then **Save**.
-6. **Add a note** — Log notes on the mission timeline.
-7. **Generate Mission Brief** — AI summary of the opportunity (what we know, what’s missing, next steps) in a drawer.
-8. **Close** — **Won**, **Lost**, or **On Hold** when the deal is done.
+**Header** — Title, stage, priority, confidence, account, owner. Buttons: **Add Task**, **Generate Brief**, **Push to Salesforce**. **Open Account** goes to full account view.
+
+**Tabs:**
+
+1. **Overview** — Requirements (lane, type, orbit, schedule, budget), Source (Lead Request link when applicable), Related Programs, People, Next step (edit + Save), Add note, Artifacts, Activity preview, and **Won** / **Lost** / **On Hold** (or Reopen).
+2. **Procurement Brief** — Source line when from a lead; **Generate Mission Brief** button; cached brief content (or open the drawer from Overview).
+3. **Tasks** — List of tasks (checkbox to complete), **Add Task** (title, optional due date). Tasks are ordered: overdue first, then due soon, then no date.
+4. **Timeline** — Full activity stream (event type, who, when, body). **Add note** to log a timeline entry.
+5. **Salesforce** — Sync status (Not synced / Queued / Synced / Error), last synced time, last error (if any), and **Push to Salesforce now**. Push is only allowed when the mission is eligible (stage qualified/solutioning/proposal/negotiation, linked account, and at least one contact or lead-request work email).
+
+### Work Queue (daily driver)
+
+**Where:** **Work Queue** in the left nav (between Missions and Programs).
+
+The **Work Queue** page is your daily view for what needs attention:
+
+- **Overdue Tasks** — All missions: open tasks whose due date is in the past. Click **Open Mission** to go to the mission.
+- **Due Soon** — Open tasks due in the next 7 days.
+- **Missions needing qualification** — Missions in stage **new** that have a linked lead request or account (good candidates to move to qualified and add tasks).
+
+Use Work Queue to triage tasks and decide which missions to qualify or push to Salesforce.
 
 ### Today’s Priorities
 
@@ -239,6 +258,10 @@ ContactIdentity links `contact_id` to `identity_type = 'posthog_distinct_id'` an
 - **Intent Signal** — Time-series “why it’s hot” entry. prospect_company_id, signal_type, topic, weight, occurred_at.
 - **Daily Account Intent** — Daily rollup per account. date, intent_score, intent_stage, surge_ratio, surge_level, unique_people_7d, top_lane, lane_scores_*_json, key_events_7d_json, etc.
 - **Contact Identity** — Links contact to posthog_distinct_id (or email, crm_id, etc.) for People and activity.
+- **Mission** — Tracked procurement opportunity. stage, priority, next_step, next_step_due_at, salesforce_opportunity_id, salesforce_sync_status, salesforce_last_synced_at, salesforce_last_error; links to prospect_company, lead_request, contacts.
+- **Mission Task** — mission_id, title, task_type, status (open/done/canceled), priority, owner_user_id, due_at, source_type/source_id.
+- **Mission Activity** — mission_id, type (e.g. lead_request_promoted, task_created, note_added, brief_generated, salesforce_push_succeeded), body, meta_json, created_by_user_id.
+- **Mission Artifact** — mission_id, type (e.g. mission_brief), content_md, input_hash, model_name; used to cache generated briefs.
 - **Registry tables** — abm_event_rules (URL → lane/content_type/weight), abm_score_configs, abm_score_weights, abm_prompt_templates.
 
 ### Lead scoring
@@ -271,6 +294,8 @@ Stored in `lead_requests.lead_score`. Weights for consent, budget band, funding,
 
 **Internal — Dashboards:** GET accounts, GET accounts/:id, GET accounts/:id/people, GET accounts/:id/people-activity, POST accounts/:id/ai-summary, GET lanes, GET people.
 
+**Internal — Missions:** GET list/summary/detail, PATCH, close, contacts, artifacts, activities; GET work-queue (overdue/due-soon tasks, missions needing qualification); GET/POST/PATCH tasks, GET activity, GET artifacts, POST generate-brief, POST push-to-salesforce.
+
 **Internal — Programs:** GET list/summary/detail, PATCH, notes, link-account, link-mission, create-mission.
 
 **Internal — Jobs:** POST jobs/recompute-intent.
@@ -297,7 +322,10 @@ Stored in `lead_requests.lead_score`. Weights for consent, budget band, funding,
 - **Intent Stage** — Cold | Warm | Hot (from score thresholds).
 - **Lead Request** — One completed reservation/procurement submission (canonical record).
 - **Lead Score** — Qualification score per Lead Request (from submission fields).
-- **Mission** — Tracked procurement opportunity; ties account, lead request(s), contacts, requirements; has stage, next step, timeline.
+- **Mission** — Tracked procurement opportunity; ties account, lead request(s), contacts, requirements; has stage, priority, next step, timeline, **tasks**, and optional **Salesforce** sync (one-way push to Opportunity).
+- **Mission Task** — Action item on a mission (title, type, status, priority, due date, owner); types include qualify, research_account, outreach, proposal, etc.
+- **Mission Activity** — Timeline/audit event on a mission (e.g. lead_request_promoted, task_created, task_completed, note_added, brief_generated, salesforce_push_succeeded).
+- **Mission Artifact** — Stored output (e.g. **mission_brief**): cached AI brief with content_md and input_hash; reused when inputs unchanged within 7 days.
 - **Program** — Procurement opportunity from SAM.gov, USAspending, or SpaceWERX; classified by lane and relevance; linkable to accounts and missions.
 - **Prospect Company** — ABM account we sell to (domain-deduped).
 - **Recompute Job** — Daily batch that fetches events (PostHog or intent_signals), applies event rules, computes decayed scores, writes DailyAccountIntent.

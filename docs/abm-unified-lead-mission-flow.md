@@ -79,7 +79,7 @@
 
 ---
 
-## 4) Out of scope (this sprint)
+## 4) Additional
 
-- **Optional item 5:** How-it-works doc update (content/how-it-works.md) to describe the new flow and remove references to routed/contacted/closed_won/closed_lost — not implemented in this sprint.
+- **item 5:** How-it-works doc update (content/how-it-works.md) to describe the new flow and remove references to routed/contacted/closed_won/closed_lost — not implemented in this sprint.
 - **Status filter** on Lead Requests list (e.g. filter by new/promoted/closed) — not implemented; only Status and Mission columns were added.

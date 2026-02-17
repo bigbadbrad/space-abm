@@ -21,8 +21,15 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import Drawer from '@mui/material/Drawer';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import Tooltip from '@mui/material/Tooltip';
+import Checkbox from '@mui/material/Checkbox';
 import { RocketLaunch as RocketLaunchIcon } from '@phosphor-icons/react/dist/ssr/RocketLaunch';
+import { CheckCircle as CheckCircleIcon } from '@phosphor-icons/react/dist/ssr/CheckCircle';
+import { CloudArrowUp as CloudArrowUpIcon } from '@phosphor-icons/react/dist/ssr/CloudArrowUp';
 import dayjs from 'dayjs';
+import type { ABMMissionTask } from '@/lib/abm/client';
 
 import { paths } from '@/paths';
 import { abmApi, type ABMMission, type ABMMissionDetailResponse } from '@/lib/abm/client';
@@ -30,6 +37,31 @@ import { formatLaneDisplayName, LANE_OPTIONS } from '@/components/abm/layout/con
 
 const ACTIVE_STAGES = ['new', 'qualified', 'solutioning', 'proposal', 'negotiation'];
 const CLOSED_STAGES = ['won', 'lost', 'on_hold'];
+/** Stages that allow "Push to Salesforce" (must match backend isEligibleForSalesforcePush) */
+const SALESFORCE_ELIGIBLE_STAGES = ['qualified', 'solutioning', 'proposal', 'negotiation'];
+
+function salesforceEligibleFromDetail(detail: ABMMissionDetailResponse | null): { eligible: boolean; reason: string } {
+  if (!detail?.mission) return { eligible: false, reason: 'Mission required' };
+  const m = detail.mission;
+  const lr = m.leadRequest as { organization_name?: string; organization_website?: string; work_email?: string } | undefined;
+  const contacts = m.contacts ?? [];
+  if (!m.title) return { eligible: false, reason: 'Mission name/title required' };
+  if (!SALESFORCE_ELIGIBLE_STAGES.includes(m.stage ?? '')) {
+    return { eligible: false, reason: 'Stage must be qualified, solutioning, proposal, or negotiation' };
+  }
+  const hasAccount = !!m.prospect_company_id || !!(lr && (lr.organization_website || lr.organization_name));
+  if (!hasAccount) return { eligible: false, reason: 'Linked account or lead request organization required' };
+  const hasContact = !!m.primary_contact_id || contacts.length > 0 || !!(lr && lr.work_email);
+  if (!hasContact) return { eligible: false, reason: 'Linked contact or lead request work email required' };
+  return { eligible: true, reason: '' };
+}
+
+function salesforceEligibleFromListMission(m: ABMMission): { eligible: boolean; reason: string } {
+  if (!m.stage || !SALESFORCE_ELIGIBLE_STAGES.includes(m.stage)) {
+    return { eligible: false, reason: 'Stage must be qualified, solutioning, proposal, or negotiation' };
+  }
+  return { eligible: true, reason: '' };
+}
 
 export default function ABMMissionsPage(): React.JSX.Element {
   const router = useRouter();
@@ -60,6 +92,15 @@ export default function ABMMissionsPage(): React.JSX.Element {
   const [aiBriefLoading, setAiBriefLoading] = React.useState(false);
   const [aiBriefDrawerOpen, setAiBriefDrawerOpen] = React.useState(false);
   const [aiBriefContent, setAiBriefContent] = React.useState<string | null>(null);
+  const [detailTab, setDetailTab] = React.useState(0);
+  const [missionTasks, setMissionTasks] = React.useState<ABMMissionTask[]>([]);
+  const [missionActivity, setMissionActivity] = React.useState<{ items: { id: string; type: string; body: string | null; created_at: string; createdBy?: { preferred_name?: string; name?: string } }[] } | null>(null);
+  const [pushSfLoading, setPushSfLoading] = React.useState(false);
+  const [pushSfStatus, setPushSfStatus] = React.useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
+  const [pushSfError, setPushSfError] = React.useState<string | null>(null);
+  const [newTaskTitle, setNewTaskTitle] = React.useState('');
+  const [newTaskDue, setNewTaskDue] = React.useState('');
+  const [addingTask, setAddingTask] = React.useState(false);
 
   const fetchMissions = React.useCallback(() => {
     const params: Record<string, string | number> = { limit: 50, page: 1, sort: filters.sort };
@@ -120,6 +161,20 @@ export default function ABMMissionsPage(): React.JSX.Element {
     });
     return () => { cancelled = true; };
   }, [selectedId]);
+
+  React.useEffect(() => {
+    if (detailTab !== 2 || !selectedId) return;
+    abmApi.getMissionTasks(selectedId).then((res) => {
+      if (res.data?.items) setMissionTasks(res.data.items);
+    });
+  }, [detailTab, selectedId, detail?.mission?.tasks]);
+
+  React.useEffect(() => {
+    if (detailTab !== 3 || !selectedId) return;
+    abmApi.getMissionActivity(selectedId, { limit: 30 }).then((res) => {
+      if (res.data?.items) setMissionActivity({ items: res.data.items });
+    });
+  }, [detailTab, selectedId]);
 
   const handleSaveNextStep = () => {
     if (!selectedId || saving) return;
@@ -196,6 +251,66 @@ export default function ABMMissionsPage(): React.JSX.Element {
   const setSelectedId = (id: string | null) => {
     if (id) router.push(`${paths.abm.missions}?id=${id}`);
     else router.push(paths.abm.missions);
+  };
+
+  const handlePushToSalesforce = (missionId?: string | number | { id?: string } | null) => {
+    const raw = missionId ?? selectedId;
+    const id = raw == null ? null : typeof raw === 'string' ? raw : typeof raw === 'number' ? String(raw) : (raw && typeof (raw as { id?: string })?.id === 'string' ? (raw as { id: string }).id : null);
+    if (!id || id === '[object Object]' || pushSfLoading) return;
+    setPushSfLoading(true);
+    setPushSfError(null);
+    setPushSfStatus('syncing');
+    abmApi.postPushToSalesforce(id)
+      .then((r) => {
+        setPushSfLoading(false);
+        if (r.error) {
+          setPushSfStatus('error');
+          setPushSfError(r.error);
+          setTimeout(() => { setPushSfStatus('idle'); setPushSfError(null); }, 5000);
+        } else if (r.data?.success === false) {
+          setPushSfStatus('error');
+          setPushSfError(r.data?.error || r.data?.message || 'Sync failed');
+          setTimeout(() => { setPushSfStatus('idle'); setPushSfError(null); }, 5000);
+        } else {
+          setPushSfStatus('success');
+          abmApi.getMission(id).then((d) => d.data && setDetail(d.data));
+          fetchMissions();
+          setTimeout(() => setPushSfStatus('idle'), 2200);
+        }
+      })
+      .catch((err) => {
+        setPushSfLoading(false);
+        setPushSfStatus('error');
+        setPushSfError(err?.message || 'Request failed');
+        setTimeout(() => { setPushSfStatus('idle'); setPushSfError(null); }, 5000);
+      });
+  };
+
+  const handleAddTask = () => {
+    if (!selectedId || !newTaskTitle.trim() || addingTask) return;
+    setAddingTask(true);
+    abmApi.postMissionTask(selectedId, { title: newTaskTitle.trim(), due_at: newTaskDue || undefined }).then((r) => {
+      setAddingTask(false);
+      setNewTaskTitle('');
+      setNewTaskDue('');
+      if (r.data) {
+        setMissionTasks((prev) => [r.data!, ...prev]);
+        abmApi.getMission(selectedId).then((d) => d.data && setDetail(d.data));
+        fetchMissions();
+      }
+    });
+  };
+
+  const handleToggleTask = (task: ABMMissionTask) => {
+    if (!selectedId) return;
+    const next = task.status === 'done' ? 'open' : 'done';
+    abmApi.patchMissionTask(selectedId, task.id, { status: next }).then((r) => {
+      if (r.data) {
+        setMissionTasks((prev) => prev.map((t) => (t.id === task.id ? r.data! : t)));
+        abmApi.getMission(selectedId).then((d) => d.data && setDetail(d.data));
+        fetchMissions();
+      }
+    });
   };
 
   return (
@@ -347,43 +462,84 @@ export default function ABMMissionsPage(): React.JSX.Element {
                   <TableHead>
                     <TableRow>
                       <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Stage</TableCell>
+                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Priority</TableCell>
                       <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Title</TableCell>
                       <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Account</TableCell>
                       <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Lane</TableCell>
-                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Due</TableCell>
+                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Next Task Due</TableCell>
+                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Open</TableCell>
+                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Source</TableCell>
+                      <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>SF</TableCell>
                       <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}></TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {missions.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={6} sx={{ color: '#9CA3AF', borderColor: '#262626', textAlign: 'center', py: 3 }}>No missions</TableCell>
+                        <TableCell colSpan={9} sx={{ color: '#9CA3AF', borderColor: '#262626', textAlign: 'center', py: 3 }}>No missions</TableCell>
                       </TableRow>
                     ) : (
-                      missions.map((m) => (
-                        <TableRow
-                          key={m.id}
-                          sx={{
-                            bgcolor: selectedId === String(m.id) ? 'rgba(59,130,246,0.1)' : 'transparent',
-                            cursor: 'pointer',
-                            '&:hover': { bgcolor: selectedId === String(m.id) ? 'rgba(59,130,246,0.15)' : 'rgba(255,255,255,0.04)' },
-                          }}
-                          onClick={() => setSelectedId(m.id)}
-                        >
-                          <TableCell sx={{ borderColor: '#262626' }}>
-                            <Chip label={m.stage || 'new'} size="small" sx={{ fontFamily: 'monospace', bgcolor: '#262626', color: '#fff', fontSize: '0.7rem' }} />
-                          </TableCell>
-                          <TableCell sx={{ color: '#FFFFFF', borderColor: '#262626', fontSize: '0.8rem', maxWidth: 180 }}>{formatLaneDisplayName(m.title)}</TableCell>
-                          <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.8rem' }}>{m.prospectCompany?.domain || '—'}</TableCell>
-                          <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.8rem' }}>{formatLaneDisplayName(m.service_lane)}</TableCell>
-                          <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.8rem', fontFamily: 'monospace' }}>
-                            {m.next_step_due_at ? dayjs(m.next_step_due_at).format('MM/DD') : '—'}
-                          </TableCell>
-                          <TableCell sx={{ borderColor: '#262626' }}>
-                            <Button size="small" component={Link} href={`${paths.abm.missions}?id=${m.id}`} sx={{ color: '#3b82f6', minWidth: 0 }} onClick={(e) => e.stopPropagation()}>View →</Button>
-                          </TableCell>
-                        </TableRow>
-                      ))
+                      missions.map((m) => {
+                        const nextTaskDue = m.next_task_due_at;
+                        const isOverdue = nextTaskDue && new Date(nextTaskDue) < new Date();
+                        return (
+                          <TableRow
+                            key={m.id}
+                            sx={{
+                              bgcolor: selectedId === String(m.id) ? 'rgba(59,130,246,0.1)' : 'transparent',
+                              cursor: 'pointer',
+                              '&:hover': { bgcolor: selectedId === String(m.id) ? 'rgba(59,130,246,0.15)' : 'rgba(255,255,255,0.04)' },
+                            }}
+                            onClick={() => setSelectedId(m.id)}
+                          >
+                            <TableCell sx={{ borderColor: '#262626' }}>
+                              <Chip label={m.stage || 'new'} size="small" sx={{ fontFamily: 'monospace', bgcolor: '#262626', color: '#fff', fontSize: '0.7rem' }} />
+                            </TableCell>
+                            <TableCell sx={{ borderColor: '#262626' }}>
+                              <Chip label={m.priority || 'medium'} size="small" sx={{ bgcolor: '#262626', color: '#fff', fontSize: '0.65rem' }} />
+                            </TableCell>
+                            <TableCell sx={{ color: '#FFFFFF', borderColor: '#262626', fontSize: '0.8rem', maxWidth: 160 }}>{formatLaneDisplayName(m.title)}</TableCell>
+                            <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.8rem' }}>{m.prospectCompany?.domain || '—'}</TableCell>
+                            <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.8rem' }}>{formatLaneDisplayName(m.service_lane)}</TableCell>
+                            <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.8rem', fontFamily: 'monospace' }}>
+                              {nextTaskDue ? (isOverdue ? 'Overdue' : dayjs(nextTaskDue).format('MM/DD')) : '—'}
+                            </TableCell>
+                            <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.8rem' }}>{m.open_tasks_count ?? 0}</TableCell>
+                            <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem' }}>{m.lead_request_id ? 'Lead' : m.source || 'Manual'}</TableCell>
+                            <TableCell sx={{ borderColor: '#262626' }}>
+                              <Chip
+                                label={m.salesforce_sync_status || 'Not synced'}
+                                size="small"
+                                sx={{
+                                  bgcolor: m.salesforce_sync_status === 'synced' ? '#10B98122' : m.salesforce_sync_status === 'error' ? '#EF444422' : '#262626',
+                                  color: m.salesforce_sync_status === 'synced' ? '#10B981' : m.salesforce_sync_status === 'error' ? '#EF4444' : '#9CA3AF',
+                                  fontSize: '0.65rem',
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell sx={{ borderColor: '#262626' }}>
+                              <Button size="small" component={Link} href={`${paths.abm.missions}?id=${m.id}`} sx={{ color: '#3b82f6', minWidth: 0, mr: 0.5 }} onClick={(e) => e.stopPropagation()}>Open</Button>
+                              {(() => {
+                                const sf = salesforceEligibleFromListMission(m);
+                                return (
+                                  <Tooltip title={!sf.eligible ? sf.reason : ''}>
+                                    <span>
+                                      <Button
+                                        size="small"
+                                        sx={{ color: '#10B981', minWidth: 0 }}
+                                        onClick={(e) => { e.stopPropagation(); handlePushToSalesforce(m.id); }}
+                                        disabled={pushSfLoading || !sf.eligible}
+                                      >
+                                        Push SF
+                                      </Button>
+                                    </span>
+                                  </Tooltip>
+                                );
+                              })()}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
                     )}
                   </TableBody>
                 </Table>
@@ -422,8 +578,37 @@ export default function ABMMissionsPage(): React.JSX.Element {
                     <Typography sx={{ color: '#9CA3AF', fontSize: '0.8rem', mt: 0.5 }}>
                       {detail.mission.prospectCompany?.name || detail.mission.prospectCompany?.domain || '—'} · Owner: {detail.mission.owner?.preferred_name || detail.mission.owner?.name || '—'}
                     </Typography>
+                    <Box sx={{ display: 'flex', gap: 1, mt: 1, flexWrap: 'wrap' }}>
+                      <Button variant="outlined" size="small" onClick={() => setDetailTab(2)} sx={{ borderColor: '#262626', color: '#3b82f6' }}>Add Task</Button>
+                      <Button variant="outlined" size="small" onClick={handleGenerateAiBrief} disabled={aiBriefLoading} sx={{ borderColor: '#8B5CF6', color: '#8B5CF6' }}>
+                        {aiBriefLoading ? 'Generating...' : 'Generate Brief'}
+                      </Button>
+                      {(() => {
+                      const sf = salesforceEligibleFromDetail(detail);
+                      const missionId = detail?.mission?.id ?? selectedId;
+                      return (
+                        <Tooltip title={!sf.eligible ? sf.reason : ''}>
+                          <span style={{ display: 'inline-flex' }}>
+                            <Button variant="outlined" size="small" onClick={() => handlePushToSalesforce(missionId)} disabled={pushSfLoading || !sf.eligible} sx={{ borderColor: '#10B981', color: '#10B981' }}>
+                              {pushSfLoading ? 'Pushing...' : 'Push to Salesforce'}
+                            </Button>
+                          </span>
+                        </Tooltip>
+                      );
+                    })()}
+                    </Box>
                   </Box>
 
+                  <Tabs value={detailTab} onChange={(_, v) => setDetailTab(v)} sx={{ borderBottom: '1px solid #262626', mb: 2, minHeight: 40 }}>
+                    <Tab label="Overview" sx={{ color: '#9CA3AF', fontSize: '0.8rem', minHeight: 40 }} />
+                    <Tab label="Procurement Brief" sx={{ color: '#9CA3AF', fontSize: '0.8rem', minHeight: 40 }} />
+                    <Tab label="Tasks" sx={{ color: '#9CA3AF', fontSize: '0.8rem', minHeight: 40 }} />
+                    <Tab label="Timeline" sx={{ color: '#9CA3AF', fontSize: '0.8rem', minHeight: 40 }} />
+                    <Tab label="Salesforce" sx={{ color: '#9CA3AF', fontSize: '0.8rem', minHeight: 40 }} />
+                  </Tabs>
+
+                  {detailTab === 0 && (
+                  <>
                   {/* Requirements */}
                   <Box>
                     <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', textTransform: 'uppercase', mb: 0.5 }}>Requirements</Typography>
@@ -451,10 +636,6 @@ export default function ABMMissionsPage(): React.JSX.Element {
                         {', '}
                         {dayjs((detail.mission.leadRequest as { created_at?: string })?.created_at).format('MMM DD, YYYY')}
                       </Typography>
-                      <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', textTransform: 'uppercase', mb: 0.5 }}>Procurement Brief</Typography>
-                      <Button component={Link} href={`${paths.abm.leadRequests}?id=${detail.mission.lead_request_id || (detail.mission.leadRequest as { id?: string })?.id}`} variant="outlined" size="small" sx={{ borderColor: '#262626', color: '#3b82f6' }}>
-                        Open Lead Request
-                      </Button>
                     </Box>
                   )}
 
@@ -525,13 +706,6 @@ export default function ABMMissionsPage(): React.JSX.Element {
                         {saving ? 'Saving...' : 'Save'}
                       </Button>
                     </Box>
-                  </Box>
-
-                  {/* Generate AI Brief */}
-                  <Box>
-                    <Button variant="outlined" size="small" onClick={handleGenerateAiBrief} disabled={aiBriefLoading} sx={{ borderColor: '#8B5CF6', color: '#8B5CF6', mr: 1 }}>
-                      {aiBriefLoading ? 'Generating...' : 'Generate Mission Brief'}
-                    </Button>
                   </Box>
 
                   {/* Add note */}
@@ -624,6 +798,119 @@ export default function ABMMissionsPage(): React.JSX.Element {
                       </Button>
                     </Box>
                   )}
+                  </>
+                  )}
+
+                  {detailTab === 1 && (
+                    <Box>
+                      {(detail.mission.lead_request_id || (detail.mission.leadRequest as { id?: string })?.id) && (
+                        <Typography sx={{ color: '#9CA3AF', fontSize: '0.8rem', mb: 1 }}>
+                          Source: Lead Request from {(detail.mission.leadRequest as { organization_name?: string })?.organization_name || (detail.mission.leadRequest as { organization_domain?: string })?.organization_domain || '—'}
+                        </Typography>
+                      )}
+                      <Button variant="outlined" size="small" onClick={handleGenerateAiBrief} disabled={aiBriefLoading} sx={{ borderColor: '#8B5CF6', color: '#8B5CF6', mb: 2 }}>
+                        {aiBriefLoading ? 'Generating...' : 'Generate Mission Brief'}
+                      </Button>
+                      {aiBriefContent && (
+                        <Box component="pre" sx={{ color: '#E5E7EB', fontSize: '0.875rem', whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>{aiBriefContent}</Box>
+                      )}
+                      {!aiBriefContent && !aiBriefLoading && (
+                        <Typography sx={{ color: '#9CA3AF', fontSize: '0.875rem' }}>Generate a brief to see it here, or open the drawer from Overview.</Typography>
+                      )}
+                    </Box>
+                  )}
+
+                  {detailTab === 2 && (
+                    <Box>
+                      <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
+                        <TextField
+                          size="small"
+                          placeholder="Task title"
+                          value={newTaskTitle}
+                          onChange={(e) => setNewTaskTitle(e.target.value)}
+                          sx={{ minWidth: 200, '& .MuiInputBase-root': { backgroundColor: '#0A0A0A', color: '#fff' } }}
+                        />
+                        <TextField size="small" type="datetime-local" value={newTaskDue} onChange={(e) => setNewTaskDue(e.target.value)} sx={{ '& .MuiInputBase-root': { backgroundColor: '#0A0A0A', color: '#fff' } }} />
+                        <Button variant="outlined" size="small" onClick={handleAddTask} disabled={addingTask || !newTaskTitle.trim()} sx={{ borderColor: '#262626', color: '#3b82f6' }}>Add Task</Button>
+                      </Box>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                        {(detail.mission.tasks?.length ? detail.mission.tasks : missionTasks).map((t) => (
+                          <Box key={t.id} sx={{ display: 'flex', alignItems: 'center', gap: 1, py: 0.5, borderBottom: '1px solid #262626' }}>
+                            <Checkbox
+                              size="small"
+                              checked={t.status === 'done'}
+                              onChange={() => handleToggleTask(t)}
+                              sx={{ color: '#3b82f6', '&.Mui-checked': { color: '#10B981' } }}
+                            />
+                            <Typography sx={{ color: t.status === 'done' ? '#6b7280' : '#E5E7EB', fontSize: '0.875rem', textDecoration: t.status === 'done' ? 'line-through' : 'none', flex: 1 }}>{t.title}</Typography>
+                            <Chip label={t.task_type || 'other'} size="small" sx={{ bgcolor: '#262626', color: '#9CA3AF', fontSize: '0.65rem' }} />
+                            {t.due_at && <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', fontFamily: 'monospace' }}>{dayjs(t.due_at).format('MM/DD')}</Typography>}
+                          </Box>
+                        ))}
+                        {!(detail.mission.tasks?.length || missionTasks.length) && (
+                          <Typography sx={{ color: '#9CA3AF', fontSize: '0.875rem' }}>No tasks. Add one above.</Typography>
+                        )}
+                      </Box>
+                    </Box>
+                  )}
+
+                  {detailTab === 3 && (
+                    <Box>
+                      <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                        <TextField
+                          size="small"
+                          placeholder="Add note..."
+                          value={noteText}
+                          onChange={(e) => setNoteText(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && handleAddNote()}
+                          sx={{ flex: 1, '& .MuiInputBase-root': { backgroundColor: '#0A0A0A', color: '#fff' } }}
+                        />
+                        <Button variant="outlined" size="small" onClick={handleAddNote} disabled={addingNote || !noteText.trim()} sx={{ borderColor: '#262626', color: '#3b82f6' }}>Add Note</Button>
+                      </Box>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, maxHeight: 280, overflow: 'auto' }}>
+                        {(missionActivity?.items ?? (detail.mission.activities || [])).map((a: { id: string; type: string; body: string | null; created_at: string; createdBy?: { preferred_name?: string; name?: string } }) => (
+                          <Typography key={a.id} sx={{ color: '#9CA3AF', fontSize: '0.8rem' }}>
+                            {dayjs(a.created_at).format('MM/DD HH:mm')} [{a.type}] {(a.createdBy?.preferred_name || a.createdBy?.name) || '—'} — {a.body || '(no body)'}
+                          </Typography>
+                        ))}
+                      </Box>
+                    </Box>
+                  )}
+
+                  {detailTab === 4 && (
+                    <Box>
+                      <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', textTransform: 'uppercase', mb: 0.5 }}>Sync status</Typography>
+                      <Chip
+                        label={detail.mission.salesforce_sync_status || 'Not synced'}
+                        size="small"
+                        sx={{
+                          bgcolor: detail.mission.salesforce_sync_status === 'synced' ? '#10B98122' : detail.mission.salesforce_sync_status === 'error' ? '#EF444422' : '#262626',
+                          color: detail.mission.salesforce_sync_status === 'synced' ? '#10B981' : detail.mission.salesforce_sync_status === 'error' ? '#EF4444' : '#9CA3AF',
+                          mb: 1,
+                        }}
+                      />
+                      {detail.mission.salesforce_last_synced_at && (
+                        <Typography sx={{ color: '#9CA3AF', fontSize: '0.8rem', display: 'block' }}>Last synced: {dayjs(detail.mission.salesforce_last_synced_at).format('MMM DD, HH:mm')}</Typography>
+                      )}
+                      {detail.mission.salesforce_last_error && (
+                        <Typography sx={{ color: '#EF4444', fontSize: '0.8rem', display: 'block', mt: 0.5 }}>{detail.mission.salesforce_last_error}</Typography>
+                      )}
+                      {(() => {
+                      const sf = salesforceEligibleFromDetail(detail);
+                      const missionId = detail?.mission?.id ?? selectedId;
+                      return (
+                        <Tooltip title={!sf.eligible ? sf.reason : ''}>
+                          <span style={{ display: 'inline-flex' }}>
+                            <Button variant="outlined" size="small" onClick={() => handlePushToSalesforce(missionId)} disabled={pushSfLoading || !sf.eligible} sx={{ borderColor: '#10B981', color: '#10B981', mt: 1 }}>
+                              {pushSfLoading ? 'Pushing...' : 'Push to Salesforce now'}
+                            </Button>
+                          </span>
+                        </Tooltip>
+                      );
+                    })()}
+                    </Box>
+                  )}
+
                 </Box>
               ) : (
                 <Typography sx={{ color: '#9CA3AF', fontSize: '0.875rem' }}>Failed to load</Typography>
@@ -632,6 +919,51 @@ export default function ABMMissionsPage(): React.JSX.Element {
           </Card>
         </Box>
       </Box>
+
+      {/* Salesforce sync overlay – dramatic wait + success cue */}
+      {(pushSfStatus === 'syncing' || pushSfStatus === 'success' || pushSfStatus === 'error') && (
+        <Box
+          sx={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: pushSfStatus === 'success' ? 'rgba(16,185,129,0.12)' : 'rgba(0,0,0,0.92)',
+            transition: 'background-color 0.4s ease',
+          }}
+        >
+          {pushSfStatus === 'syncing' && (
+            <Box sx={{ textAlign: 'center' }}>
+              <CloudArrowUpIcon size={64} weight="duotone" style={{ color: '#10B981', marginBottom: 24, animation: 'pulse 1.5s ease-in-out infinite' }} />
+              <Typography sx={{ color: '#E5E7EB', fontSize: '1.25rem', fontWeight: 600, mb: 1 }}>Syncing to Salesforce</Typography>
+              <Typography sx={{ color: '#9CA3AF', fontSize: '0.9rem', mb: 3 }}>Creating opportunity…</Typography>
+              <CircularProgress size={48} thickness={4} sx={{ color: '#10B981' }} />
+              <style>{`
+                @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.05); } }
+              `}</style>
+            </Box>
+          )}
+          {pushSfStatus === 'success' && (
+            <Box sx={{ textAlign: 'center', animation: 'successPop 0.5s ease-out' }}>
+              <CheckCircleIcon size={80} weight="fill" style={{ color: '#10B981', marginBottom: 16 }} />
+              <Typography sx={{ color: '#10B981', fontSize: '1.5rem', fontWeight: 700 }}>Synced to Salesforce</Typography>
+              <Typography sx={{ color: '#9CA3AF', fontSize: '0.95rem', mt: 0.5 }}>Opportunity updated</Typography>
+              <style>{`
+                @keyframes successPop { 0% { opacity: 0; transform: scale(0.8); } 70% { transform: scale(1.05); } 100% { opacity: 1; transform: scale(1); } }
+              `}</style>
+            </Box>
+          )}
+          {pushSfStatus === 'error' && (
+            <Box sx={{ textAlign: 'center', maxWidth: 360 }}>
+              <Typography sx={{ color: '#EF4444', fontSize: '1.25rem', fontWeight: 600, mb: 1 }}>Sync failed</Typography>
+              <Typography sx={{ color: '#9CA3AF', fontSize: '0.9rem', mb: 2 }}>{pushSfError || 'Something went wrong.'}</Typography>
+              <Button variant="outlined" size="small" onClick={() => { setPushSfStatus('idle'); setPushSfError(null); }} sx={{ borderColor: '#262626', color: '#fff' }}>Dismiss</Button>
+            </Box>
+          )}
+        </Box>
+      )}
     </Box>
   );
 }
