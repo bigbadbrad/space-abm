@@ -37,7 +37,20 @@ import { formatLaneDisplayName, LANE_OPTIONS } from '@/components/abm/layout/con
 
 const ACTIVE_STAGES = ['new', 'qualified', 'solutioning', 'proposal', 'negotiation'];
 const CLOSED_STAGES = ['won', 'lost', 'on_hold'];
-/** Stages that allow "Push to Salesforce" (must match backend isEligibleForSalesforcePush) */
+/** Ordered pipeline: can only move forward (or to close). Reopening from closed goes to qualified. */
+const STAGE_ORDER = [...ACTIVE_STAGES, ...CLOSED_STAGES];
+
+function allowedNextStages(currentStage: string): string[] {
+  const cur = currentStage || 'new';
+  if (CLOSED_STAGES.includes(cur)) {
+    return [cur, 'qualified'];
+  }
+  const idx = STAGE_ORDER.indexOf(cur);
+  if (idx === -1) return [cur, ...ACTIVE_STAGES, ...CLOSED_STAGES];
+  return STAGE_ORDER.slice(idx);
+}
+
+/** Stages that allow "Sync to Salesforce" (must match backend isEligibleForSalesforcePush) */
 const SALESFORCE_ELIGIBLE_STAGES = ['qualified', 'solutioning', 'proposal', 'negotiation'];
 
 function salesforceEligibleFromDetail(detail: ABMMissionDetailResponse | null): { eligible: boolean; reason: string } {
@@ -206,19 +219,21 @@ export default function ABMMissionsPage(): React.JSX.Element {
     });
   };
 
+  const handleStageChange = (newStage: string) => {
+    if (!selectedId || !detail || newStage === (detail.mission?.stage ?? '')) return;
+    abmApi.patchMission(selectedId, { stage: newStage }).then((res) => {
+      if (res.data && detail) {
+        setDetail({ ...detail, mission: { ...detail.mission, ...res.data } });
+        fetchMissions();
+        abmApi.getMissionsSummary({ range: '7d' }).then((s) => s.data && setSummary(s.data));
+      }
+    });
+  };
+
   const handleReopenMission = () => {
     if (!selectedId || !detail) return;
-    const targetStage = 'qualified';
-    abmApi
-      .patchMission(selectedId, { stage: targetStage })
-      .then((res) => {
-        if (res.data) {
-          setDetail({ ...detail, mission: { ...detail.mission, ...res.data } });
-          setFilters((f) => ({ ...f, stage: '' }));
-          fetchMissions();
-          abmApi.getMissionsSummary({ range: '7d' }).then((s) => s.data && setSummary(s.data));
-        }
-      });
+    handleStageChange('qualified');
+    setFilters((f) => ({ ...f, stage: '' }));
   };
 
   const handleAddNote = () => {
@@ -530,7 +545,7 @@ export default function ABMMissionsPage(): React.JSX.Element {
                                         onClick={(e) => { e.stopPropagation(); handlePushToSalesforce(m.id); }}
                                         disabled={pushSfLoading || !sf.eligible}
                                       >
-                                        Push SF
+                                        Sync SF
                                       </Button>
                                     </span>
                                   </Tooltip>
@@ -563,8 +578,21 @@ export default function ABMMissionsPage(): React.JSX.Element {
                   {/* Header */}
                   <Box>
                     <Typography sx={{ color: '#FFFFFF', fontSize: '1rem', fontWeight: 600 }}>{formatLaneDisplayName(detail.mission.title)}</Typography>
-                    <Box sx={{ display: 'flex', gap: 1, mt: 1, flexWrap: 'wrap' }}>
-                      <Chip label={detail.mission.stage || 'new'} size="small" sx={{ bgcolor: '#262626', color: '#fff' }} />
+                    <Box sx={{ display: 'flex', gap: 1, mt: 1, flexWrap: 'wrap', alignItems: 'center' }}>
+                      <FormControl size="small" sx={{ minWidth: 120 }}>
+                        <InputLabel id="mission-stage-label" sx={{ color: '#9CA3AF' }}>Stage</InputLabel>
+                        <Select
+                          labelId="mission-stage-label"
+                          label="Stage"
+                          value={detail.mission.stage || 'new'}
+                          onChange={(e) => handleStageChange(e.target.value)}
+                          sx={{ color: '#fff', borderColor: '#262626', '.MuiOutlinedInput-notchedOutline': { borderColor: '#262626' }, '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#404040' } }}
+                        >
+                          {allowedNextStages(detail.mission.stage || 'new').map((s) => (
+                            <MenuItem key={s} value={s}>{s}</MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
                       <Chip label={detail.mission.priority || 'medium'} size="small" sx={{ bgcolor: '#262626', color: '#fff' }} />
                       {detail.mission.confidence != null && (
                         <Chip label={`${Math.round((detail.mission.confidence ?? 0) * 100)}% conf`} size="small" sx={{ bgcolor: '#262626', color: '#fff' }} />
@@ -590,7 +618,7 @@ export default function ABMMissionsPage(): React.JSX.Element {
                         <Tooltip title={!sf.eligible ? sf.reason : ''}>
                           <span style={{ display: 'inline-flex' }}>
                             <Button variant="outlined" size="small" onClick={() => handlePushToSalesforce(missionId)} disabled={pushSfLoading || !sf.eligible} sx={{ borderColor: '#10B981', color: '#10B981' }}>
-                              {pushSfLoading ? 'Pushing...' : 'Push to Salesforce'}
+                              {pushSfLoading ? 'Syncing...' : 'Sync to Salesforce'}
                             </Button>
                           </span>
                         </Tooltip>
@@ -902,7 +930,7 @@ export default function ABMMissionsPage(): React.JSX.Element {
                         <Tooltip title={!sf.eligible ? sf.reason : ''}>
                           <span style={{ display: 'inline-flex' }}>
                             <Button variant="outlined" size="small" onClick={() => handlePushToSalesforce(missionId)} disabled={pushSfLoading || !sf.eligible} sx={{ borderColor: '#10B981', color: '#10B981', mt: 1 }}>
-                              {pushSfLoading ? 'Pushing...' : 'Push to Salesforce now'}
+                              {pushSfLoading ? 'Syncing...' : 'Sync to Salesforce now'}
                             </Button>
                           </span>
                         </Tooltip>
