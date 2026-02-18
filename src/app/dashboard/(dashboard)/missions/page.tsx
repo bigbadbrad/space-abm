@@ -548,7 +548,7 @@ export default function ABMMissionsPage(): React.JSX.Element {
                                         >
                                           Sync SF
                                         </Button>
-                                        <img src="/salesforce-logo.png" alt="" style={{ height: 28, width: 'auto' }} />
+                                        {sf.eligible && <img src="/salesforce-logo.png" alt="" style={{ height: 22, width: 'auto' }} />}
                                       </Box>
                                     </span>
                                   </Tooltip>
@@ -624,7 +624,7 @@ export default function ABMMissionsPage(): React.JSX.Element {
                               <Button variant="outlined" size="small" onClick={() => handlePushToSalesforce(missionId)} disabled={pushSfLoading || !sf.eligible} sx={{ borderColor: '#10B981', color: '#10B981' }}>
                                 {pushSfLoading ? 'Syncing...' : 'Sync to Salesforce'}
                               </Button>
-                              <img src="/salesforce-logo.png" alt="" style={{ height: 32, width: 'auto' }} />
+                              {sf.eligible && <img src="/salesforce-logo.png" alt="" style={{ height: 28, width: 'auto' }} />}
                             </Box>
                           </span>
                         </Tooltip>
@@ -939,7 +939,7 @@ export default function ABMMissionsPage(): React.JSX.Element {
                               <Button variant="outlined" size="small" onClick={() => handlePushToSalesforce(missionId)} disabled={pushSfLoading || !sf.eligible} sx={{ borderColor: '#10B981', color: '#10B981' }}>
                                 {pushSfLoading ? 'Syncing...' : 'Sync to Salesforce now'}
                               </Button>
-                              <img src="/salesforce-logo.png" alt="" style={{ height: 28, width: 'auto' }} />
+                              {sf.eligible && <img src="/salesforce-logo.png" alt="" style={{ height: 28, width: 'auto' }} />}
                             </Box>
                           </span>
                         </Tooltip>

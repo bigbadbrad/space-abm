@@ -16,27 +16,41 @@ export function WidgetProcurementBriefBlock() {
       sx={{
         py: { xs: 8, md: 10 },
         backgroundColor: '#000000',
+        overflow: 'visible',
       }}
     >
       <Container maxWidth="lg">
         <Grid container spacing={6} alignItems="center">
-          <Grid item xs={12} md={4}>
-            <Box
-              sx={{
-                bgcolor: '#050509',
-                width: '100%',
-                transform: { xs: 'none', md: 'scale(1.25)' },
-                transformOrigin: 'right center',
-              }}
-            >
-              <Image
-                src="/widget.png"
-                alt="Reservation widget preview"
-                width={800}
-                height={600}
-                style={{ width: '100%', height: 'auto', display: 'block' }}
-                priority
-              />
+          <Grid item xs={12} md={4} sx={{ overflow: 'visible' }}>
+            <Box sx={{ p: 4, overflow: 'visible' }}>
+              <Box
+                sx={{
+                  width: '100%',
+                  transform: { xs: 'none', md: 'scale(1.25)' },
+                  transformOrigin: 'right center',
+                  overflow: 'visible',
+                  borderRadius: 2,
+                  boxShadow: '0 0 60px -8px rgba(59, 130, 246, 0.28), 0 0 80px -4px rgba(59, 130, 246, 0.2)',
+                }}
+              >
+                <Box
+                  sx={{
+                    bgcolor: '#050509',
+                    borderRadius: 2,
+                    overflow: 'hidden',
+                    filter: 'drop-shadow(0 0 24px rgba(59, 130, 246, 0.4)) drop-shadow(0 0 48px rgba(59, 130, 246, 0.28))',
+                  }}
+                >
+                  <Image
+                    src="/widget.png"
+                    alt="Reservation widget preview"
+                    width={800}
+                    height={600}
+                    style={{ width: '100%', height: 'auto', display: 'block' }}
+                    priority
+                  />
+                </Box>
+              </Box>
             </Box>
           </Grid>
           <Grid item xs={12} md={8}>

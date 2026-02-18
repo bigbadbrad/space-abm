@@ -30,6 +30,9 @@ const breadcrumbMap: Record<string, string> = {
   [paths.abm.activity]: 'Activity',
   [paths.abm.lanes]: 'Service Lanes',
   [paths.abm.people]: 'People',
+  [paths.abm.missions]: 'Missions',
+  [paths.abm.workQueue]: 'Work Queue',
+  [paths.abm.programs]: 'Programs',
   [paths.abm.leadRequests]: 'Lead Requests',
   [paths.abm.admin]: 'Scoring & Prompts',
 };

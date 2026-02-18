@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { JetBrains_Mono } from 'next/font/google';
 import { Box, Container, Typography } from '@mui/material';
 
@@ -17,40 +18,70 @@ export function HorizontalABMBlock() {
         backgroundColor: '#000000',
       }}
     >
-      <Container maxWidth="md" sx={{ transform: { xs: 'none', md: 'translateX(-25%)' } }}>
-        <Box sx={{ mb: 6 }}>
-          <Typography
-            component="h2"
+      <Container maxWidth="xl">
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', md: 'row' },
+            alignItems: { md: 'center' },
+            gap: { xs: 4, md: 6 },
+          }}
+        >
+          <Box sx={{ flex: { md: '1 1 42%' }, minWidth: 0 }}>
+            <Typography
+              component="h2"
+              sx={{
+                fontFamily: jetbrainsMono.style.fontFamily,
+                fontSize: { xs: '2.5rem', sm: '3.5rem', md: '64px' },
+                lineHeight: 1.2,
+                fontWeight: 700,
+                color: '#F5F5F7',
+                mb: 3,
+              }}
+            >
+              Horizontal ABM tools weren&apos;t built for space procurement.
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: { xs: '1.125rem', md: '1.25rem' },
+                lineHeight: 1.6,
+                color: 'rgba(148,163,184,0.9)',
+                mb: 3,
+              }}
+            >
+              Tools like 6sense and Demandbase are generic &quot;intent + ads + orchestration&quot; layers. But in space, the unit of work isn&apos;t a marketing lead — it&apos;s a mission-driven procurement request with constraints: interfaces, orbit regimes, lead times, compliance gates, capacity windows, and multi-leg service chains.
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: { xs: '1.125rem', md: '1.25rem' },
+                lineHeight: 1.6,
+                color: 'rgba(148,163,184,0.9)',
+              }}
+            >
+              You can bolt space fields onto a marketing funnel… but you still force space reality through a lead-shaped workflow.
+            </Typography>
+          </Box>
+          <Box
             sx={{
-              fontFamily: jetbrainsMono.style.fontFamily,
-              fontSize: { xs: '2.5rem', sm: '3.5rem', md: '64px' },
-              lineHeight: 1.2,
-              fontWeight: 700,
-              color: '#F5F5F7',
-              mb: 3,
+              flex: { md: '1 1 58%' },
+              minWidth: 0,
+              position: 'relative',
+              borderRadius: 2,
+              overflow: 'visible',
+              boxShadow: '0 0 60px -8px rgba(59, 130, 246, 0.45), 0 0 80px -4px rgba(59, 130, 246, 0.35)',
             }}
           >
-            Horizontal ABM tools weren&apos;t built for space procurement.
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: { xs: '1.125rem', md: '1.25rem' },
-              lineHeight: 1.6,
-              color: 'rgba(148,163,184,0.9)',
-              mb: 3,
-            }}
-          >
-            Tools like 6sense and Demandbase are generic &quot;intent + ads + orchestration&quot; layers. But in space, the unit of work isn&apos;t a marketing lead — it&apos;s a mission-driven procurement request with constraints: interfaces, orbit regimes, lead times, compliance gates, capacity windows, and multi-leg service chains.
-          </Typography>
-          <Typography
-            sx={{
-              fontSize: { xs: '1.125rem', md: '1.25rem' },
-              lineHeight: 1.6,
-              color: 'rgba(148,163,184,0.9)',
-            }}
-          >
-            You can bolt space fields onto a marketing funnel… but you still force space reality through a lead-shaped workflow.
-          </Typography>
+            <Box sx={{ borderRadius: 2, overflow: 'hidden' }}>
+              <Image
+                src="/dashboard.png"
+                alt="Space ABM dashboard"
+                width={1200}
+                height={750}
+                sizes="(max-width: 900px) 100vw, 58vw"
+                style={{ width: '100%', height: 'auto', display: 'block' }}
+              />
+            </Box>
+          </Box>
         </Box>
       </Container>
     </Box>
