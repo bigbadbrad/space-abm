@@ -34,6 +34,7 @@ import type { ABMMissionTask } from '@/lib/abm/client';
 import { paths } from '@/paths';
 import { abmApi, type ABMMission, type ABMMissionDetailResponse } from '@/lib/abm/client';
 import { formatLaneDisplayName, LANE_OPTIONS } from '@/components/abm/layout/config';
+import { ProcurementBriefContent } from '@/components/abm/ProcurementBriefContent';
 
 const ACTIVE_STAGES = ['new', 'qualified', 'solutioning', 'proposal', 'negotiation'];
 const CLOSED_STAGES = ['won', 'lost', 'on_hold'];
@@ -105,7 +106,9 @@ export default function ABMMissionsPage(): React.JSX.Element {
   const [aiBriefLoading, setAiBriefLoading] = React.useState(false);
   const [aiBriefDrawerOpen, setAiBriefDrawerOpen] = React.useState(false);
   const [aiBriefContent, setAiBriefContent] = React.useState<string | null>(null);
-  const [detailTab, setDetailTab] = React.useState(0);
+  const [detailTab, setDetailTab] = React.useState(1);
+  const [leadRequestForBrief, setLeadRequestForBrief] = React.useState<any | null>(null);
+  const [leadRequestBriefLoading, setLeadRequestBriefLoading] = React.useState(false);
   const [missionTasks, setMissionTasks] = React.useState<ABMMissionTask[]>([]);
   const [missionActivity, setMissionActivity] = React.useState<{ items: { id: string; type: string; body: string | null; created_at: string; createdBy?: { preferred_name?: string; name?: string } }[] } | null>(null);
   const [pushSfLoading, setPushSfLoading] = React.useState(false);
@@ -174,6 +177,39 @@ export default function ABMMissionsPage(): React.JSX.Element {
     });
     return () => { cancelled = true; };
   }, [selectedId]);
+
+  const leadRequestId = detail?.mission?.lead_request_id ?? (detail?.mission?.leadRequest as { id?: string })?.id;
+  const hasMissionRequirements = Boolean(detail?.mission?.missionRequirements?.brief_json);
+  // Only fetch lead request when there is no mission_requirements (e.g. missions promoted before this change)
+  React.useEffect(() => {
+    if (!leadRequestId || hasMissionRequirements) {
+      if (!leadRequestId) setLeadRequestForBrief(null);
+      setLeadRequestBriefLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setLeadRequestBriefLoading(true);
+    abmApi.getLeadRequest(String(leadRequestId)).then((res) => {
+      if (cancelled) return;
+      if (res.data) setLeadRequestForBrief(res.data);
+      else setLeadRequestForBrief(null);
+      setLeadRequestBriefLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [leadRequestId, hasMissionRequirements]);
+
+  // Source of truth for Procurement Brief tab: mission_requirements when present, else lead request
+  const briefForDisplay = React.useMemo(() => {
+    if (!detail?.mission) return null;
+    const mr = detail.mission.missionRequirements;
+    if (mr?.brief_json && typeof mr.brief_json === 'object') {
+      return {
+        payload_json: mr.brief_json,
+        service_needed: detail.mission.service_lane || 'unknown',
+      };
+    }
+    return leadRequestForBrief ?? null;
+  }, [detail?.mission, leadRequestForBrief]);
 
   React.useEffect(() => {
     if (detailTab !== 2 || !selectedId) return;
@@ -839,17 +875,20 @@ export default function ABMMissionsPage(): React.JSX.Element {
                     <Box>
                       {(detail.mission.lead_request_id || (detail.mission.leadRequest as { id?: string })?.id) && (
                         <Typography sx={{ color: '#9CA3AF', fontSize: '0.8rem', mb: 1 }}>
-                          Source: Lead Request from {(detail.mission.leadRequest as { organization_name?: string })?.organization_name || (detail.mission.leadRequest as { organization_domain?: string })?.organization_domain || '—'}
+                          Source: <Link href={`${paths.abm.leadRequests}?id=${leadRequestId}`} style={{ color: '#3b82f6' }}>Lead Request</Link>
+                          {' from '}{(detail.mission.leadRequest as { organization_name?: string })?.organization_name || (detail.mission.leadRequest as { organization_domain?: string })?.organization_domain || '—'}
+                          {hasMissionRequirements && ' · Working copy (editable)'}
                         </Typography>
                       )}
                       <Button variant="outlined" size="small" onClick={handleGenerateAiBrief} disabled={aiBriefLoading} sx={{ borderColor: '#8B5CF6', color: '#8B5CF6', mb: 2 }}>
                         {aiBriefLoading ? 'Generating...' : 'Generate Mission Brief'}
                       </Button>
+                      {leadRequestBriefLoading && <CircularProgress size={24} sx={{ color: '#9CA3AF', display: 'block', mb: 2 }} />}
+                      {!leadRequestBriefLoading && briefForDisplay && <ProcurementBriefContent lead={briefForDisplay} noTopBorder />}
+                      {!leadRequestBriefLoading && !briefForDisplay && leadRequestId && <Typography sx={{ color: '#9CA3AF', fontSize: '0.875rem', mb: 2 }}>No brief data for this lead request.</Typography>}
+                      {!leadRequestBriefLoading && !leadRequestId && <Typography sx={{ color: '#9CA3AF', fontSize: '0.875rem', mb: 2 }}>This mission was not created from a lead request. No procurement brief to show.</Typography>}
                       {aiBriefContent && (
-                        <Box component="pre" sx={{ color: '#E5E7EB', fontSize: '0.875rem', whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>{aiBriefContent}</Box>
-                      )}
-                      {!aiBriefContent && !aiBriefLoading && (
-                        <Typography sx={{ color: '#9CA3AF', fontSize: '0.875rem' }}>Generate a brief to see it here, or open the drawer from Overview.</Typography>
+                        <Box component="pre" sx={{ color: '#E5E7EB', fontSize: '0.875rem', whiteSpace: 'pre-wrap', fontFamily: 'inherit', mt: 2 }}>{aiBriefContent}</Box>
                       )}
                     </Box>
                   )}

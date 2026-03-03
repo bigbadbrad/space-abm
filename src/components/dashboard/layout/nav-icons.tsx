@@ -19,6 +19,7 @@ import { ShieldStar as ShieldStarIcon } from '@phosphor-icons/react/dist/ssr/Shi
 import { RocketLaunch as RocketLaunchIcon } from '@phosphor-icons/react/dist/ssr/RocketLaunch';
 import { BuildingOffice as BuildingOfficeIcon } from '@phosphor-icons/react/dist/ssr/BuildingOffice';
 import { Columns as ColumnsIcon } from '@phosphor-icons/react/dist/ssr/Columns';
+import { Target as TargetIcon } from '@phosphor-icons/react/dist/ssr/Target';
 
 export const navIcons = {
   'chart-pie': ChartPieIcon,
@@ -42,4 +43,5 @@ export const navIcons = {
   'currency-dollar': CurrencyDollarIcon,
   'shield-star': ShieldStarIcon,
   'rocket-launch': RocketLaunchIcon,
+  target: TargetIcon,
 } as Record<string, Icon>;

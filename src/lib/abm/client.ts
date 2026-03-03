@@ -138,16 +138,82 @@ export interface ABMMissionLinkedProgram {
   program?: { id: string; title: string; status: string; posted_at?: string; due_at?: string; service_lane?: string; url?: string };
 }
 
+/** Working copy of the mission's procurement brief (editable); source lead_request stays immutable. */
+export interface ABMMissionRequirements {
+  id: string;
+  mission_id: string;
+  brief_json: Record<string, unknown>;
+  source_lead_request_id?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  edited_by_user_id?: string | null;
+}
+
 export interface ABMMissionDetailResponse {
   mission: ABMMission & {
     artifacts?: { id: string; type: string; title?: string; url?: string; createdBy?: { id: string; name?: string; preferred_name?: string } }[];
     activities?: { id: string; type: string; body: string; created_at: string; createdBy?: { id: string; name?: string; preferred_name?: string } }[];
     contacts?: { id: string; email?: string; first_name?: string; last_name?: string; title?: string; MissionContact?: { role?: string } }[];
+    missionRequirements?: ABMMissionRequirements | null;
   };
   account_summary?: { intent_score?: number; intent_stage?: string; surge_level?: string; top_lane?: string };
   related_lead_requests?: unknown[];
   related_intent_signals?: unknown[];
   linked_programs?: ABMMissionLinkedProgram[];
+}
+
+/** Pursuits v2 — pre-mission workspace list row */
+export interface ABMPursuit {
+  id: string;
+  title: string;
+  prospect_company_id: string;
+  owner_user_id: string;
+  status: string;
+  stage: string;
+  mission_id?: string | null;
+  mission_pattern?: string | null;
+  notes?: string | null;
+  next_action_due_at?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  account?: { id: string; name: string; domain: string } | null;
+  intel?: { score: number; last_refreshed_at: string } | null;
+  signals_90d_count?: number;
+  next_action_due?: string | null;
+  program_count?: number;
+  owner?: { id: string; name?: string; preferred_name?: string; email?: string };
+}
+
+export interface ABMPursuitsResponse {
+  pursuits: ABMPursuit[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface ABMPursuitIntelLatest {
+  id: string;
+  pursuit_id: string;
+  score: number | null;
+  score_components: Record<string, number>;
+  bullets: string[];
+  signals_summary_json?: unknown;
+  stakeholders_suggested_json?: unknown;
+  partners: { name?: string; why?: string }[];
+  outreach: { angle_bullets?: string[]; draft?: string };
+  provenance: { field?: string; source?: string; confidence?: number; last_verified?: string }[];
+  created_at: string;
+}
+
+export interface ABMPursuitDetailResponse {
+  pursuit: ABMPursuit & { account?: { id: string; name: string; domain: string }; mission_link?: { id: string; title: string; stage?: string; service_lane?: string } | null };
+  intel_latest: ABMPursuitIntelLatest | null;
+  signals: { id: string; type?: string; source?: string; created_at: string; [k: string]: unknown }[];
+  stakeholders: { id: string; name: string; org?: string; role: string; grade?: string; relationship?: string; notes?: string; source: string }[];
+  tasks: { id: string; title: string; task_type: string; status: string; priority: string; due_at?: string | null }[];
+  linked_programs: { link: { id: string; program_item_id: string }; programItem: { id: string; title: string; source_type?: string; status?: string; due_at?: string; agency?: string } | null }[];
+  linked_lead_requests: { link: { id: string; lead_request_id: string }; leadRequest: { id: string; organization_name?: string; service_needed?: string; created_at?: string } | null }[];
+  activities: { id: string; type: string; body: string | null; created_at: string; createdBy?: { id: string; name?: string; preferred_name?: string } }[];
 }
 
 export interface ABMProgram {
@@ -559,6 +625,8 @@ export const abmApi = {
   getMission: (id: string) => abmFetch<ABMMissionDetailResponse>(`/missions/${id}`),
   postMission: (body: Partial<ABMMission>) => abmFetch<ABMMission>(`/missions`, { method: 'POST', body: JSON.stringify(body) }),
   patchMission: (id: string, body: Partial<ABMMission>) => abmFetch<ABMMission>(`/missions/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  patchMissionRequirements: (id: string, body: { brief_json: Record<string, unknown> }) =>
+    abmFetch<ABMMissionRequirements>(`/missions/${id}/requirements`, { method: 'PATCH', body: JSON.stringify(body) }),
   closeMission: (id: string, body: { outcome: 'won' | 'lost' | 'on_hold'; reason?: string }) =>
     abmFetch<ABMMission>(`/missions/${id}/close`, { method: 'POST', body: JSON.stringify(body) }),
   patchMissionNextStep: (id: string, next_step: string, next_step_due_at?: string) =>
@@ -596,6 +664,54 @@ export const abmApi = {
     abmFetch<{ summary_md: string; cached?: boolean }>(`/missions/${id}/generate-brief`, { method: 'POST' }),
   postPushToSalesforce: (id: string) =>
     abmFetch<{ message: string; success?: boolean; error?: string; mission: { salesforce_sync_status?: string; salesforce_last_error?: string } }>(`/missions/${id}/push-to-salesforce`, { method: 'POST' }),
+  // Pursuits v2
+  getPursuits: (params?: { status?: string; stage?: string; owner?: string; has_programs?: string; hot?: string; search?: string; page?: number; limit?: number; sort?: string }) => {
+    const sp = new URLSearchParams();
+    if (params?.status) sp.set('status', params.status);
+    if (params?.stage) sp.set('stage', params.stage);
+    if (params?.owner) sp.set('owner', params.owner);
+    if (params?.has_programs) sp.set('has_programs', params.has_programs);
+    if (params?.hot) sp.set('hot', params.hot);
+    if (params?.search) sp.set('search', params.search);
+    if (params?.page != null) sp.set('page', String(params.page));
+    if (params?.limit != null) sp.set('limit', String(params.limit));
+    if (params?.sort) sp.set('sort', params.sort);
+    const q = sp.toString();
+    return abmFetch<ABMPursuitsResponse>(`/pursuits${q ? `?${q}` : ''}`);
+  },
+  postPursuit: (body: { title: string; prospect_company_id: string; owner_user_id?: string; mission_pattern?: string; notes?: string }) =>
+    abmFetch<ABMPursuit>(`/pursuits`, { method: 'POST', body: JSON.stringify(body) }),
+  getPursuit: (id: string) => abmFetch<ABMPursuitDetailResponse>(`/pursuits/${id}`),
+  patchPursuit: (id: string, body: Partial<{ title: string; stage: string; status: string; notes: string; mission_pattern: string; next_action_due_at: string }>) =>
+    abmFetch<ABMPursuit>(`/pursuits/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  postPursuitConvertToMission: (id: string, body?: { title?: string; owner_user_id?: string; service_lane?: string }) =>
+    abmFetch<{ mission: ABMMission; pursuit: ABMPursuit }>(`/pursuits/${id}/convert-to-mission`, { method: 'POST', body: JSON.stringify(body || {}) }),
+  postPursuitLinkLeadRequest: (id: string, lead_request_id: string) =>
+    abmFetch<unknown>(`/pursuits/${id}/link-lead-request`, { method: 'POST', body: JSON.stringify({ lead_request_id }) }),
+  postPursuitLinkProgram: (id: string, program_item_id: string) =>
+    abmFetch<unknown>(`/pursuits/${id}/link-program`, { method: 'POST', body: JSON.stringify({ program_item_id }) }),
+  postPursuitIntelRun: (id: string) =>
+    abmFetch<{ run: { id: string; status: string }; snapshot?: ABMPursuitIntelLatest & { bullets_json?: unknown; score_components_json?: unknown; partners_json?: unknown; outreach_json?: unknown; provenance_json?: unknown } }>(`/pursuits/${id}/intel/run`, { method: 'POST' }),
+  getPursuitIntelLatest: (id: string) => abmFetch<ABMPursuitIntelLatest>(`/pursuits/${id}/intel/latest`),
+  getPursuitSignals: (id: string, params?: { range?: string; source?: string; type?: string }) => {
+    const sp = new URLSearchParams();
+    if (params?.range) sp.set('range', params.range);
+    if (params?.source) sp.set('source', params.source);
+    if (params?.type) sp.set('type', params.type);
+    const q = sp.toString();
+    return abmFetch<{ signals: { id: string; type?: string; source?: string; created_at: string; [k: string]: unknown }[] }>(`/pursuits/${id}/signals${q ? `?${q}` : ''}`);
+  },
+  getPursuitStakeholders: (id: string) => abmFetch<{ stakeholders: { id: string; name: string; role: string; grade?: string; source: string }[] }>(`/pursuits/${id}/stakeholders`),
+  postPursuitStakeholder: (id: string, body: { name: string; org?: string; role: string; grade?: string; relationship?: string; notes?: string; contact_id?: string }) =>
+    abmFetch<{ id: string; name: string; role: string }>(`/pursuits/${id}/stakeholders`, { method: 'POST', body: JSON.stringify(body) }),
+  patchPursuitStakeholder: (id: string, stakeholderId: string, body: Partial<{ name: string; org: string; role: string; grade: string; relationship: string; notes: string }>) =>
+    abmFetch<unknown>(`/pursuits/${id}/stakeholders/${stakeholderId}`, { method: 'PATCH', body: JSON.stringify(body) }),
+  deletePursuitStakeholder: (id: string, stakeholderId: string) =>
+    abmFetch<{ message: string }>(`/pursuits/${id}/stakeholders/${stakeholderId}`, { method: 'DELETE' }),
+  postPursuitActionBookMeeting: (id: string) => abmFetch<{ task: { id: string } }>(`/pursuits/${id}/actions/book-meeting`, { method: 'POST' }),
+  postPursuitActionPartnerIntro: (id: string) => abmFetch<{ task: { id: string } }>(`/pursuits/${id}/actions/partner-intro`, { method: 'POST' }),
+  postPursuitActionDraftSequence: (id: string) => abmFetch<{ task: { id: string } }>(`/pursuits/${id}/actions/draft-sequence`, { method: 'POST' }),
+  postPursuitActionAddToCampaign: (id: string) => abmFetch<{ task: { id: string } }>(`/pursuits/${id}/actions/add-to-campaign`, { method: 'POST' }),
   getActivity: (params?: { range?: string; limit?: number }) => {
     const sp = new URLSearchParams();
     if (params?.range) sp.set('range', params.range);

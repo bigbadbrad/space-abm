@@ -13,8 +13,9 @@ interface LayoutWrapperProps {
 export function LayoutWrapper({ children }: LayoutWrapperProps) {
   const pathname = usePathname();
   const isDashboardAppRoute = pathname?.startsWith('/dashboard') && !pathname?.startsWith('/dashboard/how-it-works');
+  const isConsumerRoute = pathname?.startsWith('/consumer');
 
-  if (isDashboardAppRoute) {
+  if (isDashboardAppRoute || isConsumerRoute) {
     return <React.Fragment>{children}</React.Fragment>;
   }
 

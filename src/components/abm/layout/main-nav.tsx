@@ -34,6 +34,7 @@ const breadcrumbMap: Record<string, string> = {
   [paths.abm.workQueue]: 'Work Queue',
   [paths.abm.programs]: 'Programs',
   [paths.abm.leadRequests]: 'Lead Requests',
+  [paths.abm.pursuits]: 'Pursuits',
   [paths.abm.admin]: 'Scoring & Prompts',
 };
 
@@ -41,6 +42,7 @@ function getBreadcrumbLabel(pathname: string): string {
   if (breadcrumbMap[pathname]) return breadcrumbMap[pathname];
   if (pathname.startsWith(paths.abm.accounts + '/')) return 'Account Detail';
   if (pathname.startsWith(paths.abm.leadRequests + '/')) return 'Lead Request';
+  if (pathname.startsWith(paths.abm.pursuits + '/')) return 'Pursuit';
   const segments = pathname.replace(/^\/abm\/?/, '').split('/').filter(Boolean);
   return segments.map((s) => s.charAt(0).toUpperCase() + s.slice(1).replace(/-/g, ' ')).join(' › ') || 'Overview';
 }
