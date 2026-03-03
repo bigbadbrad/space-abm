@@ -20,7 +20,7 @@ import ListItemText from '@mui/material/ListItemText';
 import dayjs from 'dayjs';
 
 import { paths } from '@/paths';
-import { abmApi, type ABMPursuitDetailResponse } from '@/lib/abm/client';
+import { abmApi, type ABMPursuitDetailResponse, type ABMPursuitIntelLatest } from '@/lib/abm/client';
 
 export default function ABMPursuitDetailPage(): React.JSX.Element {
   const params = useParams();
@@ -50,13 +50,16 @@ export default function ABMPursuitDetailPage(): React.JSX.Element {
       setIntelRunning(false);
       if (res.data?.snapshot) {
         const snapshot = res.data.snapshot;
-        const intel_latest = {
-          ...snapshot,
-          score_components: snapshot.score_components_json || {},
-          bullets: snapshot.bullets_json || [],
-          partners: snapshot.partners_json || [],
-          outreach: snapshot.outreach_json || {},
-          provenance: snapshot.provenance_json || [],
+        const intel_latest: ABMPursuitIntelLatest = {
+          id: snapshot.id,
+          pursuit_id: snapshot.pursuit_id,
+          score: snapshot.score ?? null,
+          score_components: (snapshot.score_components_json as Record<string, number>) ?? {},
+          bullets: Array.isArray(snapshot.bullets_json) ? (snapshot.bullets_json as string[]) : [],
+          partners: Array.isArray(snapshot.partners_json) ? (snapshot.partners_json as { name?: string; why?: string }[]) : [],
+          outreach: snapshot.outreach_json && typeof snapshot.outreach_json === 'object' ? (snapshot.outreach_json as { angle_bullets?: string[]; draft?: string }) : { angle_bullets: [], draft: '' },
+          provenance: Array.isArray(snapshot.provenance_json) ? (snapshot.provenance_json as { field?: string; source?: string; confidence?: number; last_verified?: string }[]) : [],
+          created_at: snapshot.created_at ?? new Date().toISOString(),
         };
         setDetail((prev) => prev ? { ...prev, intel_latest } : null);
       } else if (res.error) {
