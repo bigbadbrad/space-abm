@@ -12,7 +12,7 @@ This spec covers:
 - No multi-user permissions beyond whatever admin/auth system already exists.
 - No sophisticated media pipeline (uploading/processing). v1 uses existing `media_urls` (hosted URLs).
 
----
+--------
 
 ## 0) Terminology
 
