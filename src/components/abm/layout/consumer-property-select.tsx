@@ -9,28 +9,48 @@ import ListItemText from '@mui/material/ListItemText';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import CircularProgress from '@mui/material/CircularProgress';
 import { CaretDown as CaretDownIcon } from '@phosphor-icons/react/dist/ssr/CaretDown';
 import { Globe as GlobeIcon } from '@phosphor-icons/react/dist/ssr/Globe';
 import { Plus as PlusIcon } from '@phosphor-icons/react/dist/ssr/Plus';
 import { MagnifyingGlass as MagnifyingGlassIcon } from '@phosphor-icons/react/dist/ssr/MagnifyingGlass';
 
-// Placeholder until backend is wired; will list configured properties
-const MOCK_PROPERTIES = [
-  { id: '1', name: 'ranch.dog', domain: 'ranch.dog' },
-  { id: '2', name: '650.dog', domain: '650.dog' },
+import { useConsumerProperty } from '@/contexts/consumer-property-context';
+import { createConsumerProperty } from '@/lib/consumer/client';
+
+const PRODUCT_TYPES = [
+  { value: 'content', label: 'Content' },
+  { value: 'marketplace', label: 'Marketplace' },
+  { value: 'saas', label: 'SaaS' },
+  { value: 'other', label: 'Other' },
 ];
 
 export function ConsumerPropertySelect(): React.JSX.Element {
+  const { properties, activeProperty, setActivePropertyId, refreshProperties, loading, error } = useConsumerProperty();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const [selected, setSelected] = React.useState<{ id: string; name: string; domain: string } | null>(MOCK_PROPERTIES[0] ?? null);
   const [search, setSearch] = React.useState('');
+  const [addModalOpen, setAddModalOpen] = React.useState(false);
+  const [addName, setAddName] = React.useState('');
+  const [addDomain, setAddDomain] = React.useState('');
+  const [addProductType, setAddProductType] = React.useState('other');
+  const [addSubmitting, setAddSubmitting] = React.useState(false);
+  const [addError, setAddError] = React.useState<string | null>(null);
   const open = Boolean(anchorEl);
 
   const filtered = React.useMemo(() => {
-    if (!search.trim()) return MOCK_PROPERTIES;
+    if (!search.trim()) return properties;
     const q = search.trim().toLowerCase();
-    return MOCK_PROPERTIES.filter((p) => p.name.toLowerCase().includes(q) || p.domain.toLowerCase().includes(q));
-  }, [search]);
+    return properties.filter((p) => p.name.toLowerCase().includes(q) || p.domain.toLowerCase().includes(q));
+  }, [properties, search]);
 
   const handleOpen = (e: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(e.currentTarget);
@@ -41,14 +61,53 @@ export function ConsumerPropertySelect(): React.JSX.Element {
     setAnchorEl(null);
   };
 
-  const handleSelect = (property: { id: string; name: string; domain: string }) => {
-    setSelected(property);
+  const handleSelect = (id: string) => {
+    setActivePropertyId(id);
     handleClose();
   };
 
   const handleAddProperty = () => {
     handleClose();
-    // TODO: wire to add-property flow when backend is ready
+    setAddModalOpen(true);
+    setAddError(null);
+    setAddName('');
+    setAddDomain('');
+    setAddProductType('other');
+  };
+
+  const handleAddSubmit = async () => {
+    setAddError(null);
+    const name = addName.trim();
+    const domain = addDomain.trim();
+    if (name.length < 2 || name.length > 128) {
+      setAddError('Name must be 2–128 characters');
+      return;
+    }
+    if (!domain) {
+      setAddError('Domain is required');
+      return;
+    }
+    if (/\s/.test(domain)) {
+      setAddError('Use domain only, e.g. 650.dog');
+      return;
+    }
+    setAddSubmitting(true);
+    const { data, error: err, status } = await createConsumerProperty({
+      name,
+      domain,
+      product_type: addProductType,
+    });
+    setAddSubmitting(false);
+    if (err) {
+      setAddError(status === 409 ? 'That domain already exists.' : err);
+      return;
+    }
+    if (data) {
+      setAddModalOpen(false);
+      await refreshProperties();
+      setActivePropertyId(data.id);
+      // Toast could be added via a global snackbar; spec says "Property created"
+    }
   };
 
   return (
@@ -57,6 +116,7 @@ export function ConsumerPropertySelect(): React.JSX.Element {
         onClick={handleOpen}
         aria-haspopup="listbox"
         aria-expanded={open ? 'true' : 'false'}
+        disabled={loading}
         sx={{
           display: 'flex',
           alignItems: 'center',
@@ -75,9 +135,13 @@ export function ConsumerPropertySelect(): React.JSX.Element {
           },
         }}
       >
-        <GlobeIcon size={18} style={{ color: 'var(--mui-palette-neutral-400)', flexShrink: 0 }} />
+        {loading ? (
+          <CircularProgress size={18} sx={{ color: 'var(--mui-palette-neutral-400)' }} />
+        ) : (
+          <GlobeIcon size={18} style={{ color: 'var(--mui-palette-neutral-400)', flexShrink: 0 }} />
+        )}
         <Typography sx={{ flex: 1, fontSize: '0.875rem', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {selected?.name ?? 'Select property'}
+          {error ? 'Error loading' : activeProperty?.name ?? (properties.length === 0 ? 'No properties' : 'Select property')}
         </Typography>
         <CaretDownIcon size={16} style={{ color: 'var(--mui-palette-neutral-400)', flexShrink: 0, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
       </ButtonBase>
@@ -126,8 +190,8 @@ export function ConsumerPropertySelect(): React.JSX.Element {
             filtered.map((property) => (
               <MenuItem
                 key={property.id}
-                onClick={() => handleSelect(property)}
-                selected={selected?.id === property.id}
+                onClick={() => handleSelect(property.id)}
+                selected={activeProperty?.id === property.id}
                 sx={{
                   color: 'var(--mui-palette-neutral-200)',
                   fontSize: '0.875rem',
@@ -161,6 +225,59 @@ export function ConsumerPropertySelect(): React.JSX.Element {
           </MenuItem>
         </Box>
       </Menu>
+
+      <Dialog open={addModalOpen} onClose={() => !addSubmitting && setAddModalOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Add Property</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Name"
+            fullWidth
+            margin="normal"
+            value={addName}
+            onChange={(e) => setAddName(e.target.value)}
+            placeholder="e.g. GroupText"
+            helperText="2–128 characters"
+            error={!!(addError && addError.includes('Name'))}
+          />
+          <TextField
+            label="Domain"
+            fullWidth
+            margin="normal"
+            value={addDomain}
+            onChange={(e) => setAddDomain(e.target.value)}
+            placeholder="650.dog"
+            helperText="Use domain only, e.g. 650.dog"
+            error={!!(addError && (addError.includes('domain') || addError.includes('already')))}
+          />
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Product Type</InputLabel>
+            <Select
+              value={addProductType}
+              label="Product Type"
+              onChange={(e) => setAddProductType(e.target.value)}
+            >
+              {PRODUCT_TYPES.map((opt) => (
+                <MenuItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          {addError ? (
+            <Typography color="error" sx={{ mt: 1, fontSize: '0.875rem' }}>
+              {addError}
+            </Typography>
+          ) : null}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAddModalOpen(false)} disabled={addSubmitting}>
+            Cancel
+          </Button>
+          <Button variant="contained" onClick={handleAddSubmit} disabled={addSubmitting}>
+            {addSubmitting ? 'Creating…' : 'Create'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }

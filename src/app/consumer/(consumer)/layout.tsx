@@ -6,6 +6,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import GlobalStyles from '@mui/material/GlobalStyles';
 
 import { AuthGuard } from '@/components/auth/auth-guard';
+import { ConsumerPropertyProvider } from '@/contexts/consumer-property-context';
 import { ConsumerSideNav } from '@/components/abm/layout/consumer-side-nav';
 import { ConsumerMainNav } from '@/components/abm/layout/consumer-main-nav';
 
@@ -16,6 +17,7 @@ interface LayoutProps {
 export default function ConsumerLayout({ children }: LayoutProps): React.JSX.Element {
   return (
     <AuthGuard>
+      <ConsumerPropertyProvider>
       <React.Suspense
         fallback={
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', bgcolor: '#050505' }}>
@@ -51,6 +53,7 @@ export default function ConsumerLayout({ children }: LayoutProps): React.JSX.Ele
           </Box>
         </Box>
       </React.Suspense>
+      </ConsumerPropertyProvider>
     </AuthGuard>
   );
 }

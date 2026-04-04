@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography';
 import type { NavItemConfig } from '@/types/nav';
 import { paths } from '@/paths';
 import { isNavItemActive } from '@/lib/is-nav-item-active';
-import { LogoSpaceGtmStacked } from '@/components/logo-space-gtm-stacked';
+import { LogoConsumerGtmStacked } from '@/components/logo-consumer-gtm-stacked';
 
 import { consumerNavItems } from './config';
 import { navIcons } from '@/components/dashboard/layout/nav-icons';
@@ -53,14 +53,19 @@ export function ConsumerSideNav(): React.JSX.Element {
           sx={{
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'flex-start',
+            justifyContent: 'center',
             textDecoration: 'none',
             mb: 2,
             transition: 'opacity 0.2s ease',
             '&:hover': { opacity: 0.8 },
           }}
         >
-          <LogoSpaceGtmStacked color="#F5F5F7" height={82} />
+          <LogoConsumerGtmStacked
+            wordmarkColor="#F5F5F7"
+            iconPrimaryColor="#00A9E0"
+            iconSecondaryColor="#D14124"
+            height={72}
+          />
         </Box>
       </Stack>
       <Divider sx={{ borderColor: 'var(--mui-palette-neutral-700)' }} />
@@ -69,6 +74,64 @@ export function ConsumerSideNav(): React.JSX.Element {
       </Box>
       <Box component="nav" sx={{ flex: '1 1 auto', p: '12px' }}>
         {renderNavItems({ pathname, items: consumerNavItems })}
+      </Box>
+      <Divider sx={{ borderColor: 'var(--mui-palette-neutral-700)' }} />
+      <Box sx={{ p: 2, pt: 1.5 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            borderRadius: 999,
+            border: '1px solid var(--mui-palette-neutral-700)',
+            overflow: 'hidden',
+            bgcolor: '#020617',
+          }}
+        >
+          <Box
+            component={RouterLink}
+            href={paths.abm.overview}
+            sx={{
+              flex: 1,
+              px: 1.25,
+              py: 0.75,
+              textAlign: 'center',
+              textDecoration: 'none',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              letterSpacing: 0.2,
+              color: !pathname.startsWith('/consumer') ? '#0B1120' : '#9CA3AF',
+              bgcolor: !pathname.startsWith('/consumer') ? '#F9FAFB' : 'transparent',
+              transition: 'all 0.15s ease',
+              '&:hover': {
+                bgcolor: !pathname.startsWith('/consumer') ? '#E5E7EB' : 'rgba(148, 163, 184, 0.12)',
+              },
+            }}
+          >
+            SpaceGTM
+          </Box>
+          <Box
+            component={RouterLink}
+            href={paths.consumer.dashboard}
+            sx={{
+              flex: 1,
+              px: 1.25,
+              py: 0.75,
+              textAlign: 'center',
+              textDecoration: 'none',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              letterSpacing: 0.2,
+              color: pathname.startsWith('/consumer') ? '#0B1120' : '#9CA3AF',
+              bgcolor: pathname.startsWith('/consumer') ? '#F9FAFB' : 'transparent',
+              transition: 'all 0.15s ease',
+              '&:hover': {
+                bgcolor: pathname.startsWith('/consumer') ? '#E5E7EB' : 'rgba(148, 163, 184, 0.12)',
+              },
+            }}
+          >
+            ConsumerGTM
+          </Box>
+        </Box>
       </Box>
     </Box>
   );

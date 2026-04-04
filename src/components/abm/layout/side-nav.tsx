@@ -60,7 +60,7 @@ export function ABMSideNav(): React.JSX.Element {
           sx={{
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'flex-start',
+            justifyContent: 'center',
             textDecoration: 'none',
             mb: 2,
             transition: 'opacity 0.2s ease',
@@ -75,7 +75,64 @@ export function ABMSideNav(): React.JSX.Element {
         {renderNavItems({ pathname, items: visibleItems })}
       </Box>
       <Divider sx={{ borderColor: 'var(--mui-palette-neutral-700)' }} />
-      <Box sx={{ p: 2 }}>
+      <Box sx={{ p: 2, pt: 1.5, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+        {/* SpaceGTM / ConsumerGTM toggle */}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            borderRadius: 999,
+            border: '1px solid var(--mui-palette-neutral-700)',
+            overflow: 'hidden',
+            bgcolor: '#020617',
+          }}
+        >
+          <Box
+            component={RouterLink}
+            href={paths.abm.overview}
+            sx={{
+              flex: 1,
+              px: 1.25,
+              py: 0.75,
+              textAlign: 'center',
+              textDecoration: 'none',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              letterSpacing: 0.2,
+              color: !pathname.startsWith('/consumer') ? '#0B1120' : '#9CA3AF',
+              bgcolor: !pathname.startsWith('/consumer') ? '#F9FAFB' : 'transparent',
+              transition: 'all 0.15s ease',
+              '&:hover': {
+                bgcolor: !pathname.startsWith('/consumer') ? '#E5E7EB' : 'rgba(148, 163, 184, 0.12)',
+              },
+            }}
+          >
+            SpaceGTM
+          </Box>
+          <Box
+            component={RouterLink}
+            href={paths.consumer.dashboard}
+            sx={{
+              flex: 1,
+              px: 1.25,
+              py: 0.75,
+              textAlign: 'center',
+              textDecoration: 'none',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              letterSpacing: 0.2,
+              color: pathname.startsWith('/consumer') ? '#0B1120' : '#9CA3AF',
+              bgcolor: pathname.startsWith('/consumer') ? '#F9FAFB' : 'transparent',
+              transition: 'all 0.15s ease',
+              '&:hover': {
+                bgcolor: pathname.startsWith('/consumer') ? '#E5E7EB' : 'rgba(148, 163, 184, 0.12)',
+              },
+            }}
+          >
+            ConsumerGTM
+          </Box>
+        </Box>
+        {/* Existing footer link */}
         <Box
           component={RouterLink}
           href={paths.abm.howItWorks}
