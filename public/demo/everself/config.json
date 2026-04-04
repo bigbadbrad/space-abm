@@ -1,0 +1,7 @@
+{
+  "targets": {
+    "cost_per_booked": 250,
+    "lead_to_book_rate_min": 0.15,
+    "min_booked_consults_for_confidence": 10
+  }
+}

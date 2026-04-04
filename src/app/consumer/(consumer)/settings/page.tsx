@@ -26,6 +26,43 @@ const PLATFORMS = [
   { key: 'instagram', label: 'Instagram' },
 ] as const;
 
+const PAID_ADVERTISING_PLATFORMS = [
+  { key: 'x', label: 'X' },
+  { key: 'facebook', label: 'Facebook' },
+  { key: 'instagram', label: 'Instagram' },
+  { key: 'google', label: 'Google' },
+] as const;
+
+/** Placeholder card: matches Social Account row styling; expansion not wired yet. */
+function PaidAdvertisingCard({ label }: { label: string }): React.JSX.Element {
+  return (
+    <Card sx={{ bgcolor: 'var(--mui-palette-neutral-900)', border: '1px solid var(--mui-palette-neutral-700)', mb: 2 }}>
+      <CardHeader
+        sx={{ color: 'var(--mui-palette-neutral-200)' }}
+        title={label}
+        subheader="Not configured"
+        action={
+          <Box
+            component="span"
+            sx={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--mui-palette-neutral-400)',
+              width: 40,
+              height: 40,
+              pointerEvents: 'none',
+            }}
+            aria-hidden
+          >
+            <CaretRightIcon size={20} />
+          </Box>
+        }
+      />
+    </Card>
+  );
+}
+
 function AccountCard({
   platform,
   label,
@@ -279,6 +316,14 @@ export default function ConsumerSettingsPage(): React.JSX.Element {
               />
             ))
           )}
+
+          <Typography sx={{ color: '#E5E7EB', fontSize: '1rem', fontWeight: 600, mb: 2, mt: 5, pt: 3 }}>Paid Advertising</Typography>
+          <Typography sx={{ color: '#9CA3AF', fontSize: '0.875rem', mb: 2 }}>
+            Connect ad accounts to measure spend and performance alongside your campaigns. Configuration coming soon.
+          </Typography>
+          {PAID_ADVERTISING_PLATFORMS.map((p) => (
+            <PaidAdvertisingCard key={`paid-${p.key}`} label={p.label} />
+          ))}
         </>
       )}
     </Box>
