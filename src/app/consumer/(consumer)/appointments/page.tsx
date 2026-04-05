@@ -4,30 +4,30 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import CircularProgress from '@mui/material/CircularProgress';
-import { ChartLine as ChartLineIcon } from '@phosphor-icons/react/dist/ssr/ChartLine';
+import { Calendar as CalendarIcon } from '@phosphor-icons/react/dist/ssr/Calendar';
 
-import { EverselfLeadsPage } from '@/components/everself/everself-leads-page';
+import { EverselfAppointmentsPage } from '@/components/everself/everself-appointments-page';
 import { useConsumerProperty } from '@/contexts/consumer-property-context';
 import { isEverselfPropertyName } from '@/lib/consumer/everself-property';
 
-function AcquisitionPlaceholder(): React.JSX.Element {
+function Placeholder(): React.JSX.Element {
   return (
     <Box sx={{ backgroundColor: '#050505', minHeight: '100vh', p: 3 }}>
       <Box sx={{ mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-          <ChartLineIcon size={18} style={{ color: '#FFFFFF' }} />
-          <Typography sx={{ color: '#FFFFFF', fontSize: '1.25rem', fontWeight: 600 }}>Acquisition</Typography>
+          <CalendarIcon size={18} style={{ color: '#FFFFFF' }} />
+          <Typography sx={{ color: '#FFFFFF', fontSize: '1.25rem', fontWeight: 600 }}>Appointments</Typography>
         </Box>
         <Typography sx={{ color: '#9CA3AF', fontSize: '0.8125rem', mt: 0.5 }}>Consumer surface — placeholder</Typography>
       </Box>
       <Typography sx={{ color: '#9CA3AF', fontSize: '0.875rem' }}>
-        This is the Acquisition tab. Content coming soon.
+        Appointments analytics are available for the Everself property demo.
       </Typography>
     </Box>
   );
 }
 
-export default function ConsumerAcquisitionPage(): React.JSX.Element {
+export default function ConsumerAppointmentsPage(): React.JSX.Element {
   const { activeProperty, loading } = useConsumerProperty();
 
   if (loading) {
@@ -47,10 +47,10 @@ export default function ConsumerAcquisitionPage(): React.JSX.Element {
           </Box>
         }
       >
-        <EverselfLeadsPage />
+        <EverselfAppointmentsPage />
       </React.Suspense>
     );
   }
 
-  return <AcquisitionPlaceholder />;
+  return <Placeholder />;
 }

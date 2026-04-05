@@ -1,0 +1,178 @@
+[
+  {
+    "change_id": "chg_0001",
+    "platform": "google_ads",
+    "channel": "google",
+    "city": "San Francisco",
+    "campaign_id": "g_SFr_0",
+    "campaign_name": "San Francisco | Consults | Search",
+    "change_type": "BUDGET_CHANGE",
+    "object_type": "CAMPAIGN",
+    "object_id": "g_SFr_0",
+    "field": "daily_budget",
+    "before": 500,
+    "after": 350,
+    "actor": {
+      "type": "user",
+      "name": "Agency User",
+      "email": "agency@vendor.com"
+    },
+    "detected_at": "2026-04-01T23:05:00Z",
+    "source": "demo",
+    "notes": null
+  },
+  {
+    "change_id": "chg_0002",
+    "platform": "meta_ads",
+    "channel": "meta",
+    "city": "Los Angeles",
+    "campaign_id": "m_Lo_0",
+    "campaign_name": "Los Angeles | Consults | Meta",
+    "change_type": "BUDGET_CHANGE",
+    "object_type": "CAMPAIGN",
+    "object_id": "m_Lo_0",
+    "field": "daily_budget",
+    "before": 700,
+    "after": 520,
+    "actor": {
+      "type": "user",
+      "name": "Internal Ops",
+      "email": "ops@everself.com"
+    },
+    "detected_at": "2026-03-28T14:20:00Z",
+    "source": "sync",
+    "notes": null
+  },
+  {
+    "change_id": "chg_0003",
+    "platform": "google_ads",
+    "channel": "google",
+    "city": "San Francisco",
+    "campaign_id": "g_SFr_0",
+    "campaign_name": "San Francisco | Consults | Search",
+    "change_type": "BID_STRATEGY_CHANGE",
+    "object_type": "CAMPAIGN",
+    "object_id": "g_SFr_0",
+    "field": "bid_strategy",
+    "before": "max_conversions",
+    "after": "target_cpa",
+    "actor": {
+      "type": "user",
+      "name": "Agency User",
+      "email": "agency@vendor.com"
+    },
+    "detected_at": "2026-03-29T09:15:00Z",
+    "source": "sync",
+    "notes": null
+  },
+  {
+    "change_id": "chg_0004",
+    "platform": "meta_ads",
+    "channel": "meta",
+    "city": "San Diego",
+    "campaign_id": "m_SDi_0",
+    "campaign_name": "San Diego | Consults | Meta",
+    "change_type": "CREATIVE_UPDATE",
+    "object_type": "AD",
+    "object_id": "ad_8821",
+    "field": "primary_text",
+    "before": "Book today",
+    "after": "Same-week consults",
+    "actor": {
+      "type": "user",
+      "name": "Creative Lead",
+      "email": "creative@agency.com"
+    },
+    "detected_at": "2026-03-30T16:40:00Z",
+    "source": "sync",
+    "notes": null
+  },
+  {
+    "change_id": "chg_0005",
+    "platform": "google_ads",
+    "channel": "google",
+    "city": "Los Angeles",
+    "campaign_id": "g_Lo_0",
+    "campaign_name": "Los Angeles | Consults | Search",
+    "change_type": "CREATIVE_UPDATE",
+    "object_type": "RSA",
+    "object_id": "rsa_12",
+    "field": "headlines",
+    "before": "3 active",
+    "after": "5 active",
+    "actor": {
+      "type": "user",
+      "name": "Agency User",
+      "email": "agency@vendor.com"
+    },
+    "detected_at": "2026-04-02T11:00:00Z",
+    "source": "sync",
+    "notes": null
+  },
+  {
+    "change_id": "chg_0006",
+    "platform": "meta_ads",
+    "channel": "meta",
+    "city": "Austin",
+    "campaign_id": "m_Au_0",
+    "campaign_name": "Austin | Consults | Meta",
+    "change_type": "STRUCTURE_CHANGE",
+    "object_type": "CAMPAIGN",
+    "object_id": "m_Au_0",
+    "field": "ad_set_realloc",
+    "before": "even",
+    "after": "weighted_top_funnel",
+    "actor": {
+      "type": "user",
+      "name": "Internal Ops",
+      "email": "ops@everself.com"
+    },
+    "detected_at": "2026-04-03T08:30:00Z",
+    "source": "sync",
+    "notes": null
+  },
+  {
+    "change_id": "chg_0007",
+    "platform": "google_ads",
+    "channel": "google",
+    "city": "Denver",
+    "campaign_id": "g_De_0",
+    "campaign_name": "Denver | Consults | Search",
+    "change_type": "STRUCTURE_CHANGE",
+    "object_type": "AD_GROUP",
+    "object_id": "ag_den_2",
+    "field": "status",
+    "before": "active",
+    "after": "paused",
+    "actor": {
+      "type": "user",
+      "name": "Agency User",
+      "email": "agency@vendor.com"
+    },
+    "detected_at": "2026-04-03T19:45:00Z",
+    "source": "sync",
+    "notes": null
+  },
+  {
+    "change_id": "chg_0008",
+    "platform": "meta_ads",
+    "channel": "meta",
+    "city": "San Francisco",
+    "campaign_id": "m_SFr_0",
+    "campaign_name": "San Francisco | Consults | Meta",
+    "change_type": "BUDGET_CHANGE",
+    "object_type": "CAMPAIGN",
+    "object_id": "m_SFr_0",
+    "field": "daily_budget",
+    "before": 700,
+    "after": 900,
+    "actor": {
+      "type": "user",
+      "name": "Agency User",
+      "email": "agency@vendor.com"
+    },
+    "detected_at": "2026-04-01T10:00:00Z",
+    "source": "sync",
+    "notes": null
+  }
+]

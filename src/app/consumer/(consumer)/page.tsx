@@ -8,10 +8,7 @@ import { Gauge as GaugeIcon } from '@phosphor-icons/react/dist/ssr/Gauge';
 
 import { useConsumerProperty } from '@/contexts/consumer-property-context';
 import { EverselfGrowthDashboard } from '@/components/everself/everself-growth-dashboard';
-
-function isEverselfPropertyName(name: string | null | undefined): boolean {
-  return (name ?? '').trim().toLowerCase() === 'everself';
-}
+import { isEverselfPropertyName } from '@/lib/consumer/everself-property';
 
 function DashboardPlaceholder(): React.JSX.Element {
   return (

@@ -12,6 +12,33 @@ export const consumerNavItems: NavItemConfig[] = [
   { key: 'settings', title: 'Settings', href: paths.consumer.settings, icon: 'gear-six' },
 ];
 
+/** Everself demo: rename Acquisition → Leads and insert Appointments (calendar icon). */
+export function getConsumerNavItemsForProperty(propertyName: string | null | undefined): NavItemConfig[] {
+  if ((propertyName ?? '').trim().toLowerCase() !== 'everself') return consumerNavItems;
+
+  const out: NavItemConfig[] = [];
+  for (const item of consumerNavItems) {
+    if (item.key === 'acquisition') {
+      out.push({ ...item, title: 'Leads' });
+      out.push({
+        key: 'appointments',
+        title: 'Appointments',
+        href: paths.consumer.appointments,
+        icon: 'calendar',
+      });
+      out.push({
+        key: 'control',
+        title: 'Control',
+        href: paths.consumer.control,
+        icon: 'columns',
+      });
+      continue;
+    }
+    out.push(item);
+  }
+  return out;
+}
+
 export const abmNavItems: NavItemConfig[] = [
   { key: 'overview', title: 'Command Center', href: paths.abm.overview, icon: 'gauge' },
   { key: 'accounts', title: 'Accounts', href: paths.abm.accounts, icon: 'building-office', matcher: { type: 'startsWith', href: paths.abm.accounts } },

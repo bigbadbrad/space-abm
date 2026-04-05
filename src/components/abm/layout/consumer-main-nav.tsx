@@ -14,6 +14,8 @@ import { usePathname } from 'next/navigation';
 import { usePopover } from '@/hooks/use-popover';
 import { paths } from '@/paths';
 import { useUser } from '@/hooks/use-user';
+import { useConsumerProperty } from '@/contexts/consumer-property-context';
+import { isEverselfPropertyName } from '@/lib/consumer/everself-property';
 
 import { ConsumerMobileNav } from './consumer-mobile-nav';
 import { UserPopover } from '@/components/dashboard/layout/user-popover';
@@ -21,6 +23,8 @@ import { UserPopover } from '@/components/dashboard/layout/user-popover';
 const consumerBreadcrumbMap: Record<string, string> = {
   [paths.consumer.dashboard]: 'Dashboard',
   [paths.consumer.acquisition]: 'Acquisition',
+  [paths.consumer.appointments]: 'Appointments',
+  [paths.consumer.control]: 'Control',
   [paths.consumer.activation]: 'Activation',
   [paths.consumer.retention]: 'Retention',
   [paths.consumer.monetization]: 'Monetization',
@@ -29,7 +33,8 @@ const consumerBreadcrumbMap: Record<string, string> = {
   [paths.consumer.settings]: 'Settings',
 };
 
-function getConsumerBreadcrumbLabel(pathname: string): string {
+function getConsumerBreadcrumbLabel(pathname: string, propertyName: string | null | undefined): string {
+  if (isEverselfPropertyName(propertyName) && pathname === paths.consumer.acquisition) return 'Leads';
   if (consumerBreadcrumbMap[pathname]) return consumerBreadcrumbMap[pathname];
   const segments = pathname.replace(/^\/consumer\/?/, '').split('/').filter(Boolean);
   return segments.map((s) => s.charAt(0).toUpperCase() + s.slice(1).replace(/-/g, ' ')).join(' › ') || 'Dashboard';
@@ -40,8 +45,9 @@ export function ConsumerMainNav(): React.JSX.Element {
   const pathname = usePathname();
   const userPopover = usePopover<HTMLDivElement>();
   const { user } = useUser();
+  const { activeProperty } = useConsumerProperty();
 
-  const currentPage = getConsumerBreadcrumbLabel(pathname);
+  const currentPage = getConsumerBreadcrumbLabel(pathname, activeProperty?.name);
 
   const getUserInitials = () => {
     if (user?.name) {

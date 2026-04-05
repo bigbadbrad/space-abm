@@ -13,12 +13,15 @@ import { paths } from '@/paths';
 import { isNavItemActive } from '@/lib/is-nav-item-active';
 import { LogoConsumerGtmStacked } from '@/components/logo-consumer-gtm-stacked';
 
-import { consumerNavItems } from './config';
+import { getConsumerNavItemsForProperty } from './config';
 import { navIcons } from '@/components/dashboard/layout/nav-icons';
 import { ConsumerPropertySelect } from './consumer-property-select';
+import { useConsumerProperty } from '@/contexts/consumer-property-context';
 
 export function ConsumerSideNav(): React.JSX.Element {
   const pathname = usePathname();
+  const { activeProperty } = useConsumerProperty();
+  const consumerNavItems = getConsumerNavItemsForProperty(activeProperty?.name);
 
   return (
     <Box

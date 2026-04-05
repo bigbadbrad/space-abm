@@ -13,9 +13,10 @@ import { paths } from '@/paths';
 import { isNavItemActive } from '@/lib/is-nav-item-active';
 import { LogoSpaceGtmStacked } from '@/components/logo-space-gtm-stacked';
 
-import { consumerNavItems } from './config';
+import { getConsumerNavItemsForProperty } from './config';
 import { navIcons } from '@/components/dashboard/layout/nav-icons';
 import { ConsumerPropertySelect } from './consumer-property-select';
+import { useConsumerProperty } from '@/contexts/consumer-property-context';
 
 export interface ConsumerMobileNavProps {
   onClose?: () => void;
@@ -24,6 +25,8 @@ export interface ConsumerMobileNavProps {
 
 export function ConsumerMobileNav({ open, onClose }: ConsumerMobileNavProps): React.JSX.Element {
   const pathname = usePathname();
+  const { activeProperty } = useConsumerProperty();
+  const consumerNavItems = getConsumerNavItemsForProperty(activeProperty?.name);
 
   return (
     <Drawer

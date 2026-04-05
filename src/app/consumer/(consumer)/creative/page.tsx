@@ -8,10 +8,7 @@ import { FileText as FileTextIcon } from '@phosphor-icons/react/dist/ssr/FileTex
 
 import { EverselfCreativeTab } from '@/components/everself/everself-creative-tab';
 import { useConsumerProperty } from '@/contexts/consumer-property-context';
-
-function isEverselfPropertyName(name: string | null | undefined): boolean {
-  return (name ?? '').trim().toLowerCase() === 'everself';
-}
+import { isEverselfPropertyName } from '@/lib/consumer/everself-property';
 
 function CreativePlaceholder(): React.JSX.Element {
   return (

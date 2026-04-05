@@ -27,6 +27,8 @@ export const paths = {
   consumer: {
     dashboard: '/consumer',
     acquisition: '/consumer/acquisition',
+    appointments: '/consumer/appointments',
+    control: '/consumer/control',
     activation: '/consumer/activation',
     retention: '/consumer/retention',
     monetization: '/consumer/monetization',

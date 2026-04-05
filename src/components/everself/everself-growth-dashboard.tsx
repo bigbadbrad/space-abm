@@ -16,7 +16,11 @@ import { EverselfFiltersBar } from '@/components/everself/everself-filters-bar';
 import { EverselfFunnelExplorer } from '@/components/everself/everself-funnel-explorer';
 import { EverselfKpiTiles } from '@/components/everself/everself-kpi-tiles';
 import { EverselfTrendsPanel } from '@/components/everself/everself-trends-panel';
+import { useEverselfDemoSyncState } from '@/components/everself/use-everself-demo-sync-state';
 import { useEverselfMarketingRoi } from '@/components/everself/use-everself-marketing-roi';
+import { computeDemoAttributionExtras } from '@/lib/everself/everself-demo-attribution';
+import { mergeEverselfDemoAppointments } from '@/lib/everself/everself-demo-sync';
+import type { AppointmentRow, LeadRow } from '@/lib/everself/types';
 
 /** Client-only: react-markdown / mdast break Next SSR chunk resolution if bundled for server. */
 const EverselfHowItWorksModal = dynamic(
@@ -28,6 +32,39 @@ export function EverselfGrowthDashboard(): React.JSX.Element {
     useEverselfMarketingRoi();
   const [cityDrawer, setCityDrawer] = React.useState<string | null>(null);
   const [howItWorksOpen, setHowItWorksOpen] = React.useState(false);
+  const [demoLeads, setDemoLeads] = React.useState<LeadRow[] | null>(null);
+  const [demoApptsBase, setDemoApptsBase] = React.useState<AppointmentRow[] | null>(null);
+  const [syncState] = useEverselfDemoSyncState();
+
+  React.useEffect(() => {
+    let c = false;
+    (async () => {
+      try {
+        const [lr, ar] = await Promise.all([
+          fetch('/demo/everself/leads.json').then((r) => r.json()),
+          fetch('/demo/everself/appointments.json').then((r) => r.json()),
+        ]);
+        if (!c) {
+          setDemoLeads(lr as LeadRow[]);
+          setDemoApptsBase(ar as AppointmentRow[]);
+        }
+      } catch {
+        if (!c) {
+          setDemoLeads(null);
+          setDemoApptsBase(null);
+        }
+      }
+    })();
+    return () => {
+      c = true;
+    };
+  }, []);
+
+  const demoExtras = React.useMemo(() => {
+    if (!demoLeads || !demoApptsBase) return null;
+    const merged = mergeEverselfDemoAppointments(demoApptsBase, syncState);
+    return computeDemoAttributionExtras(demoLeads, merged);
+  }, [demoLeads, demoApptsBase, syncState]);
 
   return (
     <Box sx={{ backgroundColor: '#050505', minHeight: '100vh', p: 3 }}>
@@ -76,7 +113,7 @@ export function EverselfGrowthDashboard(): React.JSX.Element {
           <EverselfKpiTiles kpis={data.kpis} />
           <EverselfCityAllocationTable rows={data.by_city} kpis={data.kpis} onRowClick={(c) => setCityDrawer(c)} />
           <EverselfTrendsPanel trend={data.trend} diagnostics={data.diagnostics} />
-          <EverselfAttributionPanel d={data.diagnostics} />
+          <EverselfAttributionPanel d={data.diagnostics} demo={demoExtras} />
           <EverselfFunnelExplorer kpis={data.kpis} byCity={data.by_city} byChannel={data.by_channel} />
         </Box>
       ) : null}

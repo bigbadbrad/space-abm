@@ -68,6 +68,17 @@ No system achieves **100%** attribution in healthcare marketing—privacy rules,
 
 The **Attribution confidence** area of the report exists so you can see whether trends in CPA or ROAS are **real efficiency gains** or partly **measurement getting better or worse**.
 
+### How attribution improves over time
+
+**Leads** capture a **marketing receipt** at conversion time: UTMs, platform **click IDs**, and a durable **`lead_id`**. **Appointments** (booked, completed, no-show, canceled) are created in **ops systems**—scheduling, CRM, or call-center workflows—and are **synced in** on a schedule (in production: webhooks or API imports). The dashboard **joins** appointments back to marketing using **`lead_id`**.
+
+**Click-ID coverage** and **match rate** tell you whether attribution is **getting more reliable** as data quality improves: more leads with click IDs means better platform feedback loops; more appointments matched to leads means city- and campaign-level outcomes are **trustworthy** for allocation.
+
+| Term | Definition |
+|------|------------|
+| **Click-ID coverage** | % of leads with platform click identifiers (Google: `gclid` / `wbraid` / `gbraid`; Meta: `fbclid` / `fbp` / `fbc`). |
+| **Match rate** | % of appointment records that successfully join to a lead: `lead_id` is present **and** exists in the leads dataset. |
+
 ---
 
 ## How to read the main sections of the report
