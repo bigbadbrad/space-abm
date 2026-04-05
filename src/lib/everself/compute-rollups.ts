@@ -278,6 +278,7 @@ function headlineFromTotals(
   leads: number,
   booked: number,
   completed: number,
+  clicks: number,
   lagMedianApprox: number | null
 ): MarketingRoiResponse['kpis'] {
   const cpl = roundMoney(safeDivide(spend, leads));
@@ -285,6 +286,7 @@ function headlineFromTotals(
   const cpc = roundMoney(safeDivide(spend, completed));
   return {
     spend,
+    clicks,
     leads,
     booked_consults: booked,
     completed_consults: completed,
@@ -294,6 +296,7 @@ function headlineFromTotals(
     median_days_lead_to_book: lagMedianApprox != null ? roundMoney(lagMedianApprox) : null,
     deltas: {
       spend_pct: null,
+      clicks_pct: null,
       leads_pct: null,
       booked_pct: null,
       completed_pct: null,
@@ -490,7 +493,7 @@ function buildPeriodCore(params: {
   const t = aggregateKpisFromDaily(periodRows);
   const lagMedianOverall = overallMedianLag(appointments, leadById, start, end, cities, channels);
 
-  const kpis = headlineFromTotals(t.spend, t.leads, t.booked, t.completed, lagMedianOverall);
+  const kpis = headlineFromTotals(t.spend, t.leads, t.booked, t.completed, t.clicks, lagMedianOverall);
 
   const byCityMap = new Map<
     string,
@@ -660,6 +663,7 @@ export function computeMarketingRoi(params: {
 
   k.deltas = {
     spend_pct: roundRate(pctChange(k.spend, p.spend)),
+    clicks_pct: roundRate(pctChange(k.clicks, p.clicks)),
     leads_pct: roundRate(pctChange(k.leads, p.leads)),
     booked_pct: roundRate(pctChange(k.booked_consults, p.booked_consults)),
     completed_pct: roundRate(pctChange(k.completed_consults, p.completed_consults)),

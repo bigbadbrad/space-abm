@@ -66,7 +66,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const bookingGroup = (searchParams.get('bookingGroup') === 'lead' ? 'lead' : 'booked') as BookingGroupMode;
     const campaign = searchParams.get('campaign') ?? '';
 
-    const cacheKey = `${start}|${end}|${cities.join(',')}|${channels.join(',')}|${bookingGroup}|${campaign}`;
+    const cacheKey = `${start}|${end}|${cities.join(',')}|${channels.join(',')}|${bookingGroup}|${campaign}|kpis-clicks-v3`;
     const now = Date.now();
     const hit = resultCache.get(cacheKey);
     if (hit && now - hit.at < RESULT_TTL_MS) {

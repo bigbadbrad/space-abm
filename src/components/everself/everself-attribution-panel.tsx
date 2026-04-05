@@ -6,6 +6,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 
+import { fmtInt } from '@/lib/everself/format';
 import type { Diagnostics } from '@/lib/everself/types';
 
 function pct(n: number): string {
@@ -34,7 +35,7 @@ export function EverselfAttributionPanel({ d }: { d: Diagnostics }): React.JSX.E
           value={d.meta_click_id_coverage_pct != null ? pct(d.meta_click_id_coverage_pct) : '—'}
           sub="fbclid / fbp / fbc (Meta leads)"
         />
-        <MiniCard title="Unattributed leads" value={String(d.unattributed_leads)} sub="No click IDs and no utm_source+utm_campaign" />
+        <MiniCard title="Unattributed leads" value={fmtInt(d.unattributed_leads)} sub="No click IDs and no utm_source+utm_campaign" />
         <MiniCard title="Missing city" value={pct(d.pct_leads_missing_city)} sub="Field-level QA" />
         <MiniCard title="Missing channel" value={pct(d.pct_leads_missing_channel)} sub="Field-level QA" />
         <MiniCard title="Missing campaign_id" value={pct(d.pct_leads_missing_campaign_id)} sub="Field-level QA" />

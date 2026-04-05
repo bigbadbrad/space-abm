@@ -3,9 +3,17 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
 import { FileText as FileTextIcon } from '@phosphor-icons/react/dist/ssr/FileText';
 
-export default function ConsumerCreativePage(): React.JSX.Element {
+import { EverselfCreativeTab } from '@/components/everself/everself-creative-tab';
+import { useConsumerProperty } from '@/contexts/consumer-property-context';
+
+function isEverselfPropertyName(name: string | null | undefined): boolean {
+  return (name ?? '').trim().toLowerCase() === 'everself';
+}
+
+function CreativePlaceholder(): React.JSX.Element {
   return (
     <Box sx={{ backgroundColor: '#050505', minHeight: '100vh', p: 3 }}>
       <Box sx={{ mb: 3 }}>
@@ -20,4 +28,32 @@ export default function ConsumerCreativePage(): React.JSX.Element {
       </Typography>
     </Box>
   );
+}
+
+export default function ConsumerCreativePage(): React.JSX.Element {
+  const { activeProperty, loading } = useConsumerProperty();
+
+  if (loading) {
+    return (
+      <Box sx={{ backgroundColor: '#050505', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <CircularProgress sx={{ color: '#9CA3AF' }} />
+      </Box>
+    );
+  }
+
+  if (isEverselfPropertyName(activeProperty?.name)) {
+    return (
+      <React.Suspense
+        fallback={
+          <Box sx={{ backgroundColor: '#050505', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <CircularProgress sx={{ color: '#9CA3AF' }} />
+          </Box>
+        }
+      >
+        <EverselfCreativeTab />
+      </React.Suspense>
+    );
+  }
+
+  return <CreativePlaceholder />;
 }

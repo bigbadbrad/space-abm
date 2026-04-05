@@ -11,6 +11,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 
+import { fmtInt } from '@/lib/everself/format';
 import type { CreativePerformanceRow } from '@/lib/everself/types';
 
 export function EverselfCreativeGrid({ rows }: { rows: CreativePerformanceRow[] }): React.JSX.Element {
@@ -47,8 +48,8 @@ export function EverselfCreativeGrid({ rows }: { rows: CreativePerformanceRow[] 
                 <TableCell>{r.utm_content}</TableCell>
                 <TableCell>{r.hook_tag ?? '—'}</TableCell>
                 <TableCell>{r.format ?? '—'}</TableCell>
-                <TableCell align="right">{r.leads}</TableCell>
-                <TableCell align="right">{r.booked_consults}</TableCell>
+                <TableCell align="right">{fmtInt(r.leads)}</TableCell>
+                <TableCell align="right">{fmtInt(r.booked_consults)}</TableCell>
                 <TableCell align="right">{r.cost_per_lead != null ? `$${r.cost_per_lead.toFixed(0)}` : '—'}</TableCell>
               </TableRow>
             ))}

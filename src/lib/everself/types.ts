@@ -120,6 +120,8 @@ export type ChannelPeriodAggregate = {
 
 export type KpiHeadline = {
   spend: number;
+  /** Ad clicks (from spend rows) in the selected period. */
+  clicks: number;
   leads: number;
   booked_consults: number;
   completed_consults: number;
@@ -129,6 +131,7 @@ export type KpiHeadline = {
   median_days_lead_to_book: number | null;
   deltas: {
     spend_pct: number | null;
+    clicks_pct: number | null;
     leads_pct: number | null;
     booked_pct: number | null;
     completed_pct: number | null;

@@ -7,6 +7,7 @@ import CardContent from '@mui/material/CardContent';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 
+import { fmtInt } from '@/lib/everself/format';
 import type { KpiHeadline } from '@/lib/everself/types';
 
 /** Matches Space GTM accent (e.g. Generate Mission Brief outlined button). */
@@ -38,9 +39,8 @@ function Delta({ v }: { v: number | null | undefined }): React.JSX.Element {
       </Typography>
     );
   }
-  const color = v > 0 ? '#4ADE80' : v < 0 ? '#F87171' : '#9CA3AF';
   return (
-    <Typography component="span" sx={{ color, fontSize: '0.75rem', fontWeight: 500 }}>
+    <Typography component="span" sx={{ color: '#6B7280', fontSize: '0.75rem' }}>
       vs prior: {fmtPct(v)}
     </Typography>
   );
@@ -97,17 +97,17 @@ export function EverselfKpiTiles({ kpis }: { kpis: KpiHeadline }): React.JSX.Ele
       }}
     >
       <Tile title="Spend" hint="Sum of ad spend in the selected period." primary={fmtMoney(kpis.spend)} deltaKey="spend_pct" kpis={kpis} />
-      <Tile title="Leads" hint="Count of unique lead_ids with created_at in the period." primary={String(kpis.leads)} deltaKey="leads_pct" kpis={kpis} />
+      <Tile title="Leads" hint="Count of unique lead_ids with created_at in the period." primary={fmtInt(kpis.leads)} deltaKey="leads_pct" kpis={kpis} />
       <Tile title="Cost / lead" hint="Spend ÷ leads." primary={fmtMoney(kpis.cost_per_lead)} deltaKey="cpl_pct" kpis={kpis} ratioAccent />
       <Tile
         title="Booked consults"
         hint="Appointments with status booked or completed, attributed by booking grouping mode."
-        primary={String(kpis.booked_consults)}
+        primary={fmtInt(kpis.booked_consults)}
         deltaKey="booked_pct"
         kpis={kpis}
       />
       <Tile title="Cost / booked" hint="Spend ÷ booked consults." primary={fmtMoney(kpis.cost_per_booked)} deltaKey="cp_booked_pct" kpis={kpis} ratioAccent />
-      <Tile title="Completed consults" hint="Appointments completed in the period (completed_at date)." primary={String(kpis.completed_consults)} deltaKey="completed_pct" kpis={kpis} />
+      <Tile title="Completed consults" hint="Appointments completed in the period (completed_at date)." primary={fmtInt(kpis.completed_consults)} deltaKey="completed_pct" kpis={kpis} />
       <Tile title="Cost / completed" hint="Spend ÷ completed consults." primary={fmtMoney(kpis.cost_per_completed)} deltaKey="cp_completed_pct" kpis={kpis} ratioAccent />
       <Tile
         title="Median days lead→book"
