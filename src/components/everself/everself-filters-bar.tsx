@@ -6,7 +6,6 @@ import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
-import OutlinedInput from '@mui/material/OutlinedInput';
 import Select from '@mui/material/Select';
 import TextField from '@mui/material/TextField';
 import ToggleButton from '@mui/material/ToggleButton';
@@ -17,12 +16,18 @@ import dayjs, { Dayjs } from 'dayjs';
 
 import { everselfFieldSx } from '@/components/everself/everself-field-sx';
 
+/** MUI Select cannot reliably show a label when `value` is `""`; use a sentinel for “all cities”. */
+const CITY_ALL = '__ev_all_cities__';
+
+export type EverselfChannelFilter = 'all' | 'google' | 'meta';
+
 export type EverselfFiltersState = {
   start: Dayjs;
   end: Dayjs;
   /** `null` = all cities; otherwise exactly one city name. */
   city: string | null;
-  channels: string[];
+  /** Single channel filter; `all` = no channel restriction in the API. */
+  channel: EverselfChannelFilter;
   campaign: string;
   bookingGroup: 'booked' | 'lead';
 };
@@ -77,15 +82,13 @@ export function EverselfFiltersBar({
           <Select<string>
             labelId="ev-cities-label"
             label="City"
-            value={value.city ?? ''}
+            value={value.city === null ? CITY_ALL : value.city}
             onChange={(e) => {
               const v = e.target.value as string;
-              onChange({ ...value, city: v === '' ? null : v });
+              onChange({ ...value, city: v === CITY_ALL ? null : v });
             }}
           >
-            <MenuItem value="">
-              <em>All</em>
-            </MenuItem>
+            <MenuItem value={CITY_ALL}>All</MenuItem>
             {cityOptions.map((c) => (
               <MenuItem key={c} value={c}>
                 {c}
@@ -93,20 +96,17 @@ export function EverselfFiltersBar({
             ))}
           </Select>
         </FormControl>
-        <FormControl size="small" sx={{ minWidth: 160, ...everselfFieldSx }}>
+        <FormControl size="small" sx={{ minWidth: 180, ...everselfFieldSx }}>
           <InputLabel id="ev-ch-label">Channels</InputLabel>
-          <Select<string[]>
+          <Select<EverselfChannelFilter>
             labelId="ev-ch-label"
-            multiple
-            value={value.channels}
-            onChange={(e) =>
-              onChange({ ...value, channels: typeof e.target.value === 'string' ? e.target.value.split(',') : e.target.value })
-            }
-            input={<OutlinedInput label="Channels" />}
-            renderValue={(sel) => (sel.length === 0 ? 'All' : sel.join(', '))}
+            label="Channels"
+            value={value.channel}
+            onChange={(e) => onChange({ ...value, channel: e.target.value as EverselfChannelFilter })}
           >
-            <MenuItem value="google">google</MenuItem>
-            <MenuItem value="meta">meta</MenuItem>
+            <MenuItem value="all">All</MenuItem>
+            <MenuItem value="google">Google</MenuItem>
+            <MenuItem value="meta">Meta</MenuItem>
           </Select>
         </FormControl>
         <TextField
@@ -152,7 +152,7 @@ export function defaultEverselfFilters(): EverselfFiltersState {
     start,
     end,
     city: null,
-    channels: [],
+    channel: 'all',
     campaign: '',
     bookingGroup: 'booked',
   };

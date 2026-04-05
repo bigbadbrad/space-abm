@@ -45,10 +45,9 @@ export function UserProvider({ children }: UserProviderProps): React.JSX.Element
     }
   }, []);
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     checkSession().catch((err: unknown) => {
       logger.error(err);
-      // noop
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Expected
   }, []);

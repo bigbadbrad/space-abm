@@ -15,7 +15,12 @@ import { EverselfAttributionPanel } from '@/components/everself/everself-attribu
 import { EverselfCityAllocationTable } from '@/components/everself/everself-city-allocation-table';
 import { EverselfCityDetailDrawer } from '@/components/everself/everself-city-detail-drawer';
 import { EverselfCreativeGrid } from '@/components/everself/everself-creative-grid';
-import { defaultEverselfFilters, EverselfFiltersBar, type EverselfFiltersState } from '@/components/everself/everself-filters-bar';
+import {
+  defaultEverselfFilters,
+  EverselfFiltersBar,
+  type EverselfChannelFilter,
+  type EverselfFiltersState,
+} from '@/components/everself/everself-filters-bar';
 import { EverselfFunnelExplorer } from '@/components/everself/everself-funnel-explorer';
 import { EverselfKpiTiles } from '@/components/everself/everself-kpi-tiles';
 import { EverselfTrendsPanel } from '@/components/everself/everself-trends-panel';
@@ -35,14 +40,17 @@ function filtersFromSearch(sp: URLSearchParams): EverselfFiltersState {
   const citiesRaw = sp.get('cities')?.split(',').map((x) => x.trim()).filter(Boolean) ?? [];
   /** Single city only; legacy URLs with multiple cities use the first. */
   const city = citiesRaw.length === 0 ? null : citiesRaw[0]!;
-  const channels = sp.get('channels')?.split(',').filter(Boolean) ?? [];
+  const chRaw = sp.get('channels')?.split(',').map((x) => x.trim()).filter(Boolean) ?? [];
+  const firstCh = chRaw[0];
+  const channel: EverselfChannelFilter =
+    firstCh === 'google' || firstCh === 'meta' ? firstCh : 'all';
   const campaign = sp.get('campaign') ?? '';
   const bg = sp.get('bookingGroup') === 'lead' ? 'lead' : 'booked';
   return {
     start: s ? dayjs(s) : base.start,
     end: e ? dayjs(e) : base.end,
     city,
-    channels,
+    channel,
     campaign,
     bookingGroup: bg,
   };
@@ -53,7 +61,7 @@ function pushFilters(router: ReturnType<typeof useRouter>, pathname: string, f: 
   sp.set('start', f.start.format('YYYY-MM-DD'));
   sp.set('end', f.end.format('YYYY-MM-DD'));
   if (f.city) sp.set('cities', f.city);
-  if (f.channels.length) sp.set('channels', f.channels.join(','));
+  if (f.channel !== 'all') sp.set('channels', f.channel);
   if (f.campaign.trim()) sp.set('campaign', f.campaign.trim());
   if (f.bookingGroup !== 'booked') sp.set('bookingGroup', f.bookingGroup);
   router.replace(`${pathname}?${sp.toString()}`, { scroll: false });
@@ -87,7 +95,7 @@ export function EverselfGrowthDashboard(): React.JSX.Element {
           start: f.start.format('YYYY-MM-DD'),
           end: f.end.format('YYYY-MM-DD'),
           cities: f.city ? [f.city] : [],
-          channels: f.channels,
+          channels: f.channel === 'all' ? [] : [f.channel],
           bookingGroup: f.bookingGroup,
           campaign: f.campaign,
         });

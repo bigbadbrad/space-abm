@@ -132,17 +132,27 @@ class AuthClient {
       return { data: null };
     }
 
+    const SESSION_FETCH_MS = 12_000;
+
     try {
       if (!API_BASE_URL) {
         return { data: null };
       }
-      const response = await fetch(`${API_BASE_URL}/api/users/me`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), SESSION_FETCH_MS);
+      let response: Response;
+      try {
+        response = await fetch(`${API_BASE_URL}/api/users/me`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(timeoutId);
+      }
 
       if (!response.ok) {
         this.logout();
@@ -165,6 +175,11 @@ class AuthClient {
 
       return { data: user };
     } catch (err) {
+      const aborted = err instanceof Error && err.name === 'AbortError';
+      if (aborted) {
+        this.logout();
+        return { data: null };
+      }
       const errorMessage = err instanceof Error ? err.message : 'Something went wrong';
       return { error: errorMessage };
     }
