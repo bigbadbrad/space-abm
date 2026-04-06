@@ -51,10 +51,11 @@ export const MainNavbar: FC = () => {
     window.location.href = paths.auth.signIn;
   }, []);
 
-  const handleSignUp = React.useCallback(() => {
-    handleMenuClose();
-    window.location.href = paths.auth.signUp;
-  }, []);
+  // Sign-up not open yet — restore when ready.
+  // const handleSignUp = React.useCallback(() => {
+  //   handleMenuClose();
+  //   window.location.href = paths.auth.signUp;
+  // }, []);
 
   const handleSignOut = React.useCallback(async (): Promise<void> => {
     try {
@@ -176,7 +177,7 @@ export const MainNavbar: FC = () => {
               ) : (
                 <>
                   <MenuItem onClick={handleSignIn}>Sign in</MenuItem>
-                  <MenuItem onClick={handleSignUp}>Sign up</MenuItem>
+                  {/* <MenuItem onClick={handleSignUp}>Sign up</MenuItem> */}
                 </>
               )}
             </MenuList>
