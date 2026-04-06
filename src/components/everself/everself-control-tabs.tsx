@@ -70,6 +70,28 @@ function money(n: number | null | undefined): string {
   return `$${n.toFixed(0)}`;
 }
 
+/** MUI Chip default fill is illegible on `#0A0A0A` cards; force contrast per severity. */
+function alertSeverityChipSx(severity: ControlAlertItem['severity']) {
+  const base = {
+    height: 22,
+    fontSize: '0.65rem',
+    textTransform: 'uppercase' as const,
+    fontWeight: 700,
+    mr: 1,
+    '& .MuiChip-label': { px: 1 },
+  };
+  switch (severity) {
+    case 'high':
+      return { ...base, bgcolor: '#991B1B', color: '#FEE2E2', border: '1px solid #F87171' };
+    case 'med':
+      return { ...base, bgcolor: '#1E40AF', color: '#DBEAFE', border: '1px solid #60A5FA' };
+    case 'low':
+      return { ...base, bgcolor: '#52525B', color: '#FAFAFA', border: '1px solid #A1A1AA' };
+    default:
+      return { ...base, bgcolor: '#52525B', color: '#FAFAFA', border: '1px solid #A1A1AA' };
+  }
+}
+
 export function EverselfControlPacingTab({
   cities,
   spend,
@@ -648,11 +670,7 @@ ORDER BY day DESC;`;
           <Card key={a.id} variant="outlined" sx={{ bgcolor: '#0A0A0A', borderColor: '#27272F' }}>
             <CardContent sx={{ py: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
               <Box>
-                <Chip
-                  size="small"
-                  label={a.severity}
-                  sx={{ mr: 1, height: 22, fontSize: '0.65rem', textTransform: 'uppercase' }}
-                />
+                <Chip size="small" label={a.severity} sx={alertSeverityChipSx(a.severity)} />
                 <Typography component="span" sx={{ color: '#E5E7EB', fontSize: '0.85rem' }}>
                   {a.summary}
                 </Typography>

@@ -19,6 +19,7 @@ import { ShieldStar as ShieldStarIcon } from '@phosphor-icons/react/dist/ssr/Shi
 import { RocketLaunch as RocketLaunchIcon } from '@phosphor-icons/react/dist/ssr/RocketLaunch';
 import { BuildingOffice as BuildingOfficeIcon } from '@phosphor-icons/react/dist/ssr/BuildingOffice';
 import { Columns as ColumnsIcon } from '@phosphor-icons/react/dist/ssr/Columns';
+import { Sliders as SlidersIcon } from '@phosphor-icons/react/dist/ssr/Sliders';
 import { Target as TargetIcon } from '@phosphor-icons/react/dist/ssr/Target';
 
 export const navIcons = {
@@ -37,6 +38,7 @@ export const navIcons = {
   'chart-line': ChartLineIcon,
   'building-office': BuildingOfficeIcon,
   columns: ColumnsIcon,
+  sliders: SlidersIcon,
   lock: LockIcon,
   warning: WarningIcon,
   'file-text': FileTextIcon,

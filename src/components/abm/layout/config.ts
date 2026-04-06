@@ -30,7 +30,7 @@ export function getConsumerNavItemsForProperty(propertyName: string | null | und
         key: 'control',
         title: 'Control',
         href: paths.consumer.control,
-        icon: 'columns',
+        icon: 'sliders',
       });
       continue;
     }
