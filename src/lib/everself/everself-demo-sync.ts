@@ -105,7 +105,7 @@ export function runEverselfDemoSync(): EverselfDemoSyncRunResult {
     writeEverselfDemoSyncState({ generation: 1 });
     return {
       kind: 'imported',
-      toast: 'Imported 16 appointment updates · 2 failed (missing or unknown lead_id)',
+      toast: 'Imported 16 consultation updates · 2 failed (missing or unknown lead_id)',
     };
   }
   if (s.generation === 1) {

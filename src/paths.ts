@@ -29,6 +29,7 @@ export const paths = {
     acquisition: '/consumer/acquisition',
     appointments: '/consumer/appointments',
     control: '/consumer/control',
+    callCenter: '/consumer/call-center',
     activation: '/consumer/activation',
     retention: '/consumer/retention',
     monetization: '/consumer/monetization',

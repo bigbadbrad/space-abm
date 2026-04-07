@@ -153,7 +153,7 @@ export function EverselfAppointmentsPage(): React.JSX.Element {
         <Box sx={{ flex: '1 1 280px' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
             <CalendarIcon size={20} style={{ color: '#FFFFFF' }} />
-            <Typography sx={{ color: '#FFFFFF', fontSize: '1.25rem', fontWeight: 600 }}>Appointments</Typography>
+            <Typography sx={{ color: '#FFFFFF', fontSize: '1.25rem', fontWeight: 600 }}>Consultations</Typography>
           </Box>
           <Typography sx={{ color: '#9CA3AF', fontSize: '0.8125rem', mt: 0.5 }}>
             Ops outcomes synced from scheduling systems (Demo).
@@ -167,7 +167,7 @@ export function EverselfAppointmentsPage(): React.JSX.Element {
             onClick={() => void onSync()}
             sx={{ textTransform: 'none', mb: 0.5 }}
           >
-            {syncing ? 'Syncing…' : 'Sync Appointments (Demo)'}
+            {syncing ? 'Syncing…' : 'Sync Consultations (Demo)'}
           </Button>
           <Typography sx={{ color: '#6B7280', fontSize: '0.7rem', maxWidth: 280, ml: { xs: 0, sm: 'auto' } }}>
             In production: webhook/API import from scheduling/CRM.
@@ -179,10 +179,10 @@ export function EverselfAppointmentsPage(): React.JSX.Element {
 
       <Box sx={{ mt: 2, mb: 2, maxWidth: 280 }}>
         <FormControl size="small" fullWidth sx={{ minWidth: 200 }}>
-          <InputLabel id="ev-appt-status">Appointment status</InputLabel>
+          <InputLabel id="ev-appt-status">Consultation status</InputLabel>
           <Select<ApptStatusFilter>
             labelId="ev-appt-status"
-            label="Appointment status"
+            label="Consultation status"
             value={status}
             onChange={(e) => setStatus(e.target.value as ApptStatusFilter)}
           >
@@ -212,7 +212,7 @@ export function EverselfAppointmentsPage(): React.JSX.Element {
       </Box>
 
       <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', mb: 1 }}>
-        Showing {fmtInt(filtered.length)} appointments in range · Sync generation {syncState.generation}
+        Showing {fmtInt(filtered.length)} consultations in range · Sync generation {syncState.generation}
       </Typography>
 
       <TableContainer sx={{ border: '1px solid #27272F', borderRadius: 1, bgcolor: '#0A0A0A' }}>

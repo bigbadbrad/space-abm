@@ -72,14 +72,14 @@ export default function ABMAccountDetailPage(): React.JSX.Element {
     if (tab !== 2 || !id) return;
     let cancelled = false;
     setPeopleActivityLoading(true);
-    abmApi.getAccountPeopleActivity(id, { range_days: peopleRangeDays }).then((res) => {
+    abmApi.getAccountPeopleActivity(id, { range_days: 'all' }).then((res) => {
       if (cancelled) return;
       if (res.data) setPeopleActivityData(res.data);
       else setPeopleActivityData(null);
       setPeopleActivityLoading(false);
     });
     return () => { cancelled = true; };
-  }, [tab, id, peopleRangeDays]);
+  }, [tab, id]);
 
   if (loading || !data) {
     return (
@@ -233,7 +233,7 @@ export default function ABMAccountDetailPage(): React.JSX.Element {
                               <TableRow>
                                 <TableCell colSpan={6} sx={{ borderColor: '#262626', py: 0, backgroundColor: '#0d0d0d', verticalAlign: 'top' }}>
                                   <Box sx={{ py: 2, pl: 1 }}>
-                                    <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', fontWeight: 600, mb: 1 }}>Activity (anonymous → known)</Typography>
+                                    <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', fontWeight: 600, mb: 1 }}>All activity (anonymous → known)</Typography>
                                     <Table size="small">
                                       <TableHead>
                                         <TableRow>

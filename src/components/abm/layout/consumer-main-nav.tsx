@@ -24,7 +24,8 @@ const consumerBreadcrumbMap: Record<string, string> = {
   [paths.consumer.dashboard]: 'Dashboard',
   [paths.consumer.acquisition]: 'Acquisition',
   [paths.consumer.appointments]: 'Appointments',
-  [paths.consumer.control]: 'Control',
+  [paths.consumer.control]: 'Ad Campaigns',
+  [paths.consumer.callCenter]: 'Call Center',
   [paths.consumer.activation]: 'Activation',
   [paths.consumer.retention]: 'Retention',
   [paths.consumer.monetization]: 'Monetization',
@@ -35,6 +36,7 @@ const consumerBreadcrumbMap: Record<string, string> = {
 
 function getConsumerBreadcrumbLabel(pathname: string, propertyName: string | null | undefined): string {
   if (isEverselfPropertyName(propertyName) && pathname === paths.consumer.acquisition) return 'Leads';
+  if (isEverselfPropertyName(propertyName) && pathname === paths.consumer.appointments) return 'Consultations';
   if (consumerBreadcrumbMap[pathname]) return consumerBreadcrumbMap[pathname];
   const segments = pathname.replace(/^\/consumer\/?/, '').split('/').filter(Boolean);
   return segments.map((s) => s.charAt(0).toUpperCase() + s.slice(1).replace(/-/g, ' ')).join(' › ') || 'Dashboard';

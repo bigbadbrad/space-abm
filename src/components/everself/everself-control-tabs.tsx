@@ -37,7 +37,7 @@ import {
 import { Copy as CopyIcon } from '@phosphor-icons/react/dist/ssr/Copy';
 
 import { everselfFieldSx } from '@/components/everself/everself-field-sx';
-import { fmtInt } from '@/lib/everself/format';
+import { fmtInt, fmtUsd0 } from '@/lib/everself/format';
 import {
   buildControlAlerts,
   type CampaignPerformance,
@@ -64,11 +64,6 @@ import type { AppointmentRow, LeadRow } from '@/lib/everself/types';
 
 const axis = { stroke: '#4B5563', fontSize: 11, fill: '#9CA3AF' };
 const grid = { stroke: '#27272F' };
-
-function money(n: number | null | undefined): string {
-  if (n == null || !Number.isFinite(n)) return '—';
-  return `$${n.toFixed(0)}`;
-}
 
 /** MUI Chip default fill is illegible on `#0A0A0A` cards; force contrast per severity. */
 function alertSeverityChipSx(severity: ControlAlertItem['severity']) {
@@ -179,10 +174,11 @@ export function EverselfControlPacingTab({
             <LineChart data={pacingLine} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={grid.stroke} />
               <XAxis dataKey="date" tick={axis} />
-              <YAxis tick={axis} />
+              <YAxis tick={axis} tickFormatter={(v) => fmtUsd0(Number(v))} />
               <RTooltip
                 contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151' }}
                 labelStyle={{ color: '#E5E7EB' }}
+                formatter={(value: string | number | undefined) => fmtUsd0(value == null ? NaN : Number(value))}
               />
               <Legend />
               <Line type="monotone" dataKey="cumulative_spend" name="Spend" stroke="#60A5FA" dot={false} strokeWidth={2} />
@@ -259,9 +255,9 @@ function CityPacingRowEditor({
           sx={{ width: 72, ...everselfFieldSx }}
         />
       </TableCell>
-      <TableCell>{money(row.spend_period)}</TableCell>
+      <TableCell>{fmtUsd0(row.spend_period)}</TableCell>
       <TableCell>{fmtInt(row.booked)}</TableCell>
-      <TableCell>{money(row.cp_booked)}</TableCell>
+      <TableCell>{fmtUsd0(row.cp_booked)}</TableCell>
       <TableCell>{row.forecast_booked != null ? fmtInt(Math.round(row.forecast_booked)) : '—'}</TableCell>
       <TableCell>{row.pace_pct != null ? `${(row.pace_pct * 100).toFixed(0)}%` : '—'}</TableCell>
       <TableCell>
@@ -345,11 +341,11 @@ function CampaignTableRow({
           sx={{ width: 88, ...everselfFieldSx }}
         />
       </TableCell>
-      <TableCell sx={{ fontSize: '0.75rem' }}>{money(p?.spend)}</TableCell>
-      <TableCell>{p?.leads ?? 0}</TableCell>
-      <TableCell>{p?.booked ?? 0}</TableCell>
-      <TableCell sx={{ fontSize: '0.75rem' }}>{money(p?.cp_booked ?? null)}</TableCell>
-      <TableCell>{p?.completed ?? 0}</TableCell>
+      <TableCell sx={{ fontSize: '0.75rem' }}>{fmtUsd0(p?.spend)}</TableCell>
+      <TableCell>{fmtInt(p?.leads ?? 0)}</TableCell>
+      <TableCell>{fmtInt(p?.booked ?? 0)}</TableCell>
+      <TableCell sx={{ fontSize: '0.75rem' }}>{fmtUsd0(p?.cp_booked ?? null)}</TableCell>
+      <TableCell>{fmtInt(p?.completed ?? 0)}</TableCell>
       <TableCell>
         <Button
           size="small"
@@ -753,8 +749,11 @@ ORDER BY day DESC;`;
                 <LineChart data={[...impactData.before]} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke={grid.stroke} />
                   <XAxis dataKey="date" tick={axis} />
-                  <YAxis tick={axis} />
-                  <RTooltip contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151' }} />
+                  <YAxis tick={axis} tickFormatter={(v) => fmtUsd0(Number(v))} />
+                  <RTooltip
+                    contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151' }}
+                    formatter={(value: string | number | undefined) => fmtUsd0(value == null ? NaN : Number(value))}
+                  />
                   <Line type="monotone" dataKey="cp_booked" name="CP booked" stroke="#34D399" dot={false} connectNulls />
                 </LineChart>
               </ResponsiveContainer>
@@ -765,8 +764,11 @@ ORDER BY day DESC;`;
                 <LineChart data={[...impactData.after]} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke={grid.stroke} />
                   <XAxis dataKey="date" tick={axis} />
-                  <YAxis tick={axis} />
-                  <RTooltip contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151' }} />
+                  <YAxis tick={axis} tickFormatter={(v) => fmtUsd0(Number(v))} />
+                  <RTooltip
+                    contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151' }}
+                    formatter={(value: string | number | undefined) => fmtUsd0(value == null ? NaN : Number(value))}
+                  />
                   <Line type="monotone" dataKey="cp_booked" name="CP booked" stroke="#60A5FA" dot={false} connectNulls />
                 </LineChart>
               </ResponsiveContainer>

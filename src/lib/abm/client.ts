@@ -483,7 +483,9 @@ export interface ABMAccountPeopleResponse {
 
 /** Response from GET /api/abm/accounts/:id/people-activity (contact-centric, all activity with identity) */
 export interface ABMAccountPeopleActivityResponse {
-  range_days: number;
+  range_days: number | null;
+  /** True when PostHog query had no time window (full history). */
+  all_time?: boolean;
   people: Array<{
     contact_id: string;
     email: string | null;
@@ -771,7 +773,7 @@ export const abmApi = {
     const q = sp.toString();
     return abmFetch<ABMAccountPeopleResponse>(`/accounts/${accountId}/people${q ? `?${q}` : ''}`);
   },
-  getAccountPeopleActivity: (accountId: string, params?: { range_days?: number }) => {
+  getAccountPeopleActivity: (accountId: string, params?: { range_days?: number | 'all' }) => {
     const sp = new URLSearchParams();
     if (params?.range_days != null) sp.set('range_days', String(params.range_days));
     const q = sp.toString();

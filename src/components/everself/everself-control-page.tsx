@@ -339,7 +339,7 @@ export function EverselfControlPage(): React.JSX.Element {
         <Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, flexWrap: 'wrap' }}>
             <SlidersIcon size={22} style={{ color: '#FFFFFF' }} />
-            <Typography sx={{ color: '#FFFFFF', fontSize: '1.25rem', fontWeight: 600 }}>Control</Typography>
+            <Typography sx={{ color: '#FFFFFF', fontSize: '1.25rem', fontWeight: 600 }}>Ad Campaigns</Typography>
             <Chip label="Demo" size="small" sx={{ bgcolor: '#1D4ED8', color: '#F9FAFB', fontWeight: 600 }} />
           </Box>
           <Typography sx={{ color: '#9CA3AF', fontSize: '0.8125rem', mt: 0.5 }}>

@@ -12,7 +12,7 @@ export const consumerNavItems: NavItemConfig[] = [
   { key: 'settings', title: 'Settings', href: paths.consumer.settings, icon: 'gear-six' },
 ];
 
-/** Everself demo: rename Acquisition → Leads and insert Appointments (calendar icon). */
+/** Everself demo: rename Acquisition → Leads and insert Consultations (calendar icon). */
 export function getConsumerNavItemsForProperty(propertyName: string | null | undefined): NavItemConfig[] {
   if ((propertyName ?? '').trim().toLowerCase() !== 'everself') return consumerNavItems;
 
@@ -22,16 +22,25 @@ export function getConsumerNavItemsForProperty(propertyName: string | null | und
       out.push({ ...item, title: 'Leads' });
       out.push({
         key: 'appointments',
-        title: 'Appointments',
+        title: 'Consultations',
         href: paths.consumer.appointments,
         icon: 'calendar',
       });
       out.push({
         key: 'control',
-        title: 'Control',
+        title: 'Ad Campaigns',
         href: paths.consumer.control,
         icon: 'sliders',
       });
+      out.push({
+        key: 'call-center',
+        title: 'Call Center',
+        href: paths.consumer.callCenter,
+        icon: 'phone',
+      });
+      continue;
+    }
+    if (item.key === 'activation' || item.key === 'retention' || item.key === 'monetization') {
       continue;
     }
     out.push(item);

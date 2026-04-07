@@ -1,0 +1,7 @@
+{
+  "service_level_seconds": 30,
+  "asa_warning_seconds": 45,
+  "missed_rate_warning": 0.2,
+  "booking_window_days": 7,
+  "include_voicemail_as_missed": true
+}

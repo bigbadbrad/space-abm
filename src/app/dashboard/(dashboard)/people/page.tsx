@@ -97,7 +97,7 @@ export default function ABMPeoplePage(): React.JSX.Element {
     let cancelled = false;
     setActivityLoading(true);
     setActivityData(undefined);
-    abmApi.getAccountPeopleActivity(activityDrawerPerson.accountId, { range_days: 7 }).then((res) => {
+    abmApi.getAccountPeopleActivity(activityDrawerPerson.accountId, { range_days: 'all' }).then((res) => {
       if (cancelled) return;
       setActivityData(res.data ?? undefined);
       setActivityLoading(false);
@@ -234,7 +234,7 @@ export default function ABMPeoplePage(): React.JSX.Element {
                   <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Person</TableCell>
                   <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Account</TableCell>
                   <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Role/title</TableCell>
-                  <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Activity (7d)</TableCell>
+                  <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Highlights (7d)</TableCell>
                   <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Last seen</TableCell>
                   <TableCell sx={{ color: '#9CA3AF', borderColor: '#262626', fontSize: '0.75rem', fontWeight: 600 }}>Action</TableCell>
                 </TableRow>
@@ -292,13 +292,21 @@ export default function ABMPeoplePage(): React.JSX.Element {
           <Typography sx={{ color: '#FFFFFF', fontSize: '1.125rem', fontWeight: 600, mb: 1 }}>
             Activity — {activityDrawerPerson?.display ?? '—'}
           </Typography>
-          <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', mb: 2 }}>Last 7 days (anonymous → known)</Typography>
+          <Typography sx={{ color: '#9CA3AF', fontSize: '0.75rem', mb: 2 }}>
+            {activityLoading
+              ? 'Loading activity…'
+              : activityData?.all_time
+                ? 'All activity (anonymous → known)'
+                : activityData?.range_days != null
+                  ? `Last ${activityData.range_days} days (anonymous → known)`
+                  : 'All activity (anonymous → known)'}
+          </Typography>
           {activityLoading ? (
             <Box sx={{ py: 4, display: 'flex', justifyContent: 'center' }}><CircularProgress size={28} sx={{ color: '#9CA3AF' }} /></Box>
           ) : !activityDrawerPersonData ? (
             <Typography sx={{ color: '#9CA3AF', fontSize: '0.875rem' }}>No activity data for this person.</Typography>
           ) : activityDrawerPersonData.events.length === 0 ? (
-            <Typography sx={{ color: '#9CA3AF', fontSize: '0.875rem' }}>No events in the last 7 days.</Typography>
+            <Typography sx={{ color: '#9CA3AF', fontSize: '0.875rem' }}>No events found for this person.</Typography>
           ) : (
             <Table size="small">
               <TableHead>

@@ -16,12 +16,12 @@ function Placeholder(): React.JSX.Element {
       <Box sx={{ mb: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
           <CalendarIcon size={18} style={{ color: '#FFFFFF' }} />
-          <Typography sx={{ color: '#FFFFFF', fontSize: '1.25rem', fontWeight: 600 }}>Appointments</Typography>
+          <Typography sx={{ color: '#FFFFFF', fontSize: '1.25rem', fontWeight: 600 }}>Consultations</Typography>
         </Box>
         <Typography sx={{ color: '#9CA3AF', fontSize: '0.8125rem', mt: 0.5 }}>Consumer surface — placeholder</Typography>
       </Box>
       <Typography sx={{ color: '#9CA3AF', fontSize: '0.875rem' }}>
-        Appointments analytics are available for the Everself property demo.
+        Consultations analytics are available for the Everself property demo.
       </Typography>
     </Box>
   );
